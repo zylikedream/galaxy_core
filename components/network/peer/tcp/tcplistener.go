@@ -4,16 +4,28 @@ import (
 	"net"
 	"time"
 
-	"github.com/spf13/viper"
+	"github.com/zylikedream/galaxy/components/network/message"
+	"github.com/zylikedream/galaxy/components/network/packet"
+	"github.com/zylikedream/galaxy/components/network/peer"
 )
 
 type TcpListener struct {
+	peer.Processor
 	addr     string
 	listener net.Listener
 }
 
-func (t *TcpListener) Init(v *viper.Viper) error {
-	t.addr = v.GetString("addr")
+func newTcpListener(pktCodec packet.PacketCodec, msgCodec message.MessageCodec) *TcpListener {
+	return &TcpListener{
+		Processor: peer.Processor{
+			PktCodec: pktCodec,
+			MsgCodec: msgCodec,
+		},
+	}
+
+}
+
+func (t *TcpListener) Init() error {
 	return nil
 }
 
@@ -42,6 +54,10 @@ func (t *TcpListener) accept() {
 	}
 }
 
-func (t *TcpListener) Name() string {
-	return "tcplistener"
+func (t *TcpListener) Type() int {
+	return peer.PEER_TCP_ACCEPTOR
+}
+
+func (t *TcpListener) Stop() {
+
 }

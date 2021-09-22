@@ -31,15 +31,15 @@ func (p *ProtoBuf) Decode(ID int, data []byte) (interface{}, error) {
 	return msg, nil
 }
 
-func (p *ProtoBuf) Encode(raw interface{}) ([]byte, int, error) {
+func (p *ProtoBuf) Encode(raw interface{}) (int, []byte, error) {
 	msg := raw.(proto.Message)
 	id, Ok := p.idMap[msg.ProtoReflect().Type()]
 	if !Ok {
-		return nil, 0, fmt.Errorf("not found ID for proto:%s", proto.MessageName(msg))
+		return 0, nil, fmt.Errorf("not found ID for proto:%s", proto.MessageName(msg))
 	}
 	data, err := proto.Marshal(msg)
 	if err != nil {
-		return nil, 0, err
+		return 0, nil, err
 	}
-	return data, id, nil
+	return id, data, nil
 }
