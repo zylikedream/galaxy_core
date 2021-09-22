@@ -41,3 +41,7 @@ func (t *TcpListener) accept() {
 		go sess.Start()
 	}
 }
+
+func (t *TcpListener) Name() string {
+	return "tcplistener"
+}

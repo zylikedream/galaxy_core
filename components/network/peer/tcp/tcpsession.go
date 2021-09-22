@@ -22,9 +22,9 @@ func NewTcpSession(conn net.Conn) *TcpSession {
 }
 
 func (t *TcpSession) Start() {
-	msgCodec := t.p.MsgCodec()
+	pkt := t.p.Packet()
 	for {
-		sizebuf, err := io.ReadAll(io.LimitReader(t.conn, int64(msgCodec.MsgLenLength())))
+		sizebuf, err := io.ReadAll(io.LimitReader(t.conn, int64(pkt.MsgLenLength())))
 		if err != nil {
 			if netErr, ok := err.(*net.OpError); ok { // 主动断开
 				if netErr.Err == net.ErrClosed {
@@ -38,7 +38,7 @@ func (t *TcpSession) Start() {
 		if len(sizebuf) == 0 {
 			break
 		}
-		size := msgCodec.Uint(sizebuf)
+		size := pkt.Uint(sizebuf)
 		body, err := io.ReadAll(io.LimitReader(t.conn, int64(size)))
 		if err != nil {
 			break
@@ -46,12 +46,9 @@ func (t *TcpSession) Start() {
 		if len(body) < int(size) {
 			break
 		}
-		packet, err := msgCodec.Decode(body)
+		msg, err := pkt.Decode(body)
 		if err != nil {
 			break
-		}
-		if err := packet.Decode(); err != nil {
-			return
 		}
 	}
 }

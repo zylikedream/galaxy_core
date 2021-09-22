@@ -1,22 +1,22 @@
-package msg
+package packet
 
 import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/zylikedream/galaxy/components/network/packet"
+	"github.com/zylikedream/galaxy/components/network/message"
 )
 
-// length + id + payload
-type Ltv struct {
+// length + type + id + payload
+type ltiv struct {
 	lenLength  int
 	typeLength int
 	IDLength   int
 	byteOrder  binary.ByteOrder
 }
 
-func NewLtv(ll, tl, idl int, bo binary.ByteOrder) *Ltv {
-	return &Ltv{
+func NewLtiv(ll, tl, idl int, bo binary.ByteOrder) *ltiv {
+	return &ltiv{
 		lenLength:  ll,
 		typeLength: tl,
 		IDLength:   idl,
@@ -24,19 +24,11 @@ func NewLtv(ll, tl, idl int, bo binary.ByteOrder) *Ltv {
 	}
 }
 
-func (l *Ltv) MsgLenLength() int {
+func (l *ltiv) MsgLenLength() int {
 	return l.lenLength
 }
 
-func (l *Ltv) MsgTypeLength() int {
-	return l.typeLength
-}
-
-func (l *Ltv) MsgIDLength() int {
-	return l.IDLength
-}
-
-func (l *Ltv) Uint(data []byte) (uint64, error) {
+func (l *ltiv) Uint(data []byte) (uint64, error) {
 	switch len(data) {
 	case 1:
 		return uint64(data[0]), nil
@@ -50,24 +42,25 @@ func (l *Ltv) Uint(data []byte) (uint64, error) {
 	return 0, fmt.Errorf("unsupport byte len:%d", len(data))
 }
 
-func (l *Ltv) Decode(payLoad []byte) (*packet.Packet, error) {
-	packet := &packet.Packet{}
-	// 字节类型+消息id+消息内容
+func (l *ltiv) Decode(payLoad []byte) (*message.Message, error) {
+	msg := &message.Message{}
+	// 消息类型+消息id+消息内容
 	pointer := 0
 	if tp, err := l.Uint(payLoad[pointer : pointer+l.typeLength]); err != nil {
 		return nil, err
 	} else {
-		packet.Type = int(tp)
+		msg.Type = int(tp)
 	}
 	pointer += l.typeLength
 	// 消息id
 	if id, err := l.Uint(payLoad[pointer : pointer+l.IDLength]); err != nil {
 		return nil, err
 	} else {
-		packet.ID = int(id)
+		msg.ID = int(id)
 	}
 	pointer += l.IDLength
 
-	packet.Payload = payLoad[pointer:]
-	return packet, nil
+	msg.Payload = payLoad[pointer:]
+
+	return msg, nil
 }

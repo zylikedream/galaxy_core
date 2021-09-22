@@ -1,18 +1,14 @@
 package packet
 
-import "github.com/zylikedream/galaxy/components/network/packet/codec"
+import (
+	"encoding/binary"
 
-type Packet struct {
-	ID      int
-	Type    int
-	Payload []byte
-	Msg     interface{}
-	encoder codec.PacketEncoder
-	decoder codec.PacketDecoder
-}
+	"github.com/zylikedream/galaxy/components/network/message"
+)
 
-func (p *Packet) Decode() error {
-	var err error
-	p.Msg, err = p.decoder.Decode(p.ID, p.Payload)
-	return err
+type PacketCodec interface {
+	MsgLenLength() int // 长度字段的字节长度
+	Decode(payLoad []byte) (*message.Message, error)
+	ByteOrder() binary.ByteOrder
+	Uint(data []byte) uint64
 }
