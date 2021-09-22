@@ -3,6 +3,7 @@ package tcp
 import (
 	"io"
 	"net"
+	"sync"
 	"sync/atomic"
 
 	"github.com/zylikedream/galaxy/components/network/message"
@@ -13,8 +14,8 @@ type TcpSession struct {
 	proc   peer.Processor
 	conn   net.Conn
 	sendCh chan interface{}
-	exitCh chan struct{}
 	exit   int32
+	wg     sync.WaitGroup
 }
 
 func NewTcpSession(conn net.Conn) *TcpSession {
@@ -98,10 +99,5 @@ func (t *TcpSession) Close() {
 		return
 	}
 	atomic.AddInt32(&t.exit, 1)
-	t.exitCh <- struct{}{}
-}
-
-func (t *TcpSession) waitExit() {
-	<-t.exitCh
 	close(t.sendCh)
 }
