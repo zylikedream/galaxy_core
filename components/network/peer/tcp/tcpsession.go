@@ -3,7 +3,6 @@ package tcp
 import (
 	"io"
 	"net"
-	"sync"
 	"sync/atomic"
 
 	"github.com/zylikedream/galaxy/components/network/message"
@@ -15,7 +14,6 @@ type TcpSession struct {
 	conn   net.Conn
 	sendCh chan interface{}
 	exit   int32
-	wg     sync.WaitGroup
 }
 
 func NewTcpSession(conn net.Conn) *TcpSession {
@@ -26,6 +24,7 @@ func NewTcpSession(conn net.Conn) *TcpSession {
 
 func (t *TcpSession) Start() {
 	go t.recvLoop()
+	go t.sendLoop()
 }
 
 func (t *TcpSession) recvLoop() {
@@ -34,10 +33,9 @@ func (t *TcpSession) recvLoop() {
 	for {
 		sizebuf, err := io.ReadAll(io.LimitReader(t.conn, int64(pktCodec.MsgLenLength())))
 		if err != nil {
-			if netErr, ok := err.(*net.OpError); ok { // 主动断开
-				if netErr.Err == net.ErrClosed {
-					break
-				}
+			netErr, ok := err.(*net.OpError)
+			if ok && netErr.Err == net.ErrClosed { // 主动断开
+				return
 			} else {
 				break
 			}
@@ -62,8 +60,12 @@ func (t *TcpSession) recvLoop() {
 		if err != nil {
 			break
 		}
+		msg.Sess = t
 		// todo handle msg
 	}
+	// 被动断开，出错或者对方关闭
+	t.passiveClose()
+
 }
 
 func (t *TcpSession) Send(msg interface{}) error {
@@ -92,9 +94,21 @@ func (t *TcpSession) sendLoop() {
 			break
 		}
 	}
+	// 关闭整个连接
+	t.conn.Close()
 }
 
 func (t *TcpSession) Close() {
+	if atomic.LoadInt32(&t.exit) == 1 {
+		return
+	}
+	atomic.AddInt32(&t.exit, 1)
+	tcpConn := t.conn.(*net.TCPConn)
+	tcpConn.CloseRead()
+	close(t.sendCh)
+}
+
+func (t *TcpSession) passiveClose() {
 	if atomic.LoadInt32(&t.exit) == 1 {
 		return
 	}

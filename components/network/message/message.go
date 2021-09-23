@@ -1,5 +1,7 @@
 package message
 
+import "github.com/zylikedream/galaxy/components/network/session"
+
 type MessageCodec interface {
 	Decode(ID int, data []byte) (interface{}, error)
 	Encode(packet interface{}) (int, []byte, error)
@@ -11,4 +13,5 @@ type Message struct {
 	Type    int
 	Payload []byte
 	Msg     interface{}
+	Sess    session.Session
 }
