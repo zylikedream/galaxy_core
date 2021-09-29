@@ -64,7 +64,7 @@ func (t *TcpListener) Type() string {
 	return peer.PEER_TCP_ACCEPTOR
 }
 
-func (t *TcpListener) Build(c *gconfig.Configuration) (interface{}, error) {
+func (t *TcpListener) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newTcpListener(c)
 }
 

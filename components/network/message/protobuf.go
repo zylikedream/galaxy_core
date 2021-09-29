@@ -56,7 +56,7 @@ func (p *ProtoBuf) Type() string {
 	return MESSAGE_PROTOBUF
 }
 
-func (p *ProtoBuf) Build(c *gconfig.Configuration) (interface{}, error) {
+func (p *ProtoBuf) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newProtobuf(c)
 }
 

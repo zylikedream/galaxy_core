@@ -7,7 +7,7 @@ import (
 )
 
 type Builder interface {
-	Build(c *gconfig.Configuration) (interface{}, error)
+	Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error)
 	Type() string
 }
 
@@ -25,7 +25,7 @@ func (r *register) Register(b Builder) {
 	r.nodeMap[b.Type()] = b
 }
 
-func (r *register) NewNode(t string, c *gconfig.Configuration) (interface{}, error) {
+func (r *register) NewNode(t string, c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	builder, ok := r.nodeMap[t]
 	if !ok {
 		return nil, fmt.Errorf("no node for type:%s", t)

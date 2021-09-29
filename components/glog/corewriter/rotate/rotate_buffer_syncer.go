@@ -26,7 +26,7 @@ const (
 // bufferWriteSyncer wraps a WriteSyncer in a buffer to improve performance,
 // if bufferSize = 0, we set it to defaultBufferSize
 // if flushInterval = 0, we set it to defaultFlushInterval
-func BufferWriteSyncer(ws zapcore.WriteSyncer, bufferSize int, flushInterval time.Duration) (zapcore.WriteSyncer, CloseFunc) {
+func BufferWriteSyncer(ws zapcore.WriteSyncer, bufferSize int, flushInterval time.Duration) (zapcore.WriteSyncer, func() error) {
 	if _, ok := ws.(*bufferWriterSyncer); ok {
 		// no need to layer on another buffer
 		return ws, func() error { return nil }

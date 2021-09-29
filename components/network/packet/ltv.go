@@ -103,7 +103,7 @@ func (l *ltiv) Type() string {
 	return PACKET_LTIV
 }
 
-func (l *ltiv) Build(c *gconfig.Configuration) (interface{}, error) {
+func (l *ltiv) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newLtiv(c)
 }
 

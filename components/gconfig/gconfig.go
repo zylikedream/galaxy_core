@@ -4,6 +4,7 @@ import (
 	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
@@ -13,6 +14,7 @@ type Configuration struct {
 	onChanges []OnChangeCallback
 	parent    string
 	options   []viper.Option
+	hooks     viper.DecoderConfigOption
 }
 
 type OnChangeCallback = func(c *Configuration)
@@ -56,7 +58,7 @@ func (c *Configuration) GetString(key string) string {
 }
 
 func (c *Configuration) UnmarshalKey(key string, data interface{}) error {
-	return c.vp.UnmarshalKey(key, data)
+	return c.vp.UnmarshalKey(key, data, c.hooks)
 }
 
 func (c *Configuration) KeyWithParent(key string) string {
@@ -68,4 +70,8 @@ func (c *Configuration) KeyWithParent(key string) string {
 
 func (c *Configuration) UnmarshalKeyWithParent(key string, data interface{}) error {
 	return c.vp.UnmarshalKey(c.KeyWithParent(key), data)
+}
+
+func (c *Configuration) HookDecodeFunc(funcs ...mapstructure.DecodeHookFunc) {
+	c.hooks = viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(funcs))
 }

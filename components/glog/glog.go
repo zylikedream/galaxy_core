@@ -5,81 +5,51 @@ import (
 	"log"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
+	"github.com/zylikedream/galaxy/components/glog/color"
 	"github.com/zylikedream/galaxy/components/glog/corewriter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
+type config struct {
+	Level           string `mapstructure:"level"`            // 日志初始等级，默认info级别
+	EnableAddCaller bool   `mapstructure:"enable_addcaller"` // 是否添加调用者信息，默认不加调用者信息
+	Writer          string `mapstructure:"writer"`           // 使用哪种Writer，可选[rotate_file|stderr]，默认file
+	CallerSkip      int    `mapstructure:"caller_skip"`      // 跳过的堆栈层数，一般默认都为1
+	Watch           bool   `mapstructure:"watch"`            // 是否监听日志等级变化
+}
 type GalaxyLog struct {
+	core          zapcore.Core
 	name          string
 	desugar       *zap.Logger
-	lv            *zap.AtomicLevel
+	lv            zap.AtomicLevel
 	conf          *config
 	sugar         *zap.SugaredLogger
 	asyncStopFunc func() error
 }
 
-const (
-	// DebugLevel logs are typically voluminous, and are usually disabled in
-	// production.
-	DebugLevel = zap.DebugLevel
-	// InfoLevel is the default logging priority.
-	InfoLevel = zap.InfoLevel
-	// WarnLevel logs are more important than Info, but don't need individual
-	// human review.
-	WarnLevel = zap.WarnLevel
-	// ErrorLevel logs are high-priority. If an application is running smoothly,
-	// it shouldn't generate any error-Level logs.
-	ErrorLevel = zap.ErrorLevel
-	// PanicLevel logs a message, then panics.
-	PanicLevel = zap.PanicLevel
-	// FatalLevel logs a message, then calls os.Exit(1).
-	FatalLevel = zap.FatalLevel
-)
+func DefaultConfig() *config {
+	return &config{
+		Level:           "info",
+		CallerSkip:      1,
+		EnableAddCaller: false,
+		Writer:          "file",
+	}
+}
 
-type (
-	// Field ...
-	Field = zap.Field
-	// Level ...
-	Level = zapcore.Level
-	// Component 组件
-)
-
-var (
-	// String alias for zap.String
-	String = zap.String
-	// Any alias for zap.Any
-	Any = zap.Any
-	// Int64 alias for zap.Int64
-	Int64 = zap.Int64
-	// Int alias for zap.Int
-	Int = zap.Int
-	// Int32 alias for zap.Int32
-	Int32 = zap.Int32
-	// Uint alias for zap.Uint
-	Uint = zap.Uint
-	// Duration alias for zap.Duration
-	Duration = zap.Duration
-	// Durationp alias for zap.Duration
-	Durationp = zap.Durationp
-	// Object alias for zap.Object
-	Object = zap.Object
-	// Namespace alias for zap.Namespace
-	Namespace = zap.Namespace
-	// Reflect alias for zap.Reflect
-	Reflect = zap.Reflect
-	// Skip alias for zap.Skip()
-	Skip = zap.Skip()
-	// ByteString alias for zap.ByteString
-	ByteString = zap.ByteString
-)
-
-func NewLogger(name string, configFile string) *GalaxyLog {
+func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
 	configure := gconfig.New(configFile)
-	conf := &config{}
+	conf := DefaultConfig()
+	gl := &GalaxyLog{
+		conf:          DefaultConfig(),
+		name:          name,
+		asyncStopFunc: func() error { return nil },
+	}
+	for _, opt := range opts {
+		opt(gl)
+	}
 	if err := configure.UnmarshalKey("log", conf); err != nil {
 		panic(err)
 	}
@@ -88,39 +58,31 @@ func NewLogger(name string, configFile string) *GalaxyLog {
 	if conf.EnableAddCaller {
 		zapOptions = append(zapOptions, zap.AddCaller(), zap.AddCallerSkip(conf.CallerSkip))
 	}
-	if len(conf.fields) > 0 {
-		zapOptions = append(zapOptions, zap.Fields(conf.fields...))
-	}
 
 	// 默认日志级别
-	conf.al = zap.NewAtomicLevelAt(zapcore.InfoLevel)
-	if err := conf.al.UnmarshalText([]byte(conf.Level)); err != nil {
+	gl.lv = zap.NewAtomicLevelAt(zapcore.InfoLevel)
+	if err := gl.lv.UnmarshalText([]byte(conf.Level)); err != nil {
 		panic(err)
 	}
 
 	// 如果用户没有设置core。那么就选择官方默认的core。
-	if conf.core == nil {
-		w, err := corewriter.NewCoreWriter(conf.Writer, configure)
+	if gl.core == nil {
+		w, err := corewriter.NewCoreWriter(conf.Writer, configure.WithParent("log"), gl.lv)
 		if err != nil {
 			panic(err)
 		}
-		conf.core = w
-		conf.asyncStopFunc = w.Close
+		gl.core = w
+		gl.asyncStopFunc = w.Close
 	}
 
-	zapLogger := zap.New(conf.core, zapOptions...)
-	l := &GalaxyLog{
-		desugar:       zapLogger,
-		lv:            &conf.al,
-		conf:          conf,
-		sugar:         zapLogger.Sugar(),
-		name:          name,
-		asyncStopFunc: conf.asyncStopFunc,
-	}
+	gl.desugar = zap.New(gl.core, zapOptions...)
+	gl.sugar = gl.desugar.Sugar()
 
-	// 如果名字不为空，加载动态配置
-	l.AutoLevel(configure.WithParent("log"))
-	return l
+	if gl.conf.Watch {
+		// 如果名字不为空，加载动态配置
+		gl.AutoLevel(configure.WithParent("log"))
+	}
+	return gl
 
 }
 
@@ -129,7 +91,7 @@ func (l *GalaxyLog) AutoLevel(c *gconfig.Configuration) {
 	c.Watch(func(c *gconfig.Configuration) {
 		lvText := strings.ToLower(c.GetString("level"))
 		if lvText != "" {
-			l.Info("update level", String("level", lvText), String("name", l.conf.Name))
+			l.Info("update level", String("level", lvText), String("name", l.name))
 			_ = l.lv.UnmarshalText([]byte(lvText))
 		}
 	})
@@ -158,66 +120,9 @@ func (l *GalaxyLog) Flush() error {
 	return nil
 }
 
-func defaultZapConfig() *zapcore.EncoderConfig {
-	return &zapcore.EncoderConfig{
-		TimeKey:        "ts",
-		LevelKey:       "lv",
-		NameKey:        "l",
-		CallerKey:      "caller",
-		MessageKey:     "msg",
-		StacktraceKey:  "stack",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseLevelEncoder,
-		EncodeTime:     timeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
-	}
-}
-
-func defaultDebugConfig() *zapcore.EncoderConfig {
-	return &zapcore.EncoderConfig{
-		TimeKey:        "ts",
-		LevelKey:       "lv",
-		NameKey:        "l",
-		CallerKey:      "caller",
-		MessageKey:     "msg",
-		StacktraceKey:  "stack",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    debugEncodeLevel,
-		EncodeTime:     timeDebugEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
-	}
-}
-
-// debugEncodeLevel ...
-func debugEncodeLevel(lv zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
-	var colorize = Red
-	switch lv {
-	case zapcore.DebugLevel:
-		colorize = Blue
-	case zapcore.InfoLevel:
-		colorize = Green
-	case zapcore.WarnLevel:
-		colorize = Yellow
-	case zapcore.ErrorLevel, zap.PanicLevel, zap.DPanicLevel, zap.FatalLevel:
-		colorize = Red
-	default:
-	}
-	enc.AppendString(colorize(lv.CapitalString()))
-}
-
-func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendInt64(t.Unix())
-}
-
-func timeDebugEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format("2006-01-02 15:04:05"))
-}
-
 // IsDebugMode ...
 func (l *GalaxyLog) IsDebugMode() bool {
-	return l.conf.Debug
+	return true
 }
 
 func normalizeMessage(msg string) string {
@@ -397,12 +302,12 @@ func panicDetail(msg string, fields ...Field) {
 	}
 
 	// 控制台输出
-	fmt.Printf("%s: \n    %s: %s\n", Red("panic"), Red("msg"), msg)
+	fmt.Printf("%s: \n    %s: %s\n", color.Red("panic"), color.Red("msg"), msg)
 	if _, file, line, ok := runtime.Caller(3); ok {
-		fmt.Printf("    %s: %s:%d\n", Red("loc"), file, line)
+		fmt.Printf("    %s: %s:%d\n", color.Red("loc"), file, line)
 	}
 	for key, val := range enc.Fields {
-		fmt.Printf("    %s: %s\n", Red(key), fmt.Sprintf("%+v", val))
+		fmt.Printf("    %s: %s\n", color.Red(key), fmt.Sprintf("%+v", val))
 	}
 }
 
@@ -427,14 +332,4 @@ func (l *GalaxyLog) WithCallerSkip(callerSkip int, fields ...Field) *GalaxyLog {
 		sugar:   desugarLogger.Sugar(),
 		conf:    l.conf,
 	}
-}
-
-// ConfigDir 获取日志路径
-func (l *GalaxyLog) ConfigDir() string {
-	return l.conf.Dir
-}
-
-// ConfigName 获取日志名称
-func (l *GalaxyLog) ConfigName() string {
-	return l.conf.Name
 }
