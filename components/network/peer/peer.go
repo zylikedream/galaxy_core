@@ -2,7 +2,7 @@ package peer
 
 import (
 	"github.com/zylikedream/galaxy/components/gconfig"
-	"github.com/zylikedream/galaxy/components/network/register"
+	"github.com/zylikedream/galaxy/components/gregister"
 )
 
 const (
@@ -16,10 +16,10 @@ type Peer interface {
 	Type() string
 }
 
-var reg = register.NewRegister()
+var reg = gregister.NewRegister()
 
-func Register(t string, f func(c *gconfig.Configuration) (interface{}, error)) {
-	reg.Register(t, f)
+func Register(builder gregister.Builder) {
+	reg.Register(builder)
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {

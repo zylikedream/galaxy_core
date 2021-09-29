@@ -19,7 +19,7 @@ type ltiv struct {
 
 func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
 	l := &ltiv{}
-	if err := c.UnmarshalKey("network.ltiv", l); err != nil {
+	if err := c.UnmarshalKeyWithParent(l.Type(), l); err != nil {
 		return nil, err
 	}
 	return l, nil
@@ -103,9 +103,10 @@ func (l *ltiv) Type() string {
 	return PACKET_LTIV
 }
 
+func (l *ltiv) Build(c *gconfig.Configuration) (interface{}, error) {
+	return newLtiv(c)
+}
+
 func init() {
-	p := &ltiv{}
-	Register(p.Type(), func(c *gconfig.Configuration) (interface{}, error) {
-		return newLtiv(c)
-	})
+	Register(&ltiv{})
 }

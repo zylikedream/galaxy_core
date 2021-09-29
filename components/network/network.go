@@ -12,7 +12,7 @@ type Network struct {
 
 func NewNetwork(configFile string) (*Network, error) {
 	configure := gconfig.New(configFile)
-	peer, err := peer.NewPeer(configure.GetString("network.peer"), configure)
+	peer, err := peer.NewPeer(configure.GetString("network.peer"), configure.WithParent("network"))
 	if err != nil {
 		return nil, err
 	}

@@ -56,9 +56,10 @@ func (p *ProtoBuf) Type() string {
 	return MESSAGE_PROTOBUF
 }
 
+func (p *ProtoBuf) Build(c *gconfig.Configuration) (interface{}, error) {
+	return newProtobuf(c)
+}
+
 func init() {
-	p := &ProtoBuf{}
-	Register(p.Type(), func(c *gconfig.Configuration) (interface{}, error) {
-		return newProtobuf(c)
-	})
+	Register(&ProtoBuf{})
 }

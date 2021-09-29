@@ -1,4 +1,4 @@
-package register
+package gregister
 
 import (
 	"fmt"
@@ -6,26 +6,29 @@ import (
 	"github.com/zylikedream/galaxy/components/gconfig"
 )
 
-type FuncType = func(c *gconfig.Configuration) (interface{}, error)
+type Builder interface {
+	Build(c *gconfig.Configuration) (interface{}, error)
+	Type() string
+}
 
 type register struct {
-	nodeMap map[string]FuncType
+	nodeMap map[string]Builder
 }
 
 func NewRegister() *register {
 	return &register{
-		nodeMap: map[string]FuncType{},
+		nodeMap: map[string]Builder{},
 	}
 }
 
-func (r *register) Register(t string, nfun FuncType) {
-	r.nodeMap[t] = nfun
+func (r *register) Register(b Builder) {
+	r.nodeMap[b.Type()] = b
 }
 
 func (r *register) NewNode(t string, c *gconfig.Configuration) (interface{}, error) {
-	Func, ok := r.nodeMap[t]
+	builder, ok := r.nodeMap[t]
 	if !ok {
 		return nil, fmt.Errorf("no node for type:%s", t)
 	}
-	return Func(c)
+	return builder.Build(c)
 }

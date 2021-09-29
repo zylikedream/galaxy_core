@@ -2,7 +2,7 @@ package message
 
 import (
 	"github.com/zylikedream/galaxy/components/gconfig"
-	"github.com/zylikedream/galaxy/components/network/register"
+	"github.com/zylikedream/galaxy/components/gregister"
 	"github.com/zylikedream/galaxy/components/network/session"
 )
 
@@ -26,10 +26,10 @@ const (
 	MESSAGE_PROTOBUF = "protobuf"
 )
 
-var reg = register.NewRegister()
+var reg = gregister.NewRegister()
 
-func Register(t string, f register.FuncType) {
-	reg.Register(t, f)
+func Register(builder gregister.Builder) {
+	reg.Register(builder)
 }
 
 func NewMessageCodec(t string, c *gconfig.Configuration) (MessageCodec, error) {

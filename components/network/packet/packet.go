@@ -4,8 +4,8 @@ import (
 	"encoding/binary"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
+	"github.com/zylikedream/galaxy/components/gregister"
 	"github.com/zylikedream/galaxy/components/network/message"
-	"github.com/zylikedream/galaxy/components/network/register"
 )
 
 type PacketCodec interface {
@@ -21,10 +21,10 @@ const (
 	PACKET_LTIV = "ltiv"
 )
 
-var reg = register.NewRegister()
+var reg = gregister.NewRegister()
 
-func Register(t string, f register.FuncType) {
-	reg.Register(t, f)
+func Register(builder gregister.Builder) {
+	reg.Register(builder)
 }
 
 func NewPacketCodec(t string, c *gconfig.Configuration) (PacketCodec, error) {

@@ -64,13 +64,14 @@ func (t *TcpListener) Type() string {
 	return peer.PEER_TCP_ACCEPTOR
 }
 
+func (t *TcpListener) Build(c *gconfig.Configuration) (interface{}, error) {
+	return newTcpListener(c)
+}
+
 func (t *TcpListener) Stop() {
 
 }
 
 func init() {
-	p := &TcpListener{}
-	peer.Register(p.Type(), func(c *gconfig.Configuration) (interface{}, error) {
-		return newTcpListener(c)
-	})
+	peer.Register(&TcpListener{})
 }

@@ -19,22 +19,25 @@ type config struct {
 }
 
 func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
+	proc := &Processor{}
 	conf := &config{}
-	if err := c.UnmarshalKey("network.processor", conf); err != nil {
+	var err error
+	if err = c.UnmarshalKeyWithParent(Type(), conf); err != nil {
 		return nil, err
 	}
-	packetCodec, err := packet.NewPacketCodec(conf.PacketCodecType, c)
+	proc.pktCodec, err = packet.NewPacketCodec(conf.PacketCodecType, c)
 	if err != nil {
 		return nil, err
 	}
-	messageCodec, err := message.NewMessageCodec(conf.MessageCodecType, c)
+	proc.msgCodec, err = message.NewMessageCodec(conf.MessageCodecType, c)
 	if err != nil {
 		return nil, err
 	}
-	return &Processor{
-		pktCodec: packetCodec,
-		msgCodec: messageCodec,
-	}, nil
+	return proc, nil
+}
+
+func Type() string {
+	return "processor"
 }
 
 func (p *Processor) ReadAndDecode(r io.Reader) (*message.Message, error) {
