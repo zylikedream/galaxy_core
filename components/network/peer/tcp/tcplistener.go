@@ -4,24 +4,30 @@ import (
 	"net"
 	"time"
 
-	"github.com/zylikedream/galaxy/components/network/message"
-	"github.com/zylikedream/galaxy/components/network/packet"
+	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/network/peer"
+	"github.com/zylikedream/galaxy/components/network/peer/processor"
 )
 
 type TcpListener struct {
-	peer.Processor
-	addr     string
+	proc     *processor.Processor
 	listener net.Listener
+
+	addr string `mapstructure:"addr"`
 }
 
-func newTcpListener(pktCodec packet.PacketCodec, msgCodec message.MessageCodec) *TcpListener {
-	return &TcpListener{
-		Processor: peer.Processor{
-			PktCodec: pktCodec,
-			MsgCodec: msgCodec,
-		},
+func newTcpListener(c *gconfig.Configuration) (*TcpListener, error) {
+	proc, err := processor.NewProcessor(c)
+	if err != nil {
+		return nil, err
 	}
+	tcplistener := &TcpListener{
+		proc: proc,
+	}
+	if err := c.UnmarshalKey("network.tcp_acceptor", tcplistener); err != nil {
+		return nil, err
+	}
+	return tcplistener, nil
 
 }
 
@@ -49,15 +55,22 @@ func (t *TcpListener) accept() {
 			}
 			break
 		}
-		sess := NewTcpSession(conn)
+		sess := NewTcpSession(conn, t.proc)
 		go sess.Start()
 	}
 }
 
-func (t *TcpListener) Type() int {
+func (t *TcpListener) Type() string {
 	return peer.PEER_TCP_ACCEPTOR
 }
 
 func (t *TcpListener) Stop() {
 
+}
+
+func init() {
+	p := &TcpListener{}
+	peer.Register(p.Type(), func(c *gconfig.Configuration) (interface{}, error) {
+		return newTcpListener(c)
+	})
 }

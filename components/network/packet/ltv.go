@@ -1,31 +1,32 @@
 package packet
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 
+	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/network/message"
 )
 
 // length + type + id + payload
 type ltiv struct {
-	lenLength  int
-	typeLength int
-	IDLength   int
-	byteOrder  binary.ByteOrder
+	sizeLength int              `mapstructure:"size_length"`
+	typeLength int              `mapstructure:"type_length"`
+	IDLength   int              `mapstructure:"id_length"`
+	byteOrder  binary.ByteOrder `mapstructure:"byte_order"`
 }
 
-func NewLtiv(ll, tl, idl int, bo binary.ByteOrder) *ltiv {
-	return &ltiv{
-		lenLength:  ll,
-		typeLength: tl,
-		IDLength:   idl,
-		byteOrder:  bo,
+func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
+	l := &ltiv{}
+	if err := c.UnmarshalKey("network.ltiv", l); err != nil {
+		return nil, err
 	}
+	return l, nil
 }
 
 func (l *ltiv) MsgLenLength() int {
-	return l.lenLength
+	return l.sizeLength
 }
 
 func (l *ltiv) Uint(data []byte) (uint64, error) {
@@ -49,18 +50,62 @@ func (l *ltiv) Decode(payLoad []byte) (*message.Message, error) {
 	if tp, err := l.Uint(payLoad[pointer : pointer+l.typeLength]); err != nil {
 		return nil, err
 	} else {
-		msg.Type = int(tp)
+		msg.Type = tp
 	}
 	pointer += l.typeLength
 	// 消息id
 	if id, err := l.Uint(payLoad[pointer : pointer+l.IDLength]); err != nil {
 		return nil, err
 	} else {
-		msg.ID = int(id)
+		msg.ID = id
 	}
 	pointer += l.IDLength
 
 	msg.Payload = payLoad[pointer:]
 
 	return msg, nil
+}
+
+func (l *ltiv) ByteOrder() binary.ByteOrder {
+	return l.byteOrder
+}
+
+func (l *ltiv) convertUint(v uint64, len int) interface{} {
+	switch len {
+	case 1:
+		return uint8(v)
+	case 2:
+		return uint16(v)
+	case 4:
+		return uint32(v)
+	case 8:
+		return v
+	}
+	return v
+}
+
+func (l *ltiv) Encode(m *message.Message) ([]byte, error) {
+	payload := bytes.Buffer{}
+	// 消息类型+消息id+消息内容
+	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.Type, l.typeLength)); err != nil {
+		return nil, err
+	}
+	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.ID, l.IDLength)); err != nil {
+		return nil, err
+	}
+	if _, err := payload.Write(m.Payload); err != nil {
+		return nil, err
+	}
+	return payload.Bytes(), nil
+}
+
+func (l *ltiv) Type() string {
+	return PACKET_LTIV
+}
+
+func init() {
+	p := &ltiv{}
+	Register(p.Type(), func(c *gconfig.Configuration) (interface{}, error) {
+		return newLtiv(c)
+	})
 }

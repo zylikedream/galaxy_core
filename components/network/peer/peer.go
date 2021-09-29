@@ -1,36 +1,31 @@
 package peer
 
 import (
-	"github.com/zylikedream/galaxy/components/network/message"
-	"github.com/zylikedream/galaxy/components/network/packet"
+	"github.com/zylikedream/galaxy/components/gconfig"
+	"github.com/zylikedream/galaxy/components/network/register"
 )
 
-type newPeerFunc = func(packet.PacketCodec, message.MessageCodec) Peer
-
-var peerMap map[int]newPeerFunc = make(map[int]newPeerFunc)
-
-// processor必须包含次结构
-type Processor struct {
-	PktCodec packet.PacketCodec
-	MsgCodec message.MessageCodec
-}
-
 const (
-	PEER_TCP_ACCEPTOR = iota
+	PEER_TCP_ACCEPTOR = "tcp_acceptor"
 )
 
 type Peer interface {
 	Init() error
 	Start() error
 	Stop()
-	Type() int
+	Type() string
 }
 
-func Register(peerType int, nfun newPeerFunc) {
-	peerMap[peerType] = nfun
+var reg = register.NewRegister()
+
+func Register(t string, f func(c *gconfig.Configuration) (interface{}, error)) {
+	reg.Register(t, f)
 }
 
-func NewPeer(peerType int, pktCodec packet.PacketCodec, msgCodec message.MessageCodec) Peer {
-	Func := peerMap[peerType]
-	return Func(pktCodec, msgCodec)
+func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {
+	if node, err := reg.NewNode(t, c); err != nil {
+		return nil, err
+	} else {
+		return node.(Peer), nil
+	}
 }

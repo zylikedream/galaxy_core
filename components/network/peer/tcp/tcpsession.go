@@ -5,20 +5,20 @@ import (
 	"net"
 	"sync/atomic"
 
-	"github.com/zylikedream/galaxy/components/network/message"
-	"github.com/zylikedream/galaxy/components/network/peer"
+	"github.com/zylikedream/galaxy/components/network/peer/processor"
 )
 
 type TcpSession struct {
-	proc   peer.Processor
+	proc   *processor.Processor
 	conn   net.Conn
 	sendCh chan interface{}
 	exit   int32
 }
 
-func NewTcpSession(conn net.Conn) *TcpSession {
+func NewTcpSession(conn net.Conn, proc *processor.Processor) *TcpSession {
 	return &TcpSession{
 		conn: conn,
+		proc: proc,
 	}
 }
 
@@ -28,36 +28,17 @@ func (t *TcpSession) Start() {
 }
 
 func (t *TcpSession) recvLoop() {
-	pktCodec := t.proc.PktCodec
-	msgCodec := t.proc.MsgCodec
 	for {
-		sizebuf, err := io.ReadAll(io.LimitReader(t.conn, int64(pktCodec.MsgLenLength())))
+		msg, err := t.proc.ReadAndDecode(t.conn)
 		if err != nil {
 			netErr, ok := err.(*net.OpError)
-			if ok && netErr.Err == net.ErrClosed { // 主动断开
+			if ok && netErr.Err == net.ErrClosed { // 主动断开 不执行断开逻辑，已经断开
 				return
-			} else {
+			}
+			if err == io.EOF { // 对方已关闭
 				break
 			}
-		}
-		// eof
-		if len(sizebuf) == 0 {
-			break
-		}
-		size := pktCodec.Uint(sizebuf)
-		data, err := io.ReadAll(io.LimitReader(t.conn, int64(size)))
-		if err != nil {
-			break
-		}
-		if len(data) < int(size) {
-			break
-		}
-		msg, err := pktCodec.Decode(data)
-		if err != nil {
-			break
-		}
-		msg.Msg, err = msgCodec.Decode(msg.ID, msg.Payload)
-		if err != nil {
+			// 出错了
 			break
 		}
 		msg.Sess = t
@@ -74,18 +55,8 @@ func (t *TcpSession) Send(msg interface{}) error {
 }
 
 func (t *TcpSession) sendLoop() {
-	pktCodec := t.proc.PktCodec
-	msgCodec := t.proc.MsgCodec
-	var err error
 	for rawMsg := range t.sendCh {
-		msg := &message.Message{
-			Msg: rawMsg,
-		}
-		msg.ID, msg.Payload, err = msgCodec.Encode(rawMsg)
-		if err != nil {
-			break
-		}
-		data, err := pktCodec.Encode(msg)
+		data, err := t.proc.Encode(rawMsg)
 		if err != nil {
 			break
 		}

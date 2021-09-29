@@ -1,17 +1,23 @@
 package network
 
-const (
-	PACKET_LTIV = iota
-)
-
-const (
-	MESSAGE_JSON = iota
-	MESSAGE_PROTOBUF
+import (
+	"github.com/zylikedream/galaxy/components/gconfig"
+	"github.com/zylikedream/galaxy/components/network/peer"
 )
 
 type Network struct {
+	configure *gconfig.Configuration
+	peer      peer.Peer
 }
 
-func NewNetwork(tcpType int, packetType int, codec int) *Network {
-	return &Network{}
+func NewNetwork(configFile string) (*Network, error) {
+	configure := gconfig.New(configFile)
+	peer, err := peer.NewPeer(configure.GetString("network.peer"), configure)
+	if err != nil {
+		return nil, err
+	}
+	return &Network{
+		configure: configure,
+		peer:      peer,
+	}, nil
 }
