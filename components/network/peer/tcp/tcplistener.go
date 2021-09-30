@@ -12,18 +12,25 @@ import (
 type TcpListener struct {
 	proc     *processor.Processor
 	listener net.Listener
+	conf     *config
+}
 
-	addr string `mapstructure:"addr"`
+type config struct {
+	addr string `toml:"addr"`
 }
 
 func newTcpListener(c *gconfig.Configuration) (*TcpListener, error) {
+	tcplistener := &TcpListener{}
+	conf := &config{}
+	if err := c.UnmarshalKeyWithParent(tcplistener.Type(), conf); err != nil {
+		return nil, err
+	}
+	tcplistener.conf = conf
 	proc, err := processor.NewProcessor(c)
 	if err != nil {
 		return nil, err
 	}
-	tcplistener := &TcpListener{
-		proc: proc,
-	}
+	tcplistener.proc = proc
 	if err := c.UnmarshalKey("network.tcp_acceptor", tcplistener); err != nil {
 		return nil, err
 	}
@@ -37,7 +44,7 @@ func (t *TcpListener) Init() error {
 
 func (t *TcpListener) Start() error {
 	var err error
-	t.listener, err = net.Listen("tcp", t.addr)
+	t.listener, err = net.Listen("tcp", t.conf.addr)
 	if err != nil {
 		return err
 	}

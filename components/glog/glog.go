@@ -14,17 +14,17 @@ import (
 )
 
 type config struct {
-	Level           string `mapstructure:"level"`            // 日志初始等级，默认info级别
-	EnableAddCaller bool   `mapstructure:"enable_addcaller"` // 是否添加调用者信息，默认不加调用者信息
-	Writer          string `mapstructure:"writer"`           // 使用哪种Writer，可选[rotate_file|stderr]，默认file
-	CallerSkip      int    `mapstructure:"caller_skip"`      // 跳过的堆栈层数，一般默认都为1
-	Watch           bool   `mapstructure:"watch"`            // 是否监听日志等级变化
+	Level           string `toml:"level"`            // 日志初始等级，默认info级别
+	EnableAddCaller bool   `toml:"enable_addcaller"` // 是否添加调用者信息，默认不加调用者信息
+	Writer          string `toml:"writer"`           // 使用哪种Writer，可选[rotate_file|stderr]，默认file
+	CallerSkip      int    `toml:"caller_skip"`      // 跳过的堆栈层数，一般默认都为1
+	Watch           bool   `toml:"watch"`            // 是否监听日志等级变化
 }
 type GalaxyLog struct {
 	core          zapcore.Core
 	name          string
 	desugar       *zap.Logger
-	lv            zap.AtomicLevel
+	logLevel      *zap.AtomicLevel
 	conf          *config
 	sugar         *zap.SugaredLogger
 	asyncStopFunc func() error
@@ -43,7 +43,7 @@ func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
 	configure := gconfig.New(configFile)
 	conf := DefaultConfig()
 	gl := &GalaxyLog{
-		conf:          DefaultConfig(),
+		conf:          conf,
 		name:          name,
 		asyncStopFunc: func() error { return nil },
 	}
@@ -60,14 +60,15 @@ func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
 	}
 
 	// 默认日志级别
-	gl.lv = zap.NewAtomicLevelAt(zapcore.InfoLevel)
-	if err := gl.lv.UnmarshalText([]byte(conf.Level)); err != nil {
+	logLevel := zap.NewAtomicLevelAt(zapcore.InfoLevel)
+	gl.logLevel = &logLevel
+	if err := gl.logLevel.UnmarshalText([]byte(conf.Level)); err != nil {
 		panic(err)
 	}
 
 	// 如果用户没有设置core。那么就选择官方默认的core。
 	if gl.core == nil {
-		w, err := corewriter.NewCoreWriter(conf.Writer, configure.WithParent("log"), gl.lv)
+		w, err := corewriter.NewCoreWriter(conf.Writer, configure.WithParent("log"), logLevel)
 		if err != nil {
 			panic(err)
 		}
@@ -87,62 +88,48 @@ func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
 }
 
 // AutoLevel ...
-func (l *GalaxyLog) AutoLevel(c *gconfig.Configuration) {
+func (g *GalaxyLog) AutoLevel(c *gconfig.Configuration) {
 	c.Watch(func(c *gconfig.Configuration) {
-		lvText := strings.ToLower(c.GetString("level"))
-		if lvText != "" {
-			l.Info("update level", String("level", lvText), String("name", l.name))
-			_ = l.lv.UnmarshalText([]byte(lvText))
+		lvText := strings.ToLower(c.GetString("log.level"))
+		if lvText == "" {
+			return
 		}
+		g.Infof("config level change %s->%s", g.logLevel.String(), lvText)
+		_ = g.logLevel.UnmarshalText([]byte(lvText))
 	})
 }
 
 // SetLevel ...
-func (l *GalaxyLog) SetLevel(lv Level) {
-	l.lv.SetLevel(lv)
+func (g *GalaxyLog) SetLevel(lv Level) {
+	g.logLevel.SetLevel(lv)
 }
 
 // Flush ...
 // When use os.Stdout or os.Stderr as zapcore.WriteSyncer
-// l.desugar.Sync() maybe return an error like this: 'sync /dev/stdout: The handle is invalid.'
+// g.desugar.Sync() maybe return an error like this: 'sync /dev/stdout: The handle is invalid.'
 // Because os.Stdout and os.Stderr is a non-normal file, maybe not support 'fsync' in different os platform
 // So ignored Sync() return value
 // About issues: https://github.com/uber-go/zap/issues/328
 // About 'fsync': https://man7.org/linux/man-pages/man2/fsync.2.html
-func (l *GalaxyLog) Flush() error {
-	if l.asyncStopFunc != nil {
-		if err := l.asyncStopFunc(); err != nil {
+func (g *GalaxyLog) Flush() error {
+	if g.asyncStopFunc != nil {
+		if err := g.asyncStopFunc(); err != nil {
 			return err
 		}
 	}
 
-	_ = l.desugar.Sync()
+	_ = g.desugar.Sync()
 	return nil
 }
 
-// IsDebugMode ...
-func (l *GalaxyLog) IsDebugMode() bool {
-	return true
-}
-
-func normalizeMessage(msg string) string {
-	return fmt.Sprintf("%-32s", msg)
-}
-
 // Debug ...
-func (l *GalaxyLog) Debug(msg string, fields ...Field) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.desugar.Debug(msg, fields...)
+func (g *GalaxyLog) Debug(msg string, fields ...Field) {
+	g.desugar.Debug(msg, fields...)
 }
 
 // Debugw ...
-func (l *GalaxyLog) Debugw(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.Debugw(msg, keysAndValues...)
+func (g *GalaxyLog) Debugw(msg string, keysAndValues ...interface{}) {
+	g.sugar.Debugw(msg, keysAndValues...)
 }
 
 func sprintf(template string, args ...interface{}) string {
@@ -156,143 +143,104 @@ func sprintf(template string, args ...interface{}) string {
 }
 
 // StdLog ...
-func (l *GalaxyLog) StdLog() *log.Logger {
-	return zap.NewStdLog(l.desugar)
+func (g *GalaxyLog) StdLog() *log.Logger {
+	return zap.NewStdLog(g.desugar)
 }
 
 // Debugf ...
-func (l *GalaxyLog) Debugf(template string, args ...interface{}) {
-	l.sugar.Debugw(sprintf(template, args...))
+func (g *GalaxyLog) Debugf(template string, args ...interface{}) {
+	g.sugar.Debugw(sprintf(template, args...))
 }
 
 // Info ...
-func (l *GalaxyLog) Info(msg string, fields ...Field) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.desugar.Info(msg, fields...)
+func (g *GalaxyLog) Info(msg string, fields ...Field) {
+	g.desugar.Info(msg, fields...)
 }
 
 // Infow ...
-func (l *GalaxyLog) Infow(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.Infow(msg, keysAndValues...)
+func (g *GalaxyLog) Infow(msg string, keysAndValues ...interface{}) {
+	g.sugar.Infow(msg, keysAndValues...)
 }
 
 // Infof ...
-func (l *GalaxyLog) Infof(template string, args ...interface{}) {
-	l.sugar.Infof(sprintf(template, args...))
+func (g *GalaxyLog) Infof(template string, args ...interface{}) {
+	g.sugar.Infof(sprintf(template, args...))
 }
 
 // Warn ...
-func (l *GalaxyLog) Warn(msg string, fields ...Field) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.desugar.Warn(msg, fields...)
+func (g *GalaxyLog) Warn(msg string, fields ...Field) {
+	g.desugar.Warn(msg, fields...)
 }
 
 // Warnw ...
-func (l *GalaxyLog) Warnw(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.Warnw(msg, keysAndValues...)
+func (g *GalaxyLog) Warnw(msg string, keysAndValues ...interface{}) {
+	g.sugar.Warnw(msg, keysAndValues...)
 }
 
 // Warnf ...
-func (l *GalaxyLog) Warnf(template string, args ...interface{}) {
-	l.sugar.Warnf(sprintf(template, args...))
+func (g *GalaxyLog) Warnf(template string, args ...interface{}) {
+	g.sugar.Warnf(sprintf(template, args...))
 }
 
 // Error ...
-func (l *GalaxyLog) Error(msg string, fields ...Field) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.desugar.Error(msg, fields...)
+func (g *GalaxyLog) Error(msg string, fields ...Field) {
+	g.desugar.Error(msg, fields...)
 }
 
 // Errorw ...
-func (l *GalaxyLog) Errorw(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.Errorw(msg, keysAndValues...)
+func (g *GalaxyLog) Errorw(msg string, keysAndValues ...interface{}) {
+	g.sugar.Errorw(msg, keysAndValues...)
 }
 
 // Errorf ...
-func (l *GalaxyLog) Errorf(template string, args ...interface{}) {
-	l.sugar.Errorf(sprintf(template, args...))
+func (g *GalaxyLog) Errorf(template string, args ...interface{}) {
+	g.sugar.Errorf(sprintf(template, args...))
 }
 
 // Panic ...
-func (l *GalaxyLog) Panic(msg string, fields ...Field) {
+func (g *GalaxyLog) Panic(msg string, fields ...Field) {
 	panicDetail(msg, fields...)
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.desugar.Panic(msg, fields...)
+	g.desugar.Panic(msg, fields...)
 }
 
 // Panicw ...
-func (l *GalaxyLog) Panicw(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.Panicw(msg, keysAndValues...)
+func (g *GalaxyLog) Panicw(msg string, keysAndValues ...interface{}) {
+	g.sugar.Panicw(msg, keysAndValues...)
 }
 
 // Panicf ...
-func (l *GalaxyLog) Panicf(template string, args ...interface{}) {
-	l.sugar.Panicf(sprintf(template, args...))
+func (g *GalaxyLog) Panicf(template string, args ...interface{}) {
+	g.sugar.Panicf(sprintf(template, args...))
 }
 
 // DPanic ...
-func (l *GalaxyLog) DPanic(msg string, fields ...Field) {
-	if l.IsDebugMode() {
-		panicDetail(msg, fields...)
-		msg = normalizeMessage(msg)
-	}
-	l.desugar.DPanic(msg, fields...)
+func (g *GalaxyLog) DPanic(msg string, fields ...Field) {
+	g.desugar.DPanic(msg, fields...)
 }
 
 // DPanicw ...
-func (l *GalaxyLog) DPanicw(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.DPanicw(msg, keysAndValues...)
+func (g *GalaxyLog) DPanicw(msg string, keysAndValues ...interface{}) {
+	g.sugar.DPanicw(msg, keysAndValues...)
 }
 
 // DPanicf ...
-func (l *GalaxyLog) DPanicf(template string, args ...interface{}) {
-	l.sugar.DPanicf(sprintf(template, args...))
+func (g *GalaxyLog) DPanicf(template string, args ...interface{}) {
+	g.sugar.DPanicf(sprintf(template, args...))
 }
 
 // Fatal ...
-func (l *GalaxyLog) Fatal(msg string, fields ...Field) {
-	if l.IsDebugMode() {
-		panicDetail(msg, fields...)
-		//msg = normalizeMessage(msg)
-		return
-	}
-	l.desugar.Fatal(msg, fields...)
+func (g *GalaxyLog) Fatal(msg string, fields ...Field) {
+	g.desugar.Fatal(msg, fields...)
 }
 
 // Fatalw ...
-func (l *GalaxyLog) Fatalw(msg string, keysAndValues ...interface{}) {
-	if l.IsDebugMode() {
-		msg = normalizeMessage(msg)
-	}
-	l.sugar.Fatalw(msg, keysAndValues...)
+func (g *GalaxyLog) Fatalw(msg string, keysAndValues ...interface{}) {
+	g.sugar.Fatalw(msg, keysAndValues...)
 }
 
 // Fatalf ...
-func (l *GalaxyLog) Fatalf(template string, args ...interface{}) {
-	l.sugar.Fatalf(sprintf(template, args...))
+func (g *GalaxyLog) Fatalf(template string, args ...interface{}) {
+	g.sugar.Fatalf(sprintf(template, args...))
 }
 
 func panicDetail(msg string, fields ...Field) {
@@ -312,24 +260,24 @@ func panicDetail(msg string, fields ...Field) {
 }
 
 // With ...
-func (l *GalaxyLog) With(fields ...Field) *GalaxyLog {
-	desugarLogger := l.desugar.With(fields...)
+func (g *GalaxyLog) With(fields ...Field) *GalaxyLog {
+	desugarLogger := g.desugar.With(fields...)
 	return &GalaxyLog{
-		desugar: desugarLogger,
-		lv:      l.lv,
-		sugar:   desugarLogger.Sugar(),
-		conf:    l.conf,
+		desugar:  desugarLogger,
+		logLevel: g.logLevel,
+		sugar:    desugarLogger.Sugar(),
+		conf:     g.conf,
 	}
 }
 
 // WithCallerSkip ...
-func (l *GalaxyLog) WithCallerSkip(callerSkip int, fields ...Field) *GalaxyLog {
-	l.conf.CallerSkip = callerSkip
-	desugarLogger := l.desugar.WithOptions(zap.AddCallerSkip(callerSkip)).With(fields...)
+func (g *GalaxyLog) WithCallerSkip(callerSkip int, fields ...Field) *GalaxyLog {
+	g.conf.CallerSkip = callerSkip
+	desugarLogger := g.desugar.WithOptions(zap.AddCallerSkip(callerSkip)).With(fields...)
 	return &GalaxyLog{
-		desugar: desugarLogger,
-		lv:      l.lv,
-		sugar:   desugarLogger.Sugar(),
-		conf:    l.conf,
+		desugar:  desugarLogger,
+		logLevel: g.logLevel,
+		sugar:    desugarLogger.Sugar(),
+		conf:     g.conf,
 	}
 }

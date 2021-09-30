@@ -1,6 +1,8 @@
 package gconfig
 
 import (
+	"io"
+	"path"
 	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
@@ -9,24 +11,45 @@ import (
 )
 
 type Configuration struct {
-	vp        *viper.Viper
-	watch     int32
-	onChanges []OnChangeCallback
-	parent    string
-	options   []viper.Option
-	hooks     viper.DecoderConfigOption
+	vp         *viper.Viper
+	watch      int32
+	onChanges  []OnChangeCallback
+	parent     string
+	options    []viper.Option
+	hooks      viper.DecoderConfigOption
+	configType string
+	tag        string
 }
 
 type OnChangeCallback = func(c *Configuration)
 
-func New(ConfigFile string, opts ...Option) *Configuration {
-	conf := &Configuration{}
+func defaultConfig() *Configuration {
+	return &Configuration{}
+}
+
+func New(configFile string, opts ...Option) *Configuration {
+	conf := defaultConfig()
 	for _, opt := range opts {
 		opt(conf)
 	}
 	v := viper.NewWithOptions(conf.options...)
-	v.SetConfigFile(ConfigFile)
+	v.SetConfigFile(configFile)
 	if err := v.ReadInConfig(); err != nil {
+		panic(err)
+	}
+	conf.configType = path.Ext(configFile)[1:]
+	conf.vp = v
+	return conf
+}
+
+func NewWithReader(r io.Reader, opts ...Option) *Configuration {
+	conf := defaultConfig()
+	for _, opt := range opts {
+		opt(conf)
+	}
+	v := viper.NewWithOptions(conf.options...)
+	v.SetConfigType(conf.configType)
+	if err := v.ReadConfig(r); err != nil {
 		panic(err)
 	}
 	conf.vp = v
@@ -57,8 +80,23 @@ func (c *Configuration) GetString(key string) string {
 	return c.vp.GetString(key)
 }
 
+func (c *Configuration) decodeOptions() []viper.DecoderConfigOption {
+	opts := []viper.DecoderConfigOption{}
+	if c.hooks != nil {
+		opts = append(opts, c.hooks)
+	}
+	opts = append(opts, func(dc *mapstructure.DecoderConfig) {
+		if c.tag != "" {
+			dc.TagName = c.tag
+		} else {
+			dc.TagName = c.configType // 默认和后缀一样
+		}
+	})
+	return opts
+}
+
 func (c *Configuration) UnmarshalKey(key string, data interface{}) error {
-	return c.vp.UnmarshalKey(key, data, c.hooks)
+	return c.vp.UnmarshalKey(key, data, c.decodeOptions()...)
 }
 
 func (c *Configuration) KeyWithParent(key string) string {
@@ -69,9 +107,13 @@ func (c *Configuration) KeyWithParent(key string) string {
 }
 
 func (c *Configuration) UnmarshalKeyWithParent(key string, data interface{}) error {
-	return c.vp.UnmarshalKey(c.KeyWithParent(key), data)
+	return c.UnmarshalKey(c.KeyWithParent(key), data)
 }
 
 func (c *Configuration) HookDecodeFunc(funcs ...mapstructure.DecodeHookFunc) {
-	c.hooks = viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(funcs))
+	c.hooks = viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(funcs...))
+}
+
+func (c *Configuration) AllKeys() []string {
+	return c.vp.AllKeys()
 }

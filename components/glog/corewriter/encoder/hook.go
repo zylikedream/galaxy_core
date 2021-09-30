@@ -31,7 +31,7 @@ func stringToEncoder(hook EncoderHook) mapstructure.DecodeHookFunc {
 }
 
 func stringToLevelEncoder() mapstructure.DecodeHookFunc {
-	return stringToEncoder((*zapcore.LevelEncoder)(nil))
+	return stringToEncoder((*galaxyEncodeLevel)(nil))
 }
 
 func stringToTimeEncoder() mapstructure.DecodeHookFunc {
@@ -46,6 +46,6 @@ func stringToCallerEncoder() mapstructure.DecodeHookFunc {
 	return stringToEncoder((*zapcore.CallerEncoder)(nil))
 }
 
-func tringToNameEncoder() mapstructure.DecodeHookFunc {
+func stringToNameEncoder() mapstructure.DecodeHookFunc {
 	return stringToEncoder((*zapcore.NameEncoder)(nil))
 }

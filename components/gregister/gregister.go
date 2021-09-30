@@ -30,5 +30,5 @@ func (r *register) NewNode(t string, c *gconfig.Configuration, args ...interface
 	if !ok {
 		return nil, fmt.Errorf("no node for type:%s", t)
 	}
-	return builder.Build(c)
+	return builder.Build(c, args...)
 }

@@ -16,20 +16,27 @@ type stderrWriter struct {
 	io.Closer
 }
 
+type stderrConfig struct {
+	EncoderType string `toml:"encoder_type"`
+}
+
 // Load constructs a zapcore.Core with stderr syncer
-func new(c *gconfig.Configuration, atomiclv zap.AtomicLevel) *stderrWriter {
+func new(c *gconfig.Configuration, atomiclv zap.AtomicLevel) (*stderrWriter, error) {
 	// Debug output to console and file by default
 	w := &stderrWriter{}
-	debug := true
-	var econfig zapcore.EncoderConfig
-	if debug {
-		econfig = *encoder.DefaultDebugConfig()
-	} else {
-		econfig = *encoder.DefaultZapConfig()
+	conf := &stderrConfig{
+		EncoderType: "json",
 	}
-	w.Core = zapcore.NewCore(zapcore.NewJSONEncoder(econfig), os.Stderr, atomiclv)
+	if err := c.UnmarshalKeyWithParent(w.Type(), conf); err != nil {
+		return nil, err
+	}
+	encoder, err := encoder.NewZapEncoder(conf.EncoderType, c)
+	if err != nil {
+		return nil, err
+	}
+	w.Core = zapcore.NewCore(encoder, os.Stderr, atomiclv)
 	w.Closer = CloseFunc(noopCloseFunc)
-	return w
+	return w, nil
 }
 
 func (s *stderrWriter) Type() string {
@@ -44,6 +51,10 @@ func (s *stderrWriter) Build(c *gconfig.Configuration, args ...interface{}) (int
 	if !ok {
 		return nil, fmt.Errorf("need param type (*zap.AtomicLevel)")
 	}
-	return new(c, atomiclv), nil
+	return new(c, atomiclv)
 
+}
+
+func init() {
+	Register(&stderrWriter{})
 }

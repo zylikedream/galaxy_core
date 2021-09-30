@@ -11,22 +11,34 @@ import (
 
 // length + type + id + payload
 type ltiv struct {
-	sizeLength int              `mapstructure:"size_length"`
-	typeLength int              `mapstructure:"type_length"`
-	IDLength   int              `mapstructure:"id_length"`
-	byteOrder  binary.ByteOrder `mapstructure:"byte_order"`
+	byteOrder binary.ByteOrder `toml:"byte_order"`
+	conf      *ltivConfig
+}
+
+type ltivConfig struct {
+	sizeLength int    `toml:"size_length"`
+	typeLength int    `toml:"type_length"`
+	IDLength   int    `toml:"id_length"`
+	ByteOrder  string `toml:"byte_order"`
 }
 
 func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
 	l := &ltiv{}
-	if err := c.UnmarshalKeyWithParent(l.Type(), l); err != nil {
+	conf := &ltivConfig{}
+	if err := c.UnmarshalKeyWithParent(l.Type(), conf); err != nil {
 		return nil, err
 	}
+	if conf.ByteOrder == "little" {
+		l.byteOrder = binary.LittleEndian
+	} else {
+		l.byteOrder = binary.BigEndian
+	}
+	l.conf = conf
 	return l, nil
 }
 
 func (l *ltiv) MsgLenLength() int {
-	return l.sizeLength
+	return l.conf.sizeLength
 }
 
 func (l *ltiv) Uint(data []byte) (uint64, error) {
@@ -47,19 +59,19 @@ func (l *ltiv) Decode(payLoad []byte) (*message.Message, error) {
 	msg := &message.Message{}
 	// 消息类型+消息id+消息内容
 	pointer := 0
-	if tp, err := l.Uint(payLoad[pointer : pointer+l.typeLength]); err != nil {
+	if tp, err := l.Uint(payLoad[pointer : pointer+l.conf.typeLength]); err != nil {
 		return nil, err
 	} else {
 		msg.Type = tp
 	}
-	pointer += l.typeLength
+	pointer += l.conf.typeLength
 	// 消息id
-	if id, err := l.Uint(payLoad[pointer : pointer+l.IDLength]); err != nil {
+	if id, err := l.Uint(payLoad[pointer : pointer+l.conf.IDLength]); err != nil {
 		return nil, err
 	} else {
 		msg.ID = id
 	}
-	pointer += l.IDLength
+	pointer += l.conf.IDLength
 
 	msg.Payload = payLoad[pointer:]
 
@@ -87,10 +99,10 @@ func (l *ltiv) convertUint(v uint64, len int) interface{} {
 func (l *ltiv) Encode(m *message.Message) ([]byte, error) {
 	payload := bytes.Buffer{}
 	// 消息类型+消息id+消息内容
-	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.Type, l.typeLength)); err != nil {
+	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.Type, l.conf.typeLength)); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.ID, l.IDLength)); err != nil {
+	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.ID, l.conf.IDLength)); err != nil {
 		return nil, err
 	}
 	if _, err := payload.Write(m.Payload); err != nil {

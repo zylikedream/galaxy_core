@@ -11,10 +11,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
-<<<<<<< HEAD
-=======
 	"github.com/zylikedream/galaxy/components/glog/corewriter/encoder"
->>>>>>> 94b59071e8de9f193171c73707897a0a8492681f
 	"github.com/zylikedream/galaxy/components/glog/corewriter/rotate"
 )
 
@@ -24,22 +21,22 @@ type rotateFileWriter struct {
 }
 
 // config ...
-type config struct {
-	Dir                 string        `mapstructure:"dir"`
-	File                string        `mapstructure:"file"`
-	MaxSize             int           `mapstructure:"max_size"`              // [fileWriter]日志输出文件最大长度，超过改值则截断，默认500M
-	MaxAge              int           `mapstructure:"max_age"`               // [fileWriter]日志存储最大时间，默认最大保存天数为7天
-	MaxBackup           int           `mapstructure:"max_backup"`            // [fileWriter]日志存储最大数量，默认最大保存文件个数为10个
-	RotateInterval      time.Duration `mapstructure:"rotate_interval"`       // [fileWriter]日志轮转时间，默认1天
-	FlushBufferSize     int           `mapstructure:"flush_buffer_size"`     // 缓冲大小，默认256 * 1024B
-	FlushBufferInterval time.Duration `mpastructure:"flush_buffer_interval"` // 缓冲时间，默认5秒
-	EnableAsync         bool          `mapstructure:"enable_sync"`           // 是否异步，默认异步
-	Encoder             string        `mapstructure:"encoder"`               // console|json 使用可读或者json格式
-	Stdout              bool          `mapstructure:"stdout"`                // 是否同时输出到控制台
+type rotateFileConfig struct {
+	Dir                 string        `toml:"dir"`
+	File                string        `toml:"file"`
+	MaxSize             int           `toml:"max_size"`              // [fileWriter]日志输出文件最大长度，超过改值则截断，默认500M
+	MaxAge              int           `toml:"max_age"`               // [fileWriter]日志存储最大时间，默认最大保存天数为7天
+	MaxBackup           int           `toml:"max_backup"`            // [fileWriter]日志存储最大数量，默认最大保存文件个数为10个
+	RotateInterval      time.Duration `toml:"rotate_interval"`       // [fileWriter]日志轮转时间，默认1天
+	FlushBufferSize     int           `toml:"flush_buffer_size"`     // 缓冲大小，默认256 * 1024B
+	FlushBufferInterval time.Duration `toml:"flush_buffer_interval"` // 缓冲时间，默认5秒
+	EnableAsync         bool          `toml:"enable_async"`          // 是否异步，默认异步
+	EncoderType         string        `toml:"encoder_type"`          // console|json 使用可读或者json格式
+	Stdout              bool          `toml:"stdout"`                // 是否同时输出到控制台
 }
 
-func defaultConfig() *config {
-	return &config{
+func defaultConfig() *rotateFileConfig {
+	return &rotateFileConfig{
 		Dir:                 "log",
 		File:                "default.log",
 		MaxSize:             500, // 500M
@@ -52,7 +49,7 @@ func defaultConfig() *config {
 }
 
 // Load constructs a zapcore.Core with stderr syncer
-func newRotateFileWriter(c *gconfig.Configuration, atomiclv zap.AtomicLevel) CoreWriter {
+func newRotateFileWriter(c *gconfig.Configuration, atomiclv zap.AtomicLevel) *rotateFileWriter {
 	w := &rotateFileWriter{}
 	conf := defaultConfig()
 	if err := c.UnmarshalKeyWithParent(w.Type(), &conf); err != nil {
@@ -71,22 +68,18 @@ func newRotateFileWriter(c *gconfig.Configuration, atomiclv zap.AtomicLevel) Cor
 		Interval:   conf.RotateInterval,
 	})
 
-	var encoder zapcore.Encoder
 	if conf.EnableAsync {
 		ws, cf = rotate.BufferWriteSyncer(ws, conf.FlushBufferSize, conf.FlushBufferInterval)
 	}
 	if conf.Stdout {
 		ws = zap.CombineWriteSyncers(os.Stdout, ws)
 	}
-	if conf.Encoder == "console" {
-		encoder = zapcore.NewConsoleEncoder(*encoder.DefaultDebugConfig())
-	} else if conf.Encoder == "json" {
-		encoder = zapcore.NewJSONEncoder(*encoder.DefaultZapConfig())
-	} else {
-		panic(fmt.Errorf("unkonw encoder %s", conf.Encoder))
+	zapEncoder, err := encoder.NewZapEncoder(conf.EncoderType, c)
+	if err != nil {
+		panic(err)
 	}
 	w.Closer = CloseFunc(cf)
-	w.Core = zapcore.NewCore(encoder, ws, atomiclv)
+	w.Core = zapcore.NewCore(zapEncoder, ws, atomiclv)
 	return w
 }
 
@@ -100,7 +93,11 @@ func (r *rotateFileWriter) Build(c *gconfig.Configuration, args ...interface{}) 
 	}
 	atomiclv, ok := args[0].(zap.AtomicLevel)
 	if !ok {
-		return nil, fmt.Errorf("need param type (*zap.AtomicLevel)")
+		return nil, fmt.Errorf("need param type (zap.AtomicLevel)")
 	}
 	return newRotateFileWriter(c, atomiclv), nil
+}
+
+func init() {
+	Register(&rotateFileWriter{})
 }

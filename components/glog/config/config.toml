@@ -1,7 +1,7 @@
 [log]
-	level = "info"
+	level = "debug"
 	enable_addcaller = true
-	writer = "file"
+	writer = "rotate_file" # 写入类型(rotate_file|stderr), 默认为rotate_file
 	watch = true
 
 [log.rotate_file]
@@ -11,6 +11,15 @@
 	max_age = 30 # 单位天
 	max_backup = 30
 	rotate_interval = "24h"
-	encoder = "json"
 	stdout = true
+	encoder_type = "json"
+
+[log.stderr]
+	encoder_type = "console"
+
+[log.encoder_config] # 完整字段参考github.com/zylikedream/galaxy/components/glog/corewriter/encoder/encoder.go的config
+	encode_level = "capital" # level的颜色大小写控制(capital|capitalColor|color|lower), 默认为lower
+	encode_time = "rfc3339" # 时间格式(rfc3339|iso8601|mills|nanos|sec)，默认为rfc3339
+	encode_duration = "sec" # duration写入格式(string|nanas|ms|sec), 默认为sec
+	encode_caller = "short" # caller的格式（full|short), 默认为short
 
