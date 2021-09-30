@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
-	rotate "github.com/zylikedream/galaxy/components/glog/corewriter/rotatefile"
+	"github.com/zylikedream/galaxy/components/glog/corewriter/rotate"
 )
 
 type rotateFileWriter struct {
@@ -76,7 +76,7 @@ func newRotateFileWriter(c *gconfig.Configuration) CoreWriter {
 			return zapcore.NewJSONEncoder(*conf.encoderConfig)
 		}(),
 		ws,
-		commonConfig.AtomicLevel(),
+		Conf.AtomicLevel(),
 	)
 	return w
 }
