@@ -75,7 +75,7 @@ func (t *TcpSession) Close() {
 	}
 	atomic.AddInt32(&t.exit, 1)
 	tcpConn := t.conn.(*net.TCPConn)
-	tcpConn.CloseRead()
+	_ = tcpConn.CloseRead()
 	close(t.sendCh)
 }
 

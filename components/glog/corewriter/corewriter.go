@@ -5,6 +5,7 @@ import (
 
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/gregister"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -15,15 +16,16 @@ type CoreWriter interface {
 	io.Closer
 }
 
+type CloseFunc func() error
+
 // Close 关闭
 func (c CloseFunc) Close() error {
 	return c()
 }
 
-var noopCloseFunc = func() error { return nil }
-
-// CloseFunc should be called when the caller exits to clean up buffers.
-type CloseFunc func() error
+var noopCloseFunc = func() error {
+	return nil
+}
 
 var reg = gregister.NewRegister()
 
@@ -31,8 +33,8 @@ func Register(builder gregister.Builder) {
 	reg.Register(builder)
 }
 
-func NewCoreWriter(t string, c *gconfig.Configuration) (CoreWriter, error) {
-	if node, err := reg.NewNode(t, c); err != nil {
+func NewCoreWriter(t string, c *gconfig.Configuration, atomiclv zap.AtomicLevel) (CoreWriter, error) {
+	if node, err := reg.NewNode(t, c, atomiclv); err != nil {
 		return nil, err
 	} else {
 		return node.(CoreWriter), nil

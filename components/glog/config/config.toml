@@ -1,0 +1,16 @@
+[log]
+	level = "info"
+	enable_addcaller = true
+	writer = "file"
+	watch = true
+
+[log.rotate_file]
+	dir = "log"
+	file = "default.log"
+	max_size = 1024 # 单位MB
+	max_age = 30 # 单位天
+	max_backup = 30
+	rotate_interval = "24h"
+	encoder = "json"
+	stdout = true
+
