@@ -5,11 +5,22 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/AlexStocks/log4go"
+	gxnet "github.com/dubbogo/gost/net"
+	gxtime "github.com/dubbogo/gost/time"
 	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/components/gconfig"
+	"github.com/zylikedream/galaxy/components/network"
 	"github.com/zylikedream/galaxy/components/network/peer"
 	"github.com/zylikedream/galaxy/components/network/peer/processor"
 	"github.com/zylikedream/galaxy/components/network/session"
+)
+
+var (
+	errSelfConnect        = errors.New("connect self!")
+	serverFastFailTimeout = time.Second * 1
+	serverID              = 0
+	wheel                 *gxtime.Wheel
 )
 
 type TcpServer struct {
@@ -17,10 +28,11 @@ type TcpServer struct {
 	listener net.Listener
 	conf     *config
 	wg       sync.WaitGroup
+	done     chan struct{}
 }
 
 type sslConfig struct {
-	enable bool `toml:enable`
+	Enable bool `toml:"enable"`
 }
 
 type config struct {
@@ -66,7 +78,7 @@ func (t *TcpServer) listen() error {
 		return err
 	}
 	addr := t.conf.addr
-	if t.conf.ssl.enable {
+	if t.conf.ssl.Enable {
 		// if sslConfig, err := s.tlsConfigBuilder.BuildTlsConfig(); err == nil && sslConfig != nil {
 		// 	t.listener, err = tls.Listen("tcp", t.conf.addr, sslConfig)
 		// }
@@ -81,10 +93,11 @@ func (t *TcpServer) listen() error {
 
 func (t *TcpServer) run() {
 	t.wg.Add(1)
+	var newSession network.NewSessionCallback
 	go func() {
 		defer t.wg.Done()
 		var err error
-		var client session.Session
+		var client network.Session
 		var delay time.Duration
 		for {
 			if t.IsClosed() {
@@ -93,9 +106,9 @@ func (t *TcpServer) run() {
 			if delay != 0 {
 				<-wheel.After(delay)
 			}
-			client, err = s.accept(newSession)
+			client, err = t.accept(newSession)
 			if err != nil {
-				if netErr, ok := perrors.Cause(err).(net.Error); ok && netErr.Temporary() {
+				if netErr, ok := errors.Cause(err).(net.Error); ok && netErr.Temporary() {
 					if delay == 0 {
 						delay = 5 * time.Millisecond
 					} else {
@@ -109,9 +122,29 @@ func (t *TcpServer) run() {
 				continue
 			}
 			delay = 0
-			client.(*session).run()
+			client.Run()
 		}
 	}()
+}
+
+func (s *TcpServer) accept(newSession network.NewSessionCallback) (network.Session, error) {
+	conn, err := s.listener.Accept()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if gxnet.IsSameAddr(conn.RemoteAddr(), conn.LocalAddr()) {
+		log.Warn("conn.localAddr{%s} == conn.RemoteAddr", conn.LocalAddr().String(), conn.RemoteAddr().String())
+		return nil, errors.WithStack(errSelfConnect)
+	}
+
+	ss := session.NewTCPSession(conn, s)
+	err = newSession(ss)
+	if err != nil {
+		conn.Close()
+		return nil, errors.WithStack(err)
+	}
+
+	return ss, nil
 }
 
 func (t *TcpServer) Type() string {
@@ -119,7 +152,16 @@ func (t *TcpServer) Type() string {
 }
 
 func (t *TcpServer) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
-	return newTcpListener(c)
+	return newTcpServer(c)
+}
+
+func (t *TcpServer) IsClosed() bool {
+	select {
+	case <-t.done:
+		return true
+	default:
+		return false
+	}
 }
 
 func (t *TcpServer) Stop() {
