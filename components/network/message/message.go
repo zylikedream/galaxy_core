@@ -3,6 +3,7 @@ package message
 import (
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/gregister"
+	"github.com/zylikedream/galaxy/components/network/session"
 )
 
 type MessageCodec interface {
@@ -17,6 +18,7 @@ type Message struct {
 	Type    uint64
 	Payload []byte
 	Msg     interface{}
+	Sess    session.Session
 }
 
 const (
