@@ -1,14 +1,16 @@
-package tcp
+package session
 
 import (
 	"io"
 	"net"
 	"sync/atomic"
 
-	"github.com/zylikedream/galaxy/components/network/peer/processor"
+	"github.com/zylikedream/galaxy/components/network/message"
+	"github.com/zylikedream/galaxy/components/network/processor"
 )
 
 type TcpSession struct {
+	BaseSession
 	proc   *processor.Processor
 	conn   net.Conn
 	sendCh chan interface{}
@@ -41,12 +43,17 @@ func (t *TcpSession) recvLoop() {
 			// 出错了
 			break
 		}
-		msg.Sess = t
 		// todo handle msg
+		if err := t.handle(msg); err != nil {
+			break
+		}
 	}
 	// 被动断开，出错或者对方关闭
 	t.passiveClose()
+}
 
+func (t *TcpSession) handle(msg *message.Message) error {
+	return nil
 }
 
 func (t *TcpSession) Send(msg interface{}) error {

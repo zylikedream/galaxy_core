@@ -108,6 +108,7 @@ func (l *ltiv) Encode(m *message.Message) ([]byte, error) {
 	if _, err := payload.Write(m.Payload); err != nil {
 		return nil, err
 	}
+	m.Payload = payload.Bytes()
 	return payload.Bytes(), nil
 }
 
