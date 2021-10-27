@@ -14,8 +14,8 @@ type Processor struct {
 }
 
 type config struct {
-	PacketCodecType  string `mapstructure:"packet"`
-	MessageCodecType string `mapstructure:"message"`
+	PacketCodecType  string `toml:"packet"`
+	MessageCodecType string `toml:"message"`
 }
 
 func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
@@ -64,8 +64,9 @@ func (p *Processor) ReadAndDecode(r io.Reader) (*message.Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	msg.Msg, err = p.msgCodec.Decode(msg.ID, msg.Payload)
-	if err != nil {
+	msgMeta := message.MessageMetaByID(msg.ID)
+	msg.Msg = msgMeta.NewInstance()
+	if err = p.msgCodec.Decode(msg.Msg, msg.Payload); err != nil {
 		return nil, err
 	}
 	return msg, nil
@@ -76,7 +77,9 @@ func (p *Processor) Encode(rawMsg interface{}) ([]byte, error) {
 	msg := &message.Message{
 		Msg: rawMsg,
 	}
-	msg.ID, msg.Payload, err = p.msgCodec.Encode(rawMsg)
+	msgMeta := message.MessageMetaByMsg(rawMsg)
+	msg.ID = msgMeta.ID
+	msg.Payload, err = p.msgCodec.Encode(rawMsg)
 	if err != nil {
 		return nil, err
 	}

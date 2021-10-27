@@ -35,7 +35,7 @@ func DefaultConfig() *config {
 		Level:           "info",
 		CallerSkip:      1,
 		EnableAddCaller: false,
-		Writer:          "file",
+		Writer:          "rotate_file",
 	}
 }
 

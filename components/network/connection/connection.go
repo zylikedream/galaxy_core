@@ -1,20 +1,8 @@
 package connection
 
 import (
-	"compress/flate"
 	"sync/atomic"
 	"time"
-)
-
-type CompressType int
-
-const (
-	CompressNone            CompressType = flate.NoCompression      // 0
-	CompressZip                          = flate.DefaultCompression // -1
-	CompressBestSpeed                    = flate.BestSpeed          // 1
-	CompressBestCompression              = flate.BestCompression    // 9
-	CompressHuffman                      = flate.HuffmanOnly        // -2
-	CompressSnappy                       = 10
 )
 
 /////////////////////////////////////////
@@ -23,7 +11,6 @@ const (
 
 type Connection interface {
 	ID() uint32
-	SetCompressType(CompressType)
 	LocalAddr() string
 	RemoteAddr() string
 	incReadPkgNum()
@@ -46,7 +33,6 @@ type Connection interface {
 
 type baseConn struct {
 	id            uint32
-	compress      CompressType
 	padding1      uint8
 	padding2      uint16
 	readBytes     uint32        // read bytes

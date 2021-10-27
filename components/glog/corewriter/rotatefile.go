@@ -45,6 +45,7 @@ func defaultConfig() *rotateFileConfig {
 		RotateInterval:      24 * time.Hour,
 		FlushBufferSize:     256 * 1024,
 		FlushBufferInterval: 5 * time.Second,
+		EncoderType:         "json",
 	}
 }
 

@@ -5,51 +5,46 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
-	"github.com/zylikedream/galaxy/components/network/handler"
+	"github.com/zylikedream/galaxy/components/network/logger"
 	"github.com/zylikedream/galaxy/components/network/processor"
 	"github.com/zylikedream/galaxy/components/network/session"
+	"go.uber.org/zap"
 )
 
 type TcpServer struct {
-	proc     *processor.Processor
+	processor.ProcessorBundle
 	listener net.Listener
-	h        handler.Handler
-	conf     *config
+	conf     *tcpServerConfig
 }
 
-type config struct {
+type tcpServerConfig struct {
 	addr string `toml:"addr"`
 }
 
 func newTcpServer(c *gconfig.Configuration) (*TcpServer, error) {
 	server := &TcpServer{}
-	conf := &config{}
+	conf := &tcpServerConfig{}
 	if err := c.UnmarshalKeyWithParent(server.Type(), conf); err != nil {
 		return nil, err
 	}
 	server.conf = conf
-	proc, err := processor.NewProcessor(c)
-	if err != nil {
+	if err := server.BindProc(c); err != nil {
 		return nil, err
 	}
-	server.proc = proc
 	return server, nil
-}
-
-func (t *TcpServer) BindHandler(h handler.Handler) {
-	t.h = h
 }
 
 func (t *TcpServer) Init() error {
 	return nil
 }
 
-func (t *TcpServer) Start() error {
+func (t *TcpServer) Start(h processor.MsgHandler) error {
 	var err error
 	t.listener, err = net.Listen("tcp", t.conf.addr)
 	if err != nil {
 		return err
 	}
+	t.BindHandler(h)
 	go t.accept()
 	return nil
 }
@@ -59,19 +54,19 @@ func (t *TcpServer) accept() {
 		conn, err := t.listener.Accept()
 		if err != nil {
 			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+				logger.Nlog.Warn("tcpserver", zap.String("msg", "accept temporary error"))
 				time.Sleep(time.Millisecond)
 				continue
 			}
 			break
 		}
-		sess := session.NewTcpSession(conn, t.proc)
-		sess.BindHandler(t.h)
+		sess := session.NewTcpSession(conn, t.ProcessorBundle)
 		go sess.Start()
 	}
 }
 
 func (t *TcpServer) Type() string {
-	return PEER_TCP_ACCEPTOR
+	return PEER_TCP_SERVER
 }
 
 func (t *TcpServer) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {

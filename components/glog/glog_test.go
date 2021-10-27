@@ -20,6 +20,15 @@ func TestGlog(t *testing.T) {
 	}
 }
 
+func TestDefaultLog(t *testing.T) {
+
+	Debug("pvp1", zap.String("pid", "123"), zap.Duration("tm", time.Hour))
+	Warn("pvp1", zap.String("pid", "123"), zap.Duration("tm", time.Hour))
+	Info("pvp1", zap.String("pid", "123"), zap.Duration("tm", time.Hour))
+	Error("pvp1", zap.String("pid", "123"), zap.Duration("tm", time.Hour))
+	Infof("pvp1, pid=%s", "234")
+}
+
 func TestT(t *testing.T) {
 	var lv interface{} = zap.NewAtomicLevel()
 	atomic, ok := lv.(zap.AtomicLevel)

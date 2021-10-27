@@ -3,15 +3,16 @@ package peer
 import (
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/gregister"
+	"github.com/zylikedream/galaxy/components/network/processor"
 )
 
 const (
-	PEER_TCP_ACCEPTOR = "tcp_acceptor"
+	PEER_TCP_SERVER    = "tcp_server"
+	PEER_TCP_CONNECTOR = "tcp_connector"
 )
 
 type Peer interface {
-	Init() error
-	Start() error
+	Start(h processor.MsgHandler) error
 	Stop()
 	Type() string
 }

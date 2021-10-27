@@ -5,22 +5,23 @@ import (
 	"net"
 	"sync/atomic"
 
+	"github.com/zylikedream/galaxy/components/network/logger"
 	"github.com/zylikedream/galaxy/components/network/message"
 	"github.com/zylikedream/galaxy/components/network/processor"
+	"go.uber.org/zap"
 )
 
 type TcpSession struct {
-	BaseSession
-	proc   *processor.Processor
+	processor.ProcessorBundle
 	conn   net.Conn
 	sendCh chan interface{}
 	exit   int32
 }
 
-func NewTcpSession(conn net.Conn, proc *processor.Processor) *TcpSession {
+func NewTcpSession(conn net.Conn, bundle processor.ProcessorBundle) *TcpSession {
 	return &TcpSession{
-		conn: conn,
-		proc: proc,
+		conn:            conn,
+		ProcessorBundle: bundle,
 	}
 }
 
@@ -30,8 +31,10 @@ func (t *TcpSession) Start() {
 }
 
 func (t *TcpSession) recvLoop() {
+	var err error
+	var msg *message.Message
 	for {
-		msg, err := t.proc.ReadAndDecode(t.conn)
+		msg, err = t.Proc.ReadAndDecode(t.conn)
 		if err != nil {
 			netErr, ok := err.(*net.OpError)
 			if ok && netErr.Err == net.ErrClosed { // 主动断开 不执行断开逻辑，已经断开
@@ -43,17 +46,13 @@ func (t *TcpSession) recvLoop() {
 			// 出错了
 			break
 		}
-		// todo handle msg
-		if err := t.handle(msg); err != nil {
+		if err = t.Handler(msg); err != nil {
 			break
 		}
 	}
 	// 被动断开，出错或者对方关闭
+	logger.Nlog.Error("tcpsession", zap.String("msg", "recv loop break"), zap.Error(err))
 	t.passiveClose()
-}
-
-func (t *TcpSession) handle(msg *message.Message) error {
-	return nil
 }
 
 func (t *TcpSession) Send(msg interface{}) error {
@@ -62,8 +61,10 @@ func (t *TcpSession) Send(msg interface{}) error {
 }
 
 func (t *TcpSession) sendLoop() {
+	var err error
+	var data []byte
 	for rawMsg := range t.sendCh {
-		data, err := t.proc.Encode(rawMsg)
+		data, err = t.Proc.Encode(rawMsg)
 		if err != nil {
 			break
 		}
@@ -71,6 +72,9 @@ func (t *TcpSession) sendLoop() {
 		if err != nil {
 			break
 		}
+	}
+	if err != nil {
+		logger.Nlog.Error("tcpsession", zap.String("msg", "send loop break"), zap.Error(err))
 	}
 	// 关闭整个连接
 	t.conn.Close()

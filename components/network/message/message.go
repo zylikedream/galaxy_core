@@ -6,14 +6,13 @@ import (
 )
 
 type MessageCodec interface {
-	Decode(ID uint64, data []byte) (interface{}, error)
-	Encode(packet interface{}) (uint64, []byte, error)
-	ReisterPacket(ID uint64, packet interface{}) error
+	Decode(msg interface{}, data []byte) error
+	Encode(packet interface{}) ([]byte, error)
 	Type() string
 }
 
 type Message struct {
-	ID      uint64
+	ID      int
 	Type    uint64
 	Payload []byte
 	Msg     interface{}

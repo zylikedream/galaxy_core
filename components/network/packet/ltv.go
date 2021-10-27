@@ -69,7 +69,7 @@ func (l *ltiv) Decode(payLoad []byte) (*message.Message, error) {
 	if id, err := l.Uint(payLoad[pointer : pointer+l.conf.IDLength]); err != nil {
 		return nil, err
 	} else {
-		msg.ID = id
+		msg.ID = int(id)
 	}
 	pointer += l.conf.IDLength
 
@@ -102,7 +102,7 @@ func (l *ltiv) Encode(m *message.Message) ([]byte, error) {
 	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.Type, l.conf.typeLength)); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.ID, l.conf.IDLength)); err != nil {
+	if err := binary.Write(&payload, l.byteOrder, l.convertUint(uint64(m.ID), l.conf.IDLength)); err != nil {
 		return nil, err
 	}
 	if _, err := payload.Write(m.Payload); err != nil {
