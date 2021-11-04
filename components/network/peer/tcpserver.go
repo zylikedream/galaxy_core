@@ -6,13 +6,12 @@ import (
 
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/network/logger"
-	"github.com/zylikedream/galaxy/components/network/processor"
 	"github.com/zylikedream/galaxy/components/network/session"
 	"go.uber.org/zap"
 )
 
 type TcpServer struct {
-	processor.ProcessorBundle
+	session.SessionBundle
 	listener net.Listener
 	conf     *tcpServerConfig
 }
@@ -38,13 +37,13 @@ func (t *TcpServer) Init() error {
 	return nil
 }
 
-func (t *TcpServer) Start(h processor.MsgHandler) error {
+func (t *TcpServer) Start(el session.EventHandler) error {
 	var err error
 	t.listener, err = net.Listen("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}
-	t.BindHandler(h)
+	t.BindHandler(el)
 	go t.accept()
 	return nil
 }
@@ -60,7 +59,7 @@ func (t *TcpServer) accept() {
 			}
 			break
 		}
-		sess := session.NewTcpSession(conn, t.ProcessorBundle)
+		sess := session.NewTcpSession(conn, t.SessionBundle)
 		go sess.Start()
 	}
 }

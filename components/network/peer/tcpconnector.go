@@ -4,12 +4,11 @@ import (
 	"net"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
-	"github.com/zylikedream/galaxy/components/network/processor"
 	"github.com/zylikedream/galaxy/components/network/session"
 )
 
 type TcpConnector struct {
-	processor.ProcessorBundle
+	session.SessionBundle
 	conf *tcpConnectorConfig
 }
 
@@ -40,7 +39,7 @@ func (t *TcpConnector) Start() error {
 		return err
 	}
 
-	sess := session.NewTcpSession(conn, t.ProcessorBundle)
+	sess := session.NewTcpSession(conn, t.SessionBundle)
 	sess.Start()
 	return nil
 }

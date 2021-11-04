@@ -1,9 +1,17 @@
+/*
+ * @Author: your name
+ * @Date: 2021-11-04 14:34:02
+ * @LastEditTime: 2021-11-04 15:13:50
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /components/network/peer/peer.go
+ */
 package peer
 
 import (
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/gregister"
-	"github.com/zylikedream/galaxy/components/network/processor"
+	"github.com/zylikedream/galaxy/components/network/session"
 )
 
 const (
@@ -12,7 +20,7 @@ const (
 )
 
 type Peer interface {
-	Start(h processor.MsgHandler) error
+	Start(h session.EventHandler) error
 	Stop()
 	Type() string
 }

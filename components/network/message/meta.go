@@ -52,11 +52,11 @@ func RegisterMessageMeta(ID int, msg interface{}) *MessageMeta {
 		ID:   ID,
 		Type: reflect.TypeOf(msg),
 	}
-	meta.FullName = fullName(meta.Type)
 	// 注册时, 统一为非指针类型
 	if meta.Type.Kind() == reflect.Ptr {
 		meta.Type = meta.Type.Elem()
 	}
+	meta.FullName = fullName(meta.Type)
 
 	if _, ok := metaByType[meta.Type]; ok {
 		panic(fmt.Sprintf("Duplicate message meta register by type: %d name: %s", meta.ID, meta.Type.Name()))

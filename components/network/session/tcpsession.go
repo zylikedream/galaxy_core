@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-19 17:41:17
+ * @LastEditTime: 2021-11-04 17:20:53
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: /components/network/session/tcpsession.go
+ */
 package session
 
 import (
@@ -7,25 +15,30 @@ import (
 
 	"github.com/zylikedream/galaxy/components/network/logger"
 	"github.com/zylikedream/galaxy/components/network/message"
-	"github.com/zylikedream/galaxy/components/network/processor"
 	"go.uber.org/zap"
 )
 
 type TcpSession struct {
-	processor.ProcessorBundle
+	SessionBundle
 	conn   net.Conn
 	sendCh chan interface{}
 	exit   int32
 }
 
-func NewTcpSession(conn net.Conn, bundle processor.ProcessorBundle) *TcpSession {
+func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 	return &TcpSession{
-		conn:            conn,
-		ProcessorBundle: bundle,
+		conn:          conn,
+		SessionBundle: bundle,
+		sendCh:        make(chan interface{}, 64),
 	}
 }
 
 func (t *TcpSession) Start() {
+	if err := t.Handler.OnOpen(t); err != nil {
+		logger.Nlog.Error("tcpsession", zap.String("msg", "session On Open"), zap.Error(err))
+		t.Close()
+		return
+	}
 	go t.recvLoop()
 	go t.sendLoop()
 }
@@ -46,12 +59,13 @@ func (t *TcpSession) recvLoop() {
 			// 出错了
 			break
 		}
-		if err = t.Handler(msg); err != nil {
+		if err = t.Handler.OnMessage(t, msg); err != nil {
 			break
 		}
 	}
-	// 被动断开，出错或者对方关闭
+	// 被动断开。出错或者对方关闭
 	logger.Nlog.Error("tcpsession", zap.String("msg", "recv loop break"), zap.Error(err))
+	t.Handler.OnError(t, err)
 	t.passiveClose()
 }
 
@@ -74,10 +88,12 @@ func (t *TcpSession) sendLoop() {
 		}
 	}
 	if err != nil {
+		t.Handler.OnError(t, err)
 		logger.Nlog.Error("tcpsession", zap.String("msg", "send loop break"), zap.Error(err))
 	}
 	// 关闭整个连接
 	t.conn.Close()
+	t.Handler.OnClose(t)
 }
 
 func (t *TcpSession) Close() {
@@ -96,4 +112,8 @@ func (t *TcpSession) passiveClose() {
 	}
 	atomic.AddInt32(&t.exit, 1)
 	close(t.sendCh)
+}
+
+func (t *TcpSession) Conn() net.Conn {
+	return t.conn
 }
