@@ -14,7 +14,7 @@ type TcpConnector struct {
 }
 
 type tcpConnectorConfig struct {
-	addr string `toml:"addr"`
+	Addr string `toml:"addr"`
 }
 
 func newTcpConnetor(c *gconfig.Configuration) (*TcpConnector, error) {
@@ -35,7 +35,7 @@ func (t *TcpConnector) Init() error {
 }
 
 func (t *TcpConnector) Start() error {
-	conn, err := net.Dial("tcp", t.conf.addr)
+	conn, err := net.Dial("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}

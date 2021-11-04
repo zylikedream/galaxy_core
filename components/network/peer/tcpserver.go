@@ -18,7 +18,7 @@ type TcpServer struct {
 }
 
 type tcpServerConfig struct {
-	addr string `toml:"addr"`
+	Addr string `toml:"addr"`
 }
 
 func newTcpServer(c *gconfig.Configuration) (*TcpServer, error) {
@@ -40,7 +40,7 @@ func (t *TcpServer) Init() error {
 
 func (t *TcpServer) Start(h processor.MsgHandler) error {
 	var err error
-	t.listener, err = net.Listen("tcp", t.conf.addr)
+	t.listener, err = net.Listen("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}
