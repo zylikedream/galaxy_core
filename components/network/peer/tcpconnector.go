@@ -33,12 +33,12 @@ func (t *TcpConnector) Init() error {
 	return nil
 }
 
-func (t *TcpConnector) Start() error {
+func (t *TcpConnector) Start(h session.EventHandler) error {
 	conn, err := net.Dial("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}
-
+	t.BindHandler(h)
 	sess := session.NewTcpSession(conn, t.SessionBundle)
 	sess.Start()
 	return nil

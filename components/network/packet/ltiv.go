@@ -3,7 +3,7 @@ package packet
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
+	"io"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/network/message"
@@ -16,8 +16,8 @@ type ltiv struct {
 }
 
 type ltivConfig struct {
-	sizeLength int    `toml:"size_length"`
-	typeLength int    `toml:"type_length"`
+	SizeLength int    `toml:"size_length"`
+	TypeLength int    `toml:"type_length"`
 	IDLength   int    `toml:"id_length"`
 	ByteOrder  string `toml:"byte_order"`
 }
@@ -37,36 +37,38 @@ func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
 	return l, nil
 }
 
-func (l *ltiv) MsgLenLength() int {
-	return l.conf.sizeLength
-}
-
-func (l *ltiv) Uint(data []byte) (uint64, error) {
-	switch len(data) {
-	case 1:
-		return uint64(data[0]), nil
-	case 2:
-		return uint64(l.byteOrder.Uint16(data)), nil
-	case 4:
-		return uint64(l.byteOrder.Uint32(data)), nil
-	case 8:
-		return uint64(l.byteOrder.Uint64(data)), nil
+func (l *ltiv) ReadPacketLen(r io.Reader) (uint64, error) {
+	sizebuf, err := io.ReadAll(io.LimitReader(r, int64(l.conf.SizeLength)))
+	if err != nil {
+		return 0, err
 	}
-	return 0, fmt.Errorf("unsupport byte len:%d", len(data))
+	// eof
+	if len(sizebuf) == 0 {
+		return 0, io.EOF
+	}
+	packetSize, err := Uint(sizebuf, l.byteOrder)
+	if err != nil {
+		return 0, err
+	}
+	return packetSize, nil
 }
 
-func (l *ltiv) Decode(payLoad []byte) (*message.Message, error) {
+func (l *ltiv) MsgLenLength() int {
+	return l.conf.SizeLength
+}
+
+func (l *ltiv) DecodeBody(payLoad []byte) (*message.Message, error) {
 	msg := &message.Message{}
 	// 消息类型+消息id+消息内容
 	pointer := 0
-	if tp, err := l.Uint(payLoad[pointer : pointer+l.conf.typeLength]); err != nil {
+	if tp, err := Uint(payLoad[pointer:pointer+l.conf.TypeLength], l.byteOrder); err != nil {
 		return nil, err
 	} else {
 		msg.Type = tp
 	}
-	pointer += l.conf.typeLength
+	pointer += l.conf.TypeLength
 	// 消息id
-	if id, err := l.Uint(payLoad[pointer : pointer+l.conf.IDLength]); err != nil {
+	if id, err := Uint(payLoad[pointer:pointer+l.conf.IDLength], l.byteOrder); err != nil {
 		return nil, err
 	} else {
 		msg.ID = int(id)
@@ -82,34 +84,29 @@ func (l *ltiv) ByteOrder() binary.ByteOrder {
 	return l.byteOrder
 }
 
-func (l *ltiv) convertUint(v uint64, len int) interface{} {
-	switch len {
-	case 1:
-		return uint8(v)
-	case 2:
-		return uint16(v)
-	case 4:
-		return uint32(v)
-	case 8:
-		return v
-	}
-	return v
-}
-
 func (l *ltiv) Encode(m *message.Message) ([]byte, error) {
-	payload := bytes.Buffer{}
+	payload := &bytes.Buffer{}
+	// 消息长度
 	// 消息类型+消息id+消息内容
-	if err := binary.Write(&payload, l.byteOrder, l.convertUint(m.Type, l.conf.typeLength)); err != nil {
+	if err := binary.Write(payload, l.byteOrder, convertUint(m.Type, l.conf.TypeLength)); err != nil {
 		return nil, err
 	}
-	if err := binary.Write(&payload, l.byteOrder, l.convertUint(uint64(m.ID), l.conf.IDLength)); err != nil {
+	if err := binary.Write(payload, l.byteOrder, convertUint(uint64(m.ID), l.conf.IDLength)); err != nil {
 		return nil, err
 	}
 	if _, err := payload.Write(m.Payload); err != nil {
 		return nil, err
 	}
 	m.Payload = payload.Bytes()
-	return payload.Bytes(), nil
+	buf := &bytes.Buffer{}
+	payloadLen := len(m.Payload)
+	if err := binary.Write(buf, l.byteOrder, convertUint(uint64(payloadLen), l.conf.SizeLength)); err != nil {
+		return nil, err
+	}
+	if _, err := buf.Write(m.Payload); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 func (l *ltiv) Type() string {

@@ -35,9 +35,9 @@ func defaultZapConfig() *config {
 		MessageKey:     "msg",
 		StacktraceKey:  "stack",
 		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    galaxyLowercaseLevelEncoder,
-		EncodeTime:     zapcore.RFC3339TimeEncoder,
-		EncodeDuration: zapcore.SecondsDurationEncoder,
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.RFC3339NanoTimeEncoder,
+		EncodeDuration: zapcore.MillisDurationEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
 		EncodeName:     zapcore.FullNameEncoder,
 	}

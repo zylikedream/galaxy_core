@@ -29,7 +29,7 @@ func (e *EchoEventHandler) OnClose(sess session.Session) {
 func (e *EchoEventHandler) OnMessage(sess session.Session, msg *message.Message) error {
 	switch m := msg.Msg.(type) {
 	case *proto.EchoReq:
-		glog.Infof("recv message:%v", msg)
+		glog.Infof("recv echo req:%v", m)
 		sess.Send(&proto.EchoAck{
 			Code: 0,
 			Msg:  m.Msg,
