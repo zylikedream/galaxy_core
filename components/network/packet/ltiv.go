@@ -3,9 +3,10 @@ package packet
 import (
 	"bytes"
 	"encoding/binary"
-	"io"
+	"fmt"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
+	"github.com/zylikedream/galaxy/components/glog"
 	"github.com/zylikedream/galaxy/components/network/message"
 )
 
@@ -17,6 +18,7 @@ type ltiv struct {
 
 type ltivConfig struct {
 	SizeLength int    `toml:"size_length"`
+	MaxSize    int    `toml:"max_size"`
 	TypeLength int    `toml:"type_length"`
 	IDLength   int    `toml:"id_length"`
 	ByteOrder  string `toml:"byte_order"`
@@ -37,51 +39,50 @@ func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
 	return l, nil
 }
 
-func (l *ltiv) ReadPacketLen(r io.Reader) (uint64, error) {
-	sizebuf, err := io.ReadAll(io.LimitReader(r, int64(l.conf.SizeLength)))
-	if err != nil {
-		return 0, err
-	}
-	// eof
-	if len(sizebuf) == 0 {
-		return 0, io.EOF
-	}
-	packetSize, err := Uint(sizebuf, l.byteOrder)
-	if err != nil {
-		return 0, err
-	}
-	return packetSize, nil
-}
-
-func (l *ltiv) MsgLenLength() int {
-	return l.conf.SizeLength
-}
-
-func (l *ltiv) DecodeBody(payLoad []byte) (*message.Message, error) {
+func (l *ltiv) decodeBody(payLoad []byte) (*message.Message, error) {
 	msg := &message.Message{}
 	// 消息类型+消息id+消息内容
-	pointer := 0
-	if tp, err := Uint(payLoad[pointer:pointer+l.conf.TypeLength], l.byteOrder); err != nil {
+	if tp, err := Uint(payLoad[:l.conf.TypeLength], l.byteOrder); err != nil {
 		return nil, err
 	} else {
 		msg.Type = tp
 	}
-	pointer += l.conf.TypeLength
+	payLoad = payLoad[l.conf.TypeLength:]
 	// 消息id
-	if id, err := Uint(payLoad[pointer:pointer+l.conf.IDLength], l.byteOrder); err != nil {
+	if id, err := Uint(payLoad[:l.conf.IDLength], l.byteOrder); err != nil {
 		return nil, err
 	} else {
 		msg.ID = int(id)
 	}
-	pointer += l.conf.IDLength
+	payLoad = payLoad[l.conf.IDLength:]
 
-	msg.Payload = payLoad[pointer:]
+	msg.Payload = payLoad
 
 	return msg, nil
 }
 
 func (l *ltiv) ByteOrder() binary.ByteOrder {
 	return l.byteOrder
+}
+
+func (l *ltiv) Decode(data []byte) (uint64, *message.Message, error) {
+	if len(data) < l.conf.SizeLength {
+		return 0, nil, ErrPkgHeadNotEnough
+	}
+	PacketSize, err := Uint(data[:l.conf.SizeLength], l.byteOrder)
+	if err != nil {
+		return 0, nil, err
+	}
+	if PacketSize > uint64(l.conf.MaxSize) {
+		return 0, nil, fmt.Errorf("packet too big, %d(%d)", PacketSize, l.conf.MaxSize)
+	}
+	data = data[l.conf.SizeLength:]
+	glog.Infof("packet size %d, data size:%d", PacketSize, len(data))
+	if len(data) < int(PacketSize) {
+		return 0, nil, ErrPkgBodyNotEnough
+	}
+	msg, err := l.decodeBody(data)
+	return PacketSize + uint64(l.conf.SizeLength), msg, err
 }
 
 func (l *ltiv) Encode(m *message.Message) ([]byte, error) {

@@ -33,6 +33,7 @@ type EchoEventHandler struct {
 
 func (e *EchoEventHandler) OnOpen(sess session.Session) error {
 	glog.Infof("session open, addr=%s", sess.Conn().RemoteAddr())
+	wg.Add(1)
 	go run(sess)
 	return nil
 }
@@ -75,7 +76,9 @@ func EchoClient() {
 		glog.Error("network", zap.Namespace("new failed"), zap.Error(err))
 		return
 	}
-	wg.Add(1)
-	p.Start(&EchoEventHandler{})
+	if err := p.Start(&EchoEventHandler{}); err != nil {
+		glog.Error("network", zap.Namespace("start failed"), zap.Error(err))
+		return
+	}
 	wg.Wait()
 }

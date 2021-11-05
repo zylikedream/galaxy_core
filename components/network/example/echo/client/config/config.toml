@@ -4,7 +4,6 @@
 [network.processor]
 	packet = "ltiv" # 解包的解码器
 	message = "json" # 消息类型
-	packet_max_size = 3145728 # 3M
 
 [network.tcp_connector]
 	addr = "127.0.0.1:29001"
@@ -14,3 +13,4 @@
 	type_length = 1 # 类型字段的长度
 	id_length = 4 # 消息id长度
 	byte_order = "little" # 字节序
+	max_size = 3145728 # 3M

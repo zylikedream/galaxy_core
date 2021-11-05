@@ -13,6 +13,6 @@ import "net"
 type Session interface {
 	Send(msg interface{}) error
 	Start()
-	Close()
+	Close(error)
 	Conn() net.Conn
 }

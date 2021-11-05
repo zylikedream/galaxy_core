@@ -2,18 +2,22 @@ package packet
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
-	"io"
 
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/gregister"
 	"github.com/zylikedream/galaxy/components/network/message"
 )
 
+var (
+	ErrPkgHeadNotEnough = errors.New("pkg header not enougth")
+	ErrPkgBodyNotEnough = errors.New("pkg body not enougth")
+)
+
 type PacketCodec interface {
-	ReadPacketLen(r io.Reader) (uint64, error)           // 读取消息长度
-	DecodeBody(payLoad []byte) (*message.Message, error) // 解析包体
-	Encode(msg *message.Message) ([]byte, error)         // 打包消息
+	Decode(data []byte) (uint64, *message.Message, error) // 解析包体
+	Encode(msg *message.Message) ([]byte, error)          // 打包消息
 	Type() string
 }
 

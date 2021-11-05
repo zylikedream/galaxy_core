@@ -1,9 +1,6 @@
 package processor
 
 import (
-	"fmt"
-	"io"
-
 	"github.com/zylikedream/galaxy/components/gconfig"
 	"github.com/zylikedream/galaxy/components/network/message"
 	"github.com/zylikedream/galaxy/components/network/packet"
@@ -18,7 +15,6 @@ type Processor struct {
 type processorConfig struct {
 	PacketCodecType  string `toml:"packet"`
 	MessageCodecType string `toml:"message"`
-	PacketMaxSize    uint64 `toml:"packet_max_size"`
 }
 
 func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
@@ -44,34 +40,22 @@ func Type() string {
 	return "processor"
 }
 
-func (p *Processor) ReadMsg(r io.Reader) (*message.Message, error) {
-	bodySize, err := p.pktCodec.ReadPacketLen(r)
-	if err != nil {
-		return nil, err
+func (p *Processor) Decode(data []byte) (uint64, *message.Message, error) {
+	pkgLen, msg, err := p.pktCodec.Decode(data)
+	if err == packet.ErrPkgBodyNotEnough || err == packet.ErrPkgHeadNotEnough { // 数据不足够，不算错误
+		return 0, nil, nil
 	}
-	if bodySize > p.conf.PacketMaxSize {
-		return nil, fmt.Errorf("packet size too big, %d(%d)", bodySize, p.conf.PacketMaxSize)
+	if msg != nil {
+		msgMeta := message.MessageMetaByID(msg.ID)
+		msg.Msg = msgMeta.NewInstance()
+		if err := p.msgCodec.Decode(msg.Msg, msg.Payload); err != nil {
+			return 0, nil, err
+		}
 	}
-	data, err := io.ReadAll(io.LimitReader(r, int64(bodySize)))
-	if err != nil {
-		return nil, err
-	}
-	if len(data) < int(bodySize) {
-		return nil, fmt.Errorf("unexpect size %d(%d)", len(data), bodySize)
-	}
-	msg, err := p.pktCodec.DecodeBody(data)
-	if err != nil {
-		return nil, err
-	}
-	msgMeta := message.MessageMetaByID(msg.ID)
-	msg.Msg = msgMeta.NewInstance()
-	if err := p.msgCodec.Decode(msg.Msg, msg.Payload); err != nil {
-		return nil, err
-	}
-	return msg, nil
+	return pkgLen, msg, err
 }
 
-func (p *Processor) WriteMsg(w io.Writer, rawMsg interface{}) (int, error) {
+func (p *Processor) Encode(rawMsg interface{}) ([]byte, error) {
 	var err error
 	msg := &message.Message{
 		Msg: rawMsg,
@@ -80,11 +64,12 @@ func (p *Processor) WriteMsg(w io.Writer, rawMsg interface{}) (int, error) {
 	msg.ID = msgMeta.ID
 	msg.Payload, err = p.msgCodec.Encode(rawMsg)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	data, err := p.pktCodec.Encode(msg)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return w.Write(data)
+	return data, err
+
 }
