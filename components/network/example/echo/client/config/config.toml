@@ -3,7 +3,7 @@
 
 [network.processor]
 	packet = "ltiv" # 解包的解码器
-	message = "json" # 消息类型
+	message = "protobuf" # 消息类型
 
 [network.tcp_connector]
 	addr = "127.0.0.1:29001"

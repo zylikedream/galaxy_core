@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package="./;proto";
+
+message echo_req {
+	string msg = 1;	
+}
+
+message echo_ack {
+	int32 code = 1;
+	string msg = 2;
+}
