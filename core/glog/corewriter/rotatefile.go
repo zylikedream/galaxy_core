@@ -13,6 +13,7 @@ import (
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/glog/corewriter/encoder"
 	"github.com/zylikedream/galaxy/core/glog/corewriter/rotate"
+	"github.com/zylikedream/galaxy/core/gregister"
 )
 
 type rotateFileWriter struct {
@@ -100,5 +101,5 @@ func (r *rotateFileWriter) Build(c *gconfig.Configuration, args ...interface{}) 
 }
 
 func init() {
-	Register(&rotateFileWriter{})
+	gregister.Register((*rotateFileWriter)(nil))
 }

@@ -23,14 +23,8 @@ const (
 	MESSAGE_PROTOBUF = "protobuf"
 )
 
-var reg = gregister.NewRegister()
-
-func Register(builder gregister.Builder) {
-	reg.Register(builder)
-}
-
 func NewMessageCodec(t string, c *gconfig.Configuration) (MessageCodec, error) {
-	if node, err := reg.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(MessageCodec), nil

@@ -53,14 +53,8 @@ const (
 	PACKET_LTIV = "ltiv"
 )
 
-var reg = gregister.NewRegister()
-
-func Register(builder gregister.Builder) {
-	reg.Register(builder)
-}
-
 func NewPacketCodec(t string, c *gconfig.Configuration) (PacketCodec, error) {
-	if node, err := reg.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(PacketCodec), nil

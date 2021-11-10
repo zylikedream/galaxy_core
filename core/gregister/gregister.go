@@ -32,3 +32,21 @@ func (r *register) NewNode(t string, c *gconfig.Configuration, args ...interface
 	}
 	return builder.Build(c, args...)
 }
+
+var gregister *register
+
+func init() {
+	gregister = NewRegister()
+}
+
+func Register(b Builder) {
+	gregister.Register(b)
+}
+
+func NewNode(t string, c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+	builder, ok := gregister.nodeMap[t]
+	if !ok {
+		return nil, fmt.Errorf("no node for type:%s", t)
+	}
+	return builder.Build(c, args...)
+}

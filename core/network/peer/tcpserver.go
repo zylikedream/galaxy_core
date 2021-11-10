@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gregister"
 	"github.com/zylikedream/galaxy/core/network/logger"
 	"github.com/zylikedream/galaxy/core/network/session"
 	"go.uber.org/zap"
@@ -77,5 +78,5 @@ func (t *TcpServer) Stop() {
 }
 
 func init() {
-	Register(&TcpServer{})
+	gregister.Register((*TcpServer)(nil))
 }

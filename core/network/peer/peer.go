@@ -25,14 +25,8 @@ type Peer interface {
 	Type() string
 }
 
-var reg = gregister.NewRegister()
-
-func Register(builder gregister.Builder) {
-	reg.Register(builder)
-}
-
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {
-	if node, err := reg.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(Peer), nil

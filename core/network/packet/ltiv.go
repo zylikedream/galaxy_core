@@ -7,6 +7,7 @@ import (
 
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gregister"
 	"github.com/zylikedream/galaxy/core/network/message"
 )
 
@@ -119,5 +120,5 @@ func (l *ltiv) Build(c *gconfig.Configuration, args ...interface{}) (interface{}
 }
 
 func init() {
-	Register(&ltiv{})
+	gregister.Register((*ltiv)(nil))
 }

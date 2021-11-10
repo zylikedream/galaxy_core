@@ -1,0 +1,11 @@
+[gxyrpc]
+	transport = "tcp" # tcp tls kcp unix ws
+	registery = "etcd" # 支持etcd consul progress peer multipeer
+[transport.tcp]
+	addr = "localhost:8927"
+[transport.unix]
+	addr = "/tmp/rpcx.socket"
+[registery.etcd]	
+	addr = "localhost:2368"
+	base_path = "/rpcx_test"
+	

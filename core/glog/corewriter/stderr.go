@@ -7,6 +7,7 @@ import (
 
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/glog/corewriter/encoder"
+	"github.com/zylikedream/galaxy/core/gregister"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -56,5 +57,5 @@ func (s *stderrWriter) Build(c *gconfig.Configuration, args ...interface{}) (int
 }
 
 func init() {
-	Register(&stderrWriter{})
+	gregister.Register((*stderrWriter)(nil))
 }

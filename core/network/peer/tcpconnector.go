@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gregister"
 	"github.com/zylikedream/galaxy/core/network/session"
 )
 
@@ -56,5 +57,5 @@ func (t *TcpConnector) Stop() {
 }
 
 func init() {
-	Register(&TcpConnector{})
+	gregister.Register((*TcpConnector)(nil))
 }

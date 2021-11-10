@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gregister"
 )
 
 type JsonMessage struct {
@@ -34,5 +35,5 @@ func (j *JsonMessage) Build(c *gconfig.Configuration, args ...interface{}) (inte
 }
 
 func init() {
-	Register(&JsonMessage{})
+	gregister.Register((*JsonMessage)(nil))
 }
