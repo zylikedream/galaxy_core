@@ -1,5 +1,5 @@
 [log]
-	level = "debug"
+	level = "info"
 	enable_addcaller = true
 	writer = "rotate_file" # 写入类型(rotate_file|stderr), 默认为rotate_file
 	watch = true

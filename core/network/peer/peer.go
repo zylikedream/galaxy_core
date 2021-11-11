@@ -22,7 +22,6 @@ const (
 type Peer interface {
 	Start(h session.EventHandler) error
 	Stop()
-	Type() string
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {

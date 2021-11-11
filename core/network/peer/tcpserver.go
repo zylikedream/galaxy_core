@@ -74,7 +74,6 @@ func (t *TcpServer) Build(c *gconfig.Configuration, args ...interface{}) (interf
 }
 
 func (t *TcpServer) Stop() {
-
 }
 
 func init() {
