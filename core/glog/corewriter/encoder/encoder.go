@@ -47,7 +47,7 @@ func newZapEncoderConfig(c *gconfig.Configuration) (*zapcore.EncoderConfig, erro
 	conf := defaultZapConfig()
 	c.HookDecodeFunc(stringToCallerEncoder(), stringToDurationEncoder(), stringToLevelEncoder(), stringToTimeEncoder(), stringToNameEncoder(),
 		mapstructure.StringToTimeDurationHookFunc(), mapstructure.StringToSliceHookFunc(","))
-	if err := c.UnmarshalKeyWithParent("encoder_config", conf); err != nil {
+	if err := c.UnmarshalKeyWithPrefix("encoder_config", conf); err != nil {
 		return nil, err
 	}
 	return &zapcore.EncoderConfig{

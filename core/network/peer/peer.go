@@ -26,7 +26,7 @@ type Peer interface {
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {
-	if node, err := gregister.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c.WithPrefix("peer")); err != nil {
 		return nil, err
 	} else {
 		return node.(Peer), nil

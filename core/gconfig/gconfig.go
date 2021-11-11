@@ -14,7 +14,7 @@ type Configuration struct {
 	vp         *viper.Viper
 	watch      int32
 	onChanges  []OnChangeCallback
-	parent     string
+	prefix     string
 	options    []viper.Option
 	hooks      viper.DecoderConfigOption
 	configType string
@@ -62,8 +62,8 @@ func (c *Configuration) onConfigChange(_ fsnotify.Event) {
 	}
 }
 
-func (c *Configuration) WithParent(key string) *Configuration {
-	c.parent = key
+func (c *Configuration) WithPrefix(key string) *Configuration {
+	c.prefix = key
 	return c
 }
 
@@ -99,15 +99,15 @@ func (c *Configuration) UnmarshalKey(key string, data interface{}) error {
 	return c.vp.UnmarshalKey(key, data, c.decodeOptions()...)
 }
 
-func (c *Configuration) KeyWithParent(key string) string {
-	if c.parent == "" {
+func (c *Configuration) keyWithPrefix(key string) string {
+	if c.prefix == "" {
 		return key
 	}
-	return c.parent + "." + key
+	return c.prefix + "." + key
 }
 
-func (c *Configuration) UnmarshalKeyWithParent(key string, data interface{}) error {
-	return c.UnmarshalKey(c.KeyWithParent(key), data)
+func (c *Configuration) UnmarshalKeyWithPrefix(key string, data interface{}) error {
+	return c.UnmarshalKey(c.keyWithPrefix(key), data)
 }
 
 func (c *Configuration) HookDecodeFunc(funcs ...mapstructure.DecodeHookFunc) {

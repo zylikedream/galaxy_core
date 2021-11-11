@@ -1,9 +1,15 @@
 package gregister
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
+)
+
+var (
+	ErrParamNotEnough = errors.New("param is not enough")
+	ErrParamErrType   = errors.New("param type error")
 )
 
 type Builder interface {

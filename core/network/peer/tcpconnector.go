@@ -20,7 +20,7 @@ type tcpConnectorConfig struct {
 func newTcpConnetor(c *gconfig.Configuration) (*TcpConnector, error) {
 	server := &TcpConnector{}
 	conf := &tcpConnectorConfig{}
-	if err := c.UnmarshalKeyWithParent(server.Type(), conf); err != nil {
+	if err := c.UnmarshalKeyWithPrefix(server.Type(), conf); err != nil {
 		return nil, err
 	}
 	server.conf = conf

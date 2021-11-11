@@ -54,7 +54,7 @@ func defaultConfig() *rotateFileConfig {
 func newRotateFileWriter(c *gconfig.Configuration, atomiclv zap.AtomicLevel) *rotateFileWriter {
 	w := &rotateFileWriter{}
 	conf := defaultConfig()
-	if err := c.UnmarshalKeyWithParent(w.Type(), &conf); err != nil {
+	if err := c.UnmarshalKeyWithPrefix(w.Type(), &conf); err != nil {
 		panic(err)
 	}
 	// NewRotateFileCore constructs a zapcore.Core with rotate file syncer

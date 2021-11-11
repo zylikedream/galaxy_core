@@ -22,7 +22,7 @@ type tlsTransport struct {
 func newTlsTransport(c *gconfig.Configuration) (*tlsTransport, error) {
 	tran := &tlsTransport{}
 	conf := &tlsConfig{}
-	if err := c.UnmarshalKeyWithParent(tran.Type(), conf); err != nil {
+	if err := c.UnmarshalKeyWithPrefix(tran.Type(), conf); err != nil {
 		return nil, err
 	}
 	tran.conf = conf

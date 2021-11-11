@@ -24,7 +24,7 @@ const (
 )
 
 func NewMessageCodec(t string, c *gconfig.Configuration) (MessageCodec, error) {
-	if node, err := gregister.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c.WithPrefix("message")); err != nil {
 		return nil, err
 	} else {
 		return node.(MessageCodec), nil

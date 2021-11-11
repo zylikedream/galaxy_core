@@ -68,7 +68,7 @@ func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
 
 	// 如果用户没有设置core。那么就选择官方默认的core。
 	if gl.core == nil {
-		w, err := corewriter.NewCoreWriter(conf.Writer, configure.WithParent("log"), logLevel)
+		w, err := corewriter.NewCoreWriter(conf.Writer, configure, logLevel)
 		if err != nil {
 			panic(err)
 		}
@@ -81,7 +81,7 @@ func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
 
 	if gl.conf.Watch {
 		// 如果名字不为空，加载动态配置
-		gl.AutoLevel(configure.WithParent("log"))
+		gl.AutoLevel(configure.WithPrefix("log"))
 	}
 	return gl
 

@@ -8,7 +8,7 @@ import (
 )
 
 type networkConfig struct {
-	PeerType  string `toml:"peer_type"`
+	Peer      string `toml:"peer"`
 	LogConfig string `toml:"log_config"`
 }
 
@@ -18,7 +18,7 @@ func NewNetwork(configFile string) (peer.Peer, error) {
 	if err := configure.UnmarshalKey("network", conf); err != nil {
 		return nil, err
 	}
-	peer, err := peer.NewPeer(conf.PeerType, configure.WithParent("network"))
+	peer, err := peer.NewPeer(conf.Peer, configure)
 	if err != nil {
 		return nil, err
 	}

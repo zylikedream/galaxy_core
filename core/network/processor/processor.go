@@ -21,7 +21,7 @@ func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
 	proc := &Processor{}
 	conf := &processorConfig{}
 	var err error
-	if err = c.UnmarshalKeyWithParent(Type(), conf); err != nil {
+	if err = c.UnmarshalKeyWithPrefix(Type(), conf); err != nil {
 		return nil, err
 	}
 	proc.conf = conf

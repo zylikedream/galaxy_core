@@ -1,7 +1,6 @@
 package corewriter
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -28,7 +27,7 @@ func new(c *gconfig.Configuration, atomiclv zap.AtomicLevel) (*stderrWriter, err
 	conf := &stderrConfig{
 		EncoderType: "json",
 	}
-	if err := c.UnmarshalKeyWithParent(w.Type(), conf); err != nil {
+	if err := c.UnmarshalKeyWithPrefix(w.Type(), conf); err != nil {
 		return nil, err
 	}
 	encoder, err := encoder.NewZapEncoder(conf.EncoderType, c)
@@ -46,11 +45,11 @@ func (s *stderrWriter) Type() string {
 
 func (s *stderrWriter) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) != 1 {
-		return nil, fmt.Errorf("params num error")
+		return nil, gregister.ErrParamNotEnough
 	}
 	atomiclv, ok := args[0].(zap.AtomicLevel)
 	if !ok {
-		return nil, fmt.Errorf("need param type (*zap.AtomicLevel)")
+		return nil, gregister.ErrParamErrType
 	}
 	return new(c, atomiclv)
 

@@ -17,7 +17,7 @@ type unixTransport struct {
 func newUnixTransport(c *gconfig.Configuration) (*unixTransport, error) {
 	tran := &unixTransport{}
 	conf := &unixConfig{}
-	if err := c.UnmarshalKeyWithParent(tran.Type(), conf); err != nil {
+	if err := c.UnmarshalKeyWithPrefix(tran.Type(), conf); err != nil {
 		return nil, err
 	}
 	tran.conf = conf

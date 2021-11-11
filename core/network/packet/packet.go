@@ -54,7 +54,7 @@ const (
 )
 
 func NewPacketCodec(t string, c *gconfig.Configuration) (PacketCodec, error) {
-	if node, err := gregister.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c.WithPrefix("packet")); err != nil {
 		return nil, err
 	} else {
 		return node.(PacketCodec), nil

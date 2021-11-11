@@ -28,7 +28,7 @@ var noopCloseFunc = func() error {
 }
 
 func NewCoreWriter(t string, c *gconfig.Configuration, atomiclv zap.AtomicLevel) (CoreWriter, error) {
-	if node, err := gregister.NewNode(t, c, atomiclv); err != nil {
+	if node, err := gregister.NewNode(t, c.WithPrefix("writer"), atomiclv); err != nil {
 		return nil, err
 	} else {
 		return node.(CoreWriter), nil

@@ -19,7 +19,7 @@ const (
 )
 
 func NewTransport(t string, c *gconfig.Configuration) (Transport, error) {
-	if node, err := gregister.NewNode(t, c); err != nil {
+	if node, err := gregister.NewNode(t, c.WithPrefix("transport")); err != nil {
 		return nil, err
 	} else {
 		return node.(Transport), nil
