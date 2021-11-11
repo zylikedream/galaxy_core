@@ -35,7 +35,7 @@ func convertUint(v uint64, len int) interface{} {
 	return v
 }
 
-func Uint(data []byte, byteOrder binary.ByteOrder) (uint64, error) {
+func uintEncode(data []byte, byteOrder binary.ByteOrder) (uint64, error) {
 	switch len(data) {
 	case 1:
 		return uint64(data[0]), nil
