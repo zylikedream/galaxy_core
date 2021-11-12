@@ -43,14 +43,14 @@ func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
 func (l *ltiv) decodeBody(payLoad []byte) (*message.Message, error) {
 	msg := &message.Message{}
 	// 消息类型+消息id+消息内容
-	if tp, err := Uint(payLoad[:l.conf.TypeLength], l.byteOrder); err != nil {
+	if tp, err := uintEncode(payLoad[:l.conf.TypeLength], l.byteOrder); err != nil {
 		return nil, err
 	} else {
 		msg.Type = tp
 	}
 	payLoad = payLoad[l.conf.TypeLength:]
 	// 消息id
-	if id, err := Uint(payLoad[:l.conf.IDLength], l.byteOrder); err != nil {
+	if id, err := uintEncode(payLoad[:l.conf.IDLength], l.byteOrder); err != nil {
 		return nil, err
 	} else {
 		msg.ID = int(id)
@@ -70,7 +70,7 @@ func (l *ltiv) Decode(data []byte) (uint64, *message.Message, error) {
 	if len(data) < l.conf.SizeLength {
 		return 0, nil, ErrPkgHeadNotEnough
 	}
-	PacketSize, err := Uint(data[:l.conf.SizeLength], l.byteOrder)
+	PacketSize, err := uintEncode(data[:l.conf.SizeLength], l.byteOrder)
 	if err != nil {
 		return 0, nil, err
 	}
