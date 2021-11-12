@@ -9,6 +9,11 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	WRITER_TYPE_STDERR     = "stderr"
+	WRITER_TYPE_ROTATEFILE = "rotate_file"
+)
+
 // WriterBuilder 根据key初始化writer
 // Writer 日志interface
 type CoreWriter interface {

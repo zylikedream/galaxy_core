@@ -40,7 +40,7 @@ func new(c *gconfig.Configuration, atomiclv zap.AtomicLevel) (*stderrWriter, err
 }
 
 func (s *stderrWriter) Type() string {
-	return "stderr"
+	return WRITER_TYPE_STDERR
 }
 
 func (s *stderrWriter) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {

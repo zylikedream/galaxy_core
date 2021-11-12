@@ -1,7 +1,10 @@
 package client
 
 import (
+	"context"
 	"fmt"
+	"io"
+	"net"
 
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gconfig"
@@ -9,15 +12,21 @@ import (
 )
 
 type gxyrpcClient struct {
-	conf *clientConfig
-	pool *client.OneClientPool
+	conf           *clientConfig
+	defaultClient  *client.OneClient
+	serviceClients map[string]client.XClient
 }
 
 type clientConfig struct {
-	PoolSize          int    `toml:"pool_size"`
-	FailMode          string `toml:"fail_mode"`
-	DefaultSelectMode string `toml:"default_select_mode"`
-	Discovery         string `toml:"discovery"`
+	Default  serviceConfig   `toml:"default"`
+	Services []serviceConfig `toml:"services"`
+}
+
+type serviceConfig struct {
+	Service    string `toml:"service"`
+	FailMode   string `toml:"fail_mode"`
+	SelectMode string `toml:"select_mode"`
+	Discovery  string `toml:"discovery"`
 }
 
 func parseFailMode(mode string) client.FailMode {
@@ -57,24 +66,120 @@ func parseSelectMode(mode string) client.SelectMode {
 func NewGrpcClient(configFile string) (*gxyrpcClient, error) {
 	conf := &clientConfig{}
 	configure := gconfig.New(configFile)
-	if err := configure.UnmarshalKey("gxyrpc", conf); err != nil {
+	if err := configure.UnmarshalKey("gxyrpc_client", conf); err != nil {
 		return nil, err
 	}
 	gxyrpc := &gxyrpcClient{
-		conf: conf,
+		conf:           conf,
+		serviceClients: make(map[string]client.XClient),
 	}
-	d, err := discovery.NewDisvoery(conf.Discovery, configure)
+	defaultClient, err := newDefaultServiceClient(&conf.Default, configure)
 	if err != nil {
 		return nil, err
 	}
-	failMode := parseFailMode(conf.FailMode)
-	if failMode < 0 {
-		return nil, fmt.Errorf("unkown fail mode")
+	gxyrpc.defaultClient = defaultClient
+	for _, serviceConf := range conf.Services {
+		cli, err := newServiceClient(&serviceConf, configure)
+		if err != nil {
+			return nil, err
+		}
+		gxyrpc.serviceClients[serviceConf.Service] = cli
 	}
-	selectMode := parseSelectMode(conf.DefaultSelectMode)
-	if selectMode < 0 {
-		return nil, fmt.Errorf("unkonw select mode")
-	}
-	gxyrpc.pool = client.NewOneClientPool(conf.PoolSize, failMode, selectMode, d.GetDiscovery(), client.DefaultOption)
 	return gxyrpc, nil
+}
+
+func newDefaultServiceClient(sc *serviceConfig, c *gconfig.Configuration) (*client.OneClient, error) {
+	d, err := discovery.NewDisvoery(sc.Discovery, c)
+	if err != nil {
+		return nil, err
+	}
+	failMode := parseFailMode(sc.FailMode)
+	if failMode < 0 {
+		return nil, fmt.Errorf("unkown fail mode:%s", sc.FailMode)
+	}
+	selectMode := parseSelectMode(sc.SelectMode)
+	if selectMode < 0 {
+		return nil, fmt.Errorf("unkonw select mode:%s", sc.SelectMode)
+	}
+	return client.NewOneClient(failMode, selectMode, d.GetDiscovery(), client.DefaultOption), nil
+
+}
+
+func newServiceClient(sc *serviceConfig, c *gconfig.Configuration) (client.XClient, error) {
+	d, err := discovery.NewDisvoery(sc.Discovery, c)
+	if err != nil {
+		return nil, err
+	}
+	failMode := parseFailMode(sc.FailMode)
+	if failMode < 0 {
+		return nil, fmt.Errorf("unkown fail mode:%s", sc.FailMode)
+	}
+	selectMode := parseSelectMode(sc.SelectMode)
+	if selectMode < 0 {
+		return nil, fmt.Errorf("unkonw select mode:%s", sc.SelectMode)
+	}
+	return client.NewXClient(sc.Service, failMode, selectMode, d.GetDiscovery(), client.DefaultOption), nil
+
+}
+
+func (g *gxyrpcClient) Go(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}, done chan *client.Call) (*client.Call, error) {
+	cli, ok := g.serviceClients[servicePath]
+	if ok {
+		return cli.Go(ctx, serviceMethod, args, reply, done)
+	}
+	return g.defaultClient.Go(ctx, servicePath, serviceMethod, args, reply, done)
+
+}
+
+func (g *gxyrpcClient) Call(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
+	cli, ok := g.serviceClients[servicePath]
+	if ok {
+		return cli.Call(ctx, serviceMethod, args, reply)
+	}
+	return g.defaultClient.Call(ctx, servicePath, serviceMethod, args, reply)
+}
+
+func (g *gxyrpcClient) Fork(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
+	cli, ok := g.serviceClients[servicePath]
+	if ok {
+		return cli.Fork(ctx, serviceMethod, args, reply)
+	}
+	return g.defaultClient.Fork(ctx, servicePath, serviceMethod, args, reply)
+}
+
+func (g *gxyrpcClient) Broadcast(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
+	cli, ok := g.serviceClients[servicePath]
+	if ok {
+		return cli.Broadcast(ctx, serviceMethod, args, reply)
+	}
+	return g.defaultClient.Broadcast(ctx, servicePath, serviceMethod, args, reply)
+}
+
+func (g *gxyrpcClient) SendFile(ctx context.Context, fileName string, rateInBytesPerSecond int64, meta map[string]string) error {
+	return g.defaultClient.SendFile(ctx, fileName, rateInBytesPerSecond, meta) // file的service是固定的 直接使用defaultclient即可
+}
+
+func (g *gxyrpcClient) DownloadFile(ctx context.Context, requestFileName string, saveTo io.Writer, meta map[string]string) error {
+	return g.defaultClient.DownloadFile(ctx, requestFileName, saveTo, meta) // file的service是固定的 直接使用defaultclient即可
+}
+
+func (g *gxyrpcClient) Stream(ctx context.Context, meta map[string]string) (net.Conn, error) {
+	return g.defaultClient.Stream(ctx, meta)
+}
+
+func (g *gxyrpcClient) Close() error {
+	var errs []error
+	if err := g.defaultClient.Close(); err != nil {
+		errs = append(errs, err)
+	}
+	for _, serviceCli := range g.serviceClients {
+		if err := serviceCli.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if len(errs) > 0 {
+		// todo 整合错误信息
+		return errs[0]
+	}
+	return nil
 }

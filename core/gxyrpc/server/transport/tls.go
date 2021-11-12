@@ -49,7 +49,7 @@ func (t *tlsTransport) Network() string {
 	return "tcp"
 }
 
-func (t *tlsTransport) Options() server.OptionFn {
+func (t *tlsTransport) Option() server.OptionFn {
 	return server.WithTLSConfig(t.tlsConf)
 }
 

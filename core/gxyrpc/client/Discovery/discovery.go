@@ -1,6 +1,7 @@
 package discovery
 
 import (
+	"github.com/pkg/errors"
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/gregister"
@@ -19,7 +20,7 @@ const (
 
 func NewDisvoery(t string, c *gconfig.Configuration) (Discovery, error) {
 	if node, err := gregister.NewNode(t, c.WithPrefix("discovery")); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "new discovery failed")
 	} else {
 		return node.(Discovery), nil
 	}

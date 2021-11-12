@@ -32,12 +32,12 @@ func (t *unixTransport) Network() string {
 	return "unix"
 }
 
-func (t *unixTransport) Options() server.OptionFn {
-	return nil
+func (t *unixTransport) Option() server.OptionFn {
+	return emptyOptin
 }
 
 func (t *unixTransport) Type() string {
-	return TRANSPORT_TYPE_TCP
+	return TRANSPORT_TYPE_UNIX
 }
 
 func (t *unixTransport) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {

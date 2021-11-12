@@ -45,7 +45,7 @@ func (r *etcdRegistery) Start() error {
 	return r.plugin.Start()
 }
 
-func (r *etcdRegistery) Reigister(s *server.Server) server.Plugin {
+func (r *etcdRegistery) GetPlugin() server.Plugin {
 	return r.plugin
 }
 

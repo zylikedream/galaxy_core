@@ -1,0 +1,12 @@
+[gxyrpc_client.default]
+	fail_mode = "fail_over"
+	select_mode = "random_select"
+	discovery = "etcd"
+# [[gxyrpc_client.services]] #设置某个service单独的配置
+#   service = "xxx" # 服务器名
+# 	fail_mode = "fail_over"
+# 	select_mode = "roundrobin"
+# 	discovery = "etcd"
+[discovery.etcd]
+	etcd_servers = ["localhost:2379"]
+	base_path = "/rpcx_test"

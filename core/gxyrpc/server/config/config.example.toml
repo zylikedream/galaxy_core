@@ -1,4 +1,4 @@
-[gxyrpc]
+[gxyrpc_server]
 	transport = "tcp" # tcp tls unix 
 	registery = "etcd" # 支持etcd consul peer
 [transport.tcp]

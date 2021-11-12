@@ -3,6 +3,7 @@ package registery
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/gregister"
@@ -26,7 +27,7 @@ func RegisterAddr(t transport.Transport) string {
 
 func NewRegistery(t string, ServerAddr string, c *gconfig.Configuration) (Registery, error) {
 	if node, err := gregister.NewNode(t, c.WithPrefix("registery"), ServerAddr); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "new registery failed")
 	} else {
 		return node.(Registery), nil
 	}

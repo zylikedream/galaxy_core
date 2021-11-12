@@ -9,7 +9,7 @@ import (
 )
 
 func TestGlog(t *testing.T) {
-	logger := NewLogger("test", "config/config.toml")
+	logger := NewLogger("test", "config/config.example.toml")
 	for {
 		logger.Debug("pvp", zap.String("pid", "123"), zap.Duration("tm", time.Hour))
 		logger.Warn("pvp", zap.String("pid", "123"), zap.Duration("tm", time.Hour))

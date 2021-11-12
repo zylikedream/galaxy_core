@@ -87,7 +87,7 @@ func newRotateFileWriter(c *gconfig.Configuration, atomiclv zap.AtomicLevel) *ro
 }
 
 func (r *rotateFileWriter) Type() string {
-	return "rotate_file"
+	return WRITER_TYPE_ROTATEFILE
 }
 
 func (r *rotateFileWriter) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {

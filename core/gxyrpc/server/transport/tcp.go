@@ -32,8 +32,8 @@ func (t *tcpTransport) Network() string {
 	return "tcp"
 }
 
-func (t *tcpTransport) Options() server.OptionFn {
-	return nil
+func (t *tcpTransport) Option() server.OptionFn {
+	return emptyOptin
 }
 
 func (t *tcpTransport) Type() string {

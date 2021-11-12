@@ -8,7 +8,7 @@ import (
 )
 
 type serverConfig struct {
-	Network   string `toml:"network"`
+	Transport string `toml:"transport"`
 	Registery string `toml:"registery"`
 }
 
@@ -20,6 +20,7 @@ type gxyrpcServer struct {
 }
 
 type GxyrpcService interface {
+	Service() interface{}
 	Name() string
 	Meta() string
 }
@@ -27,36 +28,38 @@ type GxyrpcService interface {
 func NewGrpcServer(configFile string) (*gxyrpcServer, error) {
 	conf := &serverConfig{}
 	configure := gconfig.New(configFile)
-	if err := configure.UnmarshalKey("gxyrpc", conf); err != nil {
+	if err := configure.UnmarshalKey("gxyrpc_server", conf); err != nil {
 		return nil, err
 	}
 	gxyrpc := &gxyrpcServer{
 		conf: conf,
 	}
-	trans, err := transport.NewTransport(conf.Network, configure)
+	trans, err := transport.NewTransport(conf.Transport, configure)
 	if err != nil {
 		return nil, err
 	}
-	regist, err := registery.NewRegistery(registery.RegisterAddr(trans), conf.Registery, configure)
+	regist, err := registery.NewRegistery(conf.Registery, registery.RegisterAddr(trans), configure)
 	if err != nil {
 		return nil, err
 	}
 	gxyrpc.trans = trans
 	gxyrpc.regist = regist
 	gxyrpc.svr = server.NewServer(trans.Option())
+
+	plug := regist.GetPlugin()
+	if plug != nil {
+		gxyrpc.svr.Plugins.Add(plug)
+	}
 	return gxyrpc, nil
 }
 
-func (g *gxyrpcServer) Start(services ...GxyrpcService) error {
-	plug := g.regist.GetPlugin()
-	if plug != nil {
-		g.svr.Plugins.Add(plug)
-	}
+func (g *gxyrpcServer) ReigsterService(service GxyrpcService) error {
+	return g.svr.RegisterName(service.Name(), service.Service(), service.Meta())
+}
+
+func (g *gxyrpcServer) Start() error {
 	if err := g.regist.Start(); err != nil {
 		return err
-	}
-	for _, service := range services {
-		g.svr.RegisterName(service.Name(), service, service.Meta())
 	}
 	if err := g.svr.Serve(g.trans.Network(), g.trans.Addr()); err != nil {
 		return err
