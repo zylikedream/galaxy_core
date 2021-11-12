@@ -10,3 +10,5 @@
 [discovery.etcd]
 	etcd_servers = ["localhost:2379"]
 	base_path = "/rpcx_test"
+[discovery.p2p]
+	peer = "tcp@localhost:"

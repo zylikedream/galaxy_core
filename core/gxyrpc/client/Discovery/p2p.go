@@ -12,8 +12,8 @@ type p2pDiscovery struct {
 }
 
 type p2pConfig struct {
-	server string `toml:"server"` // ex:tcp@localhost:2786
-	Meta   string `toml:"meta"`
+	Peer string `toml:"peer"` // ex:tcp@localhost:2786
+	Meta string `toml:"meta"`
 }
 
 func newP2pDiscovery(c *gconfig.Configuration) (*p2pDiscovery, error) {
@@ -24,7 +24,7 @@ func newP2pDiscovery(c *gconfig.Configuration) (*p2pDiscovery, error) {
 	if err := c.UnmarshalKeyWithPrefix(p2p.Type(), conf); err != nil {
 		return nil, err
 	}
-	d, err := client.NewPeer2PeerDiscovery(conf.server, conf.Meta)
+	d, err := client.NewPeer2PeerDiscovery(conf.Peer, conf.Meta)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,7 @@
+[gxyrpc_client.default]
+	fail_mode = "fail_over"
+	select_mode = "random_select"
+	discovery = "etcd"
+[discovery.etcd]
+	etcd_servers = ["localhost:2379"]
+	base_path = "/rpcx_test"

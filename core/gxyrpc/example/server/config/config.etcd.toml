@@ -3,8 +3,6 @@
 	registery = "etcd" # 支持etcd consul peer
 [transport.tcp]
 	addr = "localhost:8927"
-[transport.unix]
-	addr = "/tmp/rpcx.socket"
 [registery.etcd]	
 	etcd_servers = ["localhost:2379"]
 	base_path = "/rpcx_test"

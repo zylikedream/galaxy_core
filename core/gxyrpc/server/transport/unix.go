@@ -7,7 +7,7 @@ import (
 )
 
 type unixConfig struct {
-	Socket string `toml:"socket"`
+	Addr string `toml:"addr"`
 }
 
 type unixTransport struct {
@@ -25,7 +25,7 @@ func newUnixTransport(c *gconfig.Configuration) (*unixTransport, error) {
 }
 
 func (t *unixTransport) Addr() string {
-	return t.conf.Socket
+	return t.conf.Addr
 }
 
 func (t *unixTransport) Network() string {

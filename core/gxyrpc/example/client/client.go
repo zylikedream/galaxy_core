@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	cli, err := client.NewGrpcClient("config/config.toml")
+	cli, err := client.NewGrpcClient("config/config.p2p.toml")
 	if err != nil {
 		panic(err)
 	}

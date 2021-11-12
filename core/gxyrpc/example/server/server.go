@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	s, err := server.NewGrpcServer("config/config.toml")
+	s, err := server.NewGrpcServer("config/config.peer.toml")
 	if err != nil {
 		panic(err)
 	}

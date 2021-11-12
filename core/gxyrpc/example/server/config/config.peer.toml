@@ -1,0 +1,7 @@
+[gxyrpc_server]
+	transport = "tcp" # tcp tls unix 
+	registery = "peer" # 支持etcd consul peer
+[transport.tcp]
+	addr = "localhost:8927"
+
+	

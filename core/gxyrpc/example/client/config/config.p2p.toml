@@ -1,0 +1,6 @@
+[gxyrpc_client.default]
+	fail_mode = "fail_over"
+	select_mode = "random_select"
+	discovery = "p2p"
+[discovery.p2p]
+	peer = "tcp@localhost:8927"

@@ -12,7 +12,7 @@ type multiDiscovery struct {
 }
 
 type multiConfig struct {
-	servers []string `toml:"servers"` // ex:tcp@localhost:2786
+	Peers []string `toml:"peers"` // ex:tcp@localhost:2786
 }
 
 func newmultiDiscovery(c *gconfig.Configuration) (*multiDiscovery, error) {
@@ -24,7 +24,7 @@ func newmultiDiscovery(c *gconfig.Configuration) (*multiDiscovery, error) {
 		return nil, err
 	}
 	pairs := []*client.KVPair{}
-	for _, svr := range conf.servers {
+	for _, svr := range conf.Peers {
 		pairs = append(pairs, &client.KVPair{Key: svr})
 	}
 	d, err := client.NewMultipleServersDiscovery(pairs)
