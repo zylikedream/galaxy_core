@@ -1,6 +1,7 @@
-package server
+package main
 
 import (
+	"github.com/zylikedream/galaxy/core/game/gserver/logic"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/peer"
@@ -23,8 +24,8 @@ func NewServer() *Server {
 	return svr
 }
 
-func (s *Server) Run(h session.EventHandler) error {
-	if err := s.p.Start(h); err != nil {
+func (s *Server) Run() error {
+	if err := s.p.Start(&logic.LogicHandle{}); err != nil {
 		return err
 	}
 	return nil

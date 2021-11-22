@@ -19,6 +19,6 @@ func (l *LogicHandle) OnClose(session.Session) {
 func (l *LogicHandle) OnError(session.Session, error) {
 }
 
-func (l *LogicHandle) OnMessage(session.Session, *message.Message) error {
+func (l *LogicHandle) OnMessage(sess session.Session, m *message.Message) error {
 	return nil
 }

@@ -3,6 +3,7 @@ module github.com/zylikedream/galaxy/core
 go 1.16
 
 require (
+	github.com/ChimeraCoder/gojson v1.1.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/mitchellh/mapstructure v1.4.2
 	github.com/pkg/errors v0.9.1
