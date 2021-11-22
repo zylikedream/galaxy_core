@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	WRITER_TYPE_STDERR     = "stderr"
-	WRITER_TYPE_ROTATEFILE = "rotate_file"
+	WRITER_TYPE_STDERR     = "writer.stderr"
+	WRITER_TYPE_ROTATEFILE = "writer.rotate_file"
 )
 
 // WriterBuilder 根据key初始化writer
@@ -33,7 +33,7 @@ var noopCloseFunc = func() error {
 }
 
 func NewCoreWriter(t string, c *gconfig.Configuration, atomiclv zap.AtomicLevel) (CoreWriter, error) {
-	if node, err := gregister.NewNode(t, c.WithPrefix("writer"), atomiclv); err != nil {
+	if node, err := gregister.NewNode("writer."+t, c, atomiclv); err != nil {
 		return nil, err
 	} else {
 		return node.(CoreWriter), nil

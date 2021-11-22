@@ -17,7 +17,7 @@ type tcpTransport struct {
 func newTcpTransport(c *gconfig.Configuration) (*tcpTransport, error) {
 	tran := &tcpTransport{}
 	conf := &tcpConfig{}
-	if err := c.UnmarshalKeyWithPrefix(tran.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(tran.Type(), conf); err != nil {
 		return nil, err
 	}
 	tran.conf = conf

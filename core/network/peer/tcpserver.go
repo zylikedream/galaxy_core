@@ -24,7 +24,7 @@ type tcpServerConfig struct {
 func newTcpServer(c *gconfig.Configuration) (*TcpServer, error) {
 	server := &TcpServer{}
 	conf := &tcpServerConfig{}
-	if err := c.UnmarshalKeyWithPrefix(server.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(server.Type(), conf); err != nil {
 		return nil, err
 	}
 	server.conf = conf

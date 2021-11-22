@@ -50,11 +50,11 @@ func uintEncode(data []byte, byteOrder binary.ByteOrder) (uint64, error) {
 }
 
 const (
-	PACKET_LTIV = "ltiv"
+	PACKET_LTIV = "packet.ltiv"
 )
 
 func NewPacketCodec(t string, c *gconfig.Configuration) (PacketCodec, error) {
-	if node, err := gregister.NewNode(t, c.WithPrefix("packet")); err != nil {
+	if node, err := gregister.NewNode("packet."+t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(PacketCodec), nil

@@ -21,7 +21,7 @@ func newP2pDiscovery(c *gconfig.Configuration) (*p2pDiscovery, error) {
 	p2p := &p2pDiscovery{
 		conf: conf,
 	}
-	if err := c.UnmarshalKeyWithPrefix(p2p.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(p2p.Type(), conf); err != nil {
 		return nil, err
 	}
 	d, err := client.NewPeer2PeerDiscovery(conf.Peer, conf.Meta)

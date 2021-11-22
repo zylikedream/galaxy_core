@@ -21,7 +21,7 @@ func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
 	proc := &Processor{}
 	conf := &processorConfig{}
 	var err error
-	if err = c.UnmarshalKeyWithPrefix(Type(), conf); err != nil {
+	if err = c.UnmarshalKey(Type(), conf); err != nil {
 		return nil, err
 	}
 	proc.conf = conf
@@ -37,7 +37,7 @@ func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
 }
 
 func Type() string {
-	return "processor"
+	return "peer.processor"
 }
 
 func (p *Processor) Decode(data []byte) (uint64, *message.Message, error) {

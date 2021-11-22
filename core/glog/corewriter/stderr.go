@@ -27,7 +27,7 @@ func new(c *gconfig.Configuration, atomiclv zap.AtomicLevel) (*stderrWriter, err
 	conf := &stderrConfig{
 		EncoderType: "json",
 	}
-	if err := c.UnmarshalKeyWithPrefix(w.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(w.Type(), conf); err != nil {
 		return nil, err
 	}
 	encoder, err := encoder.NewZapEncoder(conf.EncoderType, c)

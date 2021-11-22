@@ -21,7 +21,7 @@ func newconsulDiscovery(c *gconfig.Configuration) (*consulDiscovery, error) {
 	consul := &consulDiscovery{
 		conf: conf,
 	}
-	if err := c.UnmarshalKeyWithPrefix(consul.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(consul.Type(), conf); err != nil {
 		return nil, err
 	}
 	d, err := client.NewConsulDiscoveryTemplate(conf.BasePath, conf.ConsulServers, nil)

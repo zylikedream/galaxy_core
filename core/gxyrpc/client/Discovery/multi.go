@@ -20,7 +20,7 @@ func newmultiDiscovery(c *gconfig.Configuration) (*multiDiscovery, error) {
 	multi := &multiDiscovery{
 		conf: conf,
 	}
-	if err := c.UnmarshalKeyWithPrefix(multi.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(multi.Type(), conf); err != nil {
 		return nil, err
 	}
 	pairs := []*client.KVPair{}

@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	PEER_TCP_SERVER    = "tcp_server"
-	PEER_TCP_CONNECTOR = "tcp_connector"
+	PEER_TCP_SERVER    = "peer.tcp_server"
+	PEER_TCP_CONNECTOR = "peer.tcp_connector"
 )
 
 type Peer interface {
@@ -25,7 +25,7 @@ type Peer interface {
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {
-	if node, err := gregister.NewNode(t, c.WithPrefix("peer")); err != nil {
+	if node, err := gregister.NewNode("peer."+t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(Peer), nil

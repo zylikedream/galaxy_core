@@ -16,9 +16,9 @@ type Registery interface {
 }
 
 const (
-	REGISTERY_TYPE_ETCD   = "etcd"
-	REGISTERY_TYPE_CONSUL = "consul"
-	REGISTERY_TYPE_PEER   = "peer" // 客户端直连(比如点对点，点对多)
+	REGISTERY_TYPE_ETCD   = "registery.etcd"
+	REGISTERY_TYPE_CONSUL = "registery.consul"
+	REGISTERY_TYPE_PEER   = "registery.peer" // 客户端直连(比如点对点，点对多)
 )
 
 func RegisterAddr(t transport.Transport) string {
@@ -26,7 +26,7 @@ func RegisterAddr(t transport.Transport) string {
 }
 
 func NewRegistery(t string, ServerAddr string, c *gconfig.Configuration) (Registery, error) {
-	if node, err := gregister.NewNode(t, c.WithPrefix("registery"), ServerAddr); err != nil {
+	if node, err := gregister.NewNode("registery."+t, c, ServerAddr); err != nil {
 		return nil, errors.Wrap(err, "new registery failed")
 	} else {
 		return node.(Registery), nil

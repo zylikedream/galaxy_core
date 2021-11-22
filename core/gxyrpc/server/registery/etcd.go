@@ -25,7 +25,7 @@ func newEtcdRegistery(ServerAddr string, c *gconfig.Configuration) (*etcdRegiste
 	regist := &etcdRegistery{
 		conf: conf,
 	}
-	if err := c.UnmarshalKeyWithPrefix(regist.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(regist.Type(), conf); err != nil {
 		return nil, err
 	}
 	regist.plugin = &serverplugin.EtcdV3RegisterPlugin{

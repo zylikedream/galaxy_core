@@ -28,7 +28,7 @@ type ltivConfig struct {
 func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
 	l := &ltiv{}
 	conf := &ltivConfig{}
-	if err := c.UnmarshalKeyWithPrefix(l.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(l.Type(), conf); err != nil {
 		return nil, err
 	}
 	if conf.ByteOrder == "little" {

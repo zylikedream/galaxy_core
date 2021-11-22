@@ -23,7 +23,7 @@ func newEtcdDiscovery(c *gconfig.Configuration) (*etcdDiscovery, error) {
 	etcd := &etcdDiscovery{
 		conf: conf,
 	}
-	if err := c.UnmarshalKeyWithPrefix(etcd.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(etcd.Type(), conf); err != nil {
 		return nil, err
 	}
 	d, err := etcd_client.NewEtcdV3DiscoveryTemplate(conf.BasePath, conf.EtcdServers, conf.AllowKeyNotFound, nil)

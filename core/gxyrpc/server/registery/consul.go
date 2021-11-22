@@ -25,7 +25,7 @@ func newconsulRegistery(ServerAddr string, c *gconfig.Configuration) (*consulReg
 	regist := &consulRegistery{
 		conf: conf,
 	}
-	if err := c.UnmarshalKeyWithPrefix(regist.Type(), conf); err != nil {
+	if err := c.UnmarshalKey(regist.Type(), conf); err != nil {
 		return nil, err
 	}
 	regist.plugin = &serverplugin.ConsulRegisterPlugin{

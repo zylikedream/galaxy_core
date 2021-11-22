@@ -19,12 +19,12 @@ type Message struct {
 }
 
 const (
-	MESSAGE_JSON     = "json"
-	MESSAGE_PROTOBUF = "protobuf"
+	MESSAGE_JSON     = "message.json"
+	MESSAGE_PROTOBUF = "message.protobuf"
 )
 
 func NewMessageCodec(t string, c *gconfig.Configuration) (MessageCodec, error) {
-	if node, err := gregister.NewNode(t, c.WithPrefix("message")); err != nil {
+	if node, err := gregister.NewNode("message."+t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(MessageCodec), nil
