@@ -2,7 +2,6 @@ package module
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
@@ -12,14 +11,50 @@ import (
 	"text/template"
 
 	"github.com/ChimeraCoder/gojson"
+	"github.com/zylikedream/galaxy/core/game/gserver/define"
 	"github.com/zylikedream/galaxy/core/game/gserver/util"
+	"github.com/zylikedream/galaxy/core/gcontext"
+	"github.com/zylikedream/galaxy/core/network/message"
+	"github.com/zylikedream/galaxy/core/network/session"
 )
+
+const (
+	ACK_CODE_OK   = 0
+	ACK_CODE_FAIL = 1
+)
+
+type IModule interface {
+	// 定义handler是为了避免一些module 会有和导出类型相似的方法被意外导出，这时可以实现该方法，导出一个子类型handler, 一般的module可以不用管
+	Handler(IModule) interface{}
+	BeforeMsg(ctx gcontext.Context, msg interface{}) error // 像一些玩法的开启验证，和玩家的验证可以在这儿做
+	AfterMsg(ctx gcontext.Context, msg interface{}) error
+}
+
+type BaseModule struct {
+}
+
+func (*BaseModule) BeforeMsg(ctx gcontext.Context, msg interface{}) error {
+	return nil
+}
+
+func (b *BaseModule) Handler(mod IModule) interface{} {
+	return mod
+}
+
+func (*BaseModule) AfterMsg(ctx gcontext.Context, msg interface{}) error {
+	return nil
+}
+
+type Cookie struct {
+	Sess session.Session
+	Role interface{}
+}
 
 type ModuleMeta struct {
 	Info    ModuleInfo
 	Methods map[string]*MethodMeta
-	mod     reflect.Value
 	modType reflect.Type
+	im      IModule
 }
 
 type ModuleInfo struct {
@@ -42,41 +77,48 @@ type MethodInfo struct {
 	Reply     string
 }
 
-var siTemplate = `package {{.PkgPath}}
+type NilReply struct {
+}
 
-type {{.Name}} struct{}
-{{$name := .Name}}
+var siTemplate = `package {{.Info.PkgPath}}
+
+type {{.Info.Name}} struct{}
+{{$name := .Info.Name}}
 {{range .Methods}}
-{{.Req}}
-{{.Reply}}
-type (s *{{$name}}) {{.Name}}(ctx context.Context, arg *{{.ReqName}}, reply *{{.ReplyName}}) error {
+{{.Info.Req}}
+{{.Info.Reply}}
+type (s *{{$name}}) {{.Info.Name}}(ctx context.Context, arg *{{.Info.ReqName}}, reply *{{.Info.ReplyName}}) error {
 	return nil
 }
 {{end}}
 `
 
-func (modi ModuleInfo) String() string {
+func (mm ModuleMeta) String() string {
 	tpl := template.Must(template.New("service").Parse(siTemplate))
 	var buf bytes.Buffer
-	_ = tpl.Execute(&buf, modi)
+	_ = tpl.Execute(&buf, mm)
 	return buf.String()
 }
 
 var (
-	typeOfError   = reflect.TypeOf((*error)(nil)).Elem()
-	typeOfContext = reflect.TypeOf((*context.Context)(nil)).Elem()
+	typeOfError    = reflect.TypeOf((*error)(nil)).Elem()
+	typeOfGContext = reflect.TypeOf((*gcontext.Context)(nil)).Elem()
 )
 
+type RouteInfo struct {
+	ModName    string
+	MethodName string
+}
+
 var gmodules map[string]*ModuleMeta = make(map[string]*ModuleMeta)
-var gmethods map[string]string = make(map[string]string)
+var groutes map[string]RouteInfo = make(map[string]RouteInfo)
 
-func Register(mod interface{}) error {
-
-	mval := reflect.ValueOf(mod)
-	mtyp := reflect.TypeOf(mod)
+func Register(mod IModule) error {
+	handler := mod.Handler(mod)
+	mval := reflect.ValueOf(handler)
+	mtyp := reflect.TypeOf(handler)
 	mtypIdr := reflect.Indirect(mval).Type()
 	modMeta := &ModuleMeta{
-		mod:     mval,
 		modType: mtyp,
 	}
 	modi := ModuleInfo{}
@@ -90,7 +132,10 @@ func Register(mod interface{}) error {
 	modMeta.Info = modi
 	modMeta.Methods = suitableMethods(mtyp, pkg)
 	for _, m := range modMeta.Methods {
-		gmethods[m.ArgType.Name()] = modi.Name + "/" + m.ArgType.Name()
+		groutes[m.ArgType.Name()] = RouteInfo{
+			ModName:    modi.Name,
+			MethodName: m.ArgType.Name(),
+		}
 	}
 	gmodules[modi.Name] = modMeta
 	return nil
@@ -110,7 +155,7 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 		}
 		// First arg must be context.Context
 		ctxType := mtype.In(1)
-		if !ctxType.Implements(typeOfContext) {
+		if ctxType != typeOfGContext {
 			continue
 		}
 
@@ -181,29 +226,45 @@ func generateTypeDefination(name, pkg string, jsonValue string) string {
 	return strings.ReplaceAll(rt, "package "+pkg+"\n\n", "")
 }
 
-func HandleMessage(ctx context.Context, Arg interface{}) error {
-	argName := reflect.TypeOf(Arg).Name()
-	path, ok := gmethods[argName]
+func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
+	argName := reflect.TypeOf(Msg).Name()
+	path, ok := groutes[argName]
 	if !ok {
 		return fmt.Errorf("no hanlder for message %s", argName)
 	}
-	names := strings.Split(path, "/")
-	modName := names[0]
-	methodName := names[1]
-	mod := gmodules[modName]
-	mtd := mod.Methods[methodName]
+	mod := gmodules[path.ModName]
+	mtd := mod.Methods[path.MethodName]
 	Reply := reflect.New(mtd.ReplyType)
 	var err error
+	if err = mod.im.BeforeMsg(ctx, Msg); err != nil {
+		return err
+	}
 	if mtd.ArgType.Kind() != reflect.Ptr {
-		err = mod.call(ctx, mtd, reflect.ValueOf(Arg).Elem(), Reply)
+		err = mod.call(ctx, mtd, reflect.ValueOf(Msg).Elem(), Reply)
 	} else {
-		err = mod.call(ctx, mtd, reflect.ValueOf(Arg), Reply)
+		err = mod.call(ctx, mtd, reflect.ValueOf(Msg), Reply)
+	}
+	if err = mod.im.AfterMsg(ctx, Msg); err != nil {
+		return err
 	}
 	return err
-
 }
 
-func (m *ModuleMeta) call(ctx context.Context, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
+func AckOk(gctx gcontext.Context, msg interface{}) {
+	Ack(gctx, ACK_CODE_OK, "", msg)
+}
+
+func AckFail(gctx gcontext.Context, Reason string, msg interface{}) {
+	Ack(gctx, ACK_CODE_FAIL, Reason, msg)
+}
+
+func Ack(gctx gcontext.Context, code int, reason string, msg interface{}) {
+	sess := gctx.Value(define.SessionCtxKey).(session.Session)
+	msgData, err := sess.GetMessageCodec().Encode(msg)
+	msgID := message.MessageMetaByMsg(msg).ID
+}
+
+func (m *ModuleMeta) call(ctx gcontext.Context, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			buf := make([]byte, 4096)
@@ -217,7 +278,7 @@ func (m *ModuleMeta) call(ctx context.Context, mm *MethodMeta, argv, replyv refl
 
 	function := mm.Method.Func
 	// Invoke the method, providing a new value for the reply.
-	returnValues := function.Call([]reflect.Value{m.mod, reflect.ValueOf(ctx), argv, replyv})
+	returnValues := function.Call([]reflect.Value{reflect.ValueOf(m.im), reflect.ValueOf(ctx), argv, replyv})
 	// The return value for the method is an error.
 	errInter := returnValues[0].Interface()
 	if errInter != nil {

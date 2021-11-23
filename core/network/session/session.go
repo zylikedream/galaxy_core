@@ -8,11 +8,16 @@
  */
 package session
 
-import "net"
+import (
+	"net"
+
+	"github.com/zylikedream/galaxy/core/network/message"
+)
 
 type Session interface {
 	Send(msg interface{}) error
 	Start()
+	GetMessageCodec() message.MessageCodec
 	Close(error)
 	Conn() net.Conn
 }

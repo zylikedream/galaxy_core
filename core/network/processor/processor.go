@@ -73,3 +73,7 @@ func (p *Processor) Encode(rawMsg interface{}) ([]byte, error) {
 	return data, err
 
 }
+
+func (p *Processor) GetMessageCodec() message.MessageCodec {
+	return p.msgCodec
+}

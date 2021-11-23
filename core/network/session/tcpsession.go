@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 
 	"github.com/pkg/errors"
+	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/network/logger"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"go.uber.org/zap"
@@ -17,13 +18,13 @@ type TcpSession struct {
 	SessionBundle
 	conn   net.Conn
 	sendCh chan interface{}
-	ctx    context.Context
+	ctx    gcontext.Context
 	exit   int32
 }
 
 func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 	return &TcpSession{
-		ctx:           context.Background(),
+		ctx:           *gcontext.NewContext(context.Background()),
 		conn:          conn,
 		SessionBundle: bundle,
 		sendCh:        make(chan interface{}, 64),
@@ -126,4 +127,8 @@ func (t *TcpSession) Close(err error) {
 
 func (t *TcpSession) Conn() net.Conn {
 	return t.conn
+}
+
+func (t *TcpSession) GetMessageCodec() message.MessageCodec {
+	return t.Proc.GetMessageCodec()
 }
