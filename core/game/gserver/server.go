@@ -5,7 +5,6 @@ import (
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/peer"
-	"github.com/zylikedream/galaxy/core/network/session"
 )
 
 type Server struct {

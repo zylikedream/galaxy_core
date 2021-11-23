@@ -193,7 +193,6 @@ func HandleMessage(ctx context.Context, Arg interface{}) error {
 	mod := gmodules[modName]
 	mtd := mod.Methods[methodName]
 	Reply := reflect.New(mtd.ReplyType)
-	// todo
 	var err error
 	if mtd.ArgType.Kind() != reflect.Ptr {
 		err = mod.call(ctx, mtd, reflect.ValueOf(Arg).Elem(), Reply)

@@ -2,6 +2,7 @@ package session
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net"
 	"sync/atomic"
@@ -16,11 +17,13 @@ type TcpSession struct {
 	SessionBundle
 	conn   net.Conn
 	sendCh chan interface{}
+	ctx    context.Context
 	exit   int32
 }
 
 func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 	return &TcpSession{
+		ctx:           context.Background(),
 		conn:          conn,
 		SessionBundle: bundle,
 		sendCh:        make(chan interface{}, 64),
@@ -30,7 +33,7 @@ func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 func (t *TcpSession) Start() {
 	go t.recvLoop()
 	go t.sendLoop()
-	if err := t.Handler.OnOpen(t); err != nil {
+	if err := t.Handler.OnOpen(t.ctx, t); err != nil {
 		t.Close(errors.Wrap(err, "on open error"))
 		return
 	}
@@ -61,7 +64,7 @@ func (t *TcpSession) recvLoop() {
 		}
 		if msg != nil {
 			buf.Next(int(pkgLen))
-			if err = t.Handler.OnMessage(t, msg); err != nil {
+			if err = t.Handler.OnMessage(t.ctx, t, msg); err != nil {
 				break
 			}
 		}
@@ -104,7 +107,7 @@ func (t *TcpSession) sendLoop() {
 	// 关闭整个连接
 	t.conn.Close()
 	// 这儿才是真正的关闭流程结束
-	t.Handler.OnClose(t)
+	t.Handler.OnClose(t.ctx, t)
 }
 
 func (t *TcpSession) Close(err error) {
@@ -113,7 +116,7 @@ func (t *TcpSession) Close(err error) {
 	}
 	atomic.AddInt32(&t.exit, 1)
 	if err != nil { // 发生错误肯定会调用close
-		t.Handler.OnError(t, err)
+		t.Handler.OnError(t.ctx, t, err)
 		logger.Nlog.Error("tcpsession close", zap.Error(err))
 	}
 	tcpConn := t.conn.(*net.TCPConn)

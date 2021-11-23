@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/example/echo/proto"
@@ -17,16 +19,16 @@ type EchoEventHandler struct {
 	session.BaseEventHandler
 }
 
-func (e *EchoEventHandler) OnOpen(sess session.Session) error {
+func (e *EchoEventHandler) OnOpen(ctx context.Context, sess session.Session) error {
 	glog.Infof("session open, addr=%s", sess.Conn().RemoteAddr())
 	return nil
 }
 
-func (e *EchoEventHandler) OnClose(sess session.Session) {
+func (e *EchoEventHandler) OnClose(ctx context.Context, sess session.Session) {
 	glog.Infof("session close, addr=%s", sess.Conn().RemoteAddr())
 }
 
-func (e *EchoEventHandler) OnMessage(sess session.Session, msg *message.Message) error {
+func (e *EchoEventHandler) OnMessage(ctx context.Context, sess session.Session, msg *message.Message) error {
 	switch m := msg.Msg.(type) {
 	case *proto.EchoReq:
 		glog.Infof("recv echo req:%v", m)
