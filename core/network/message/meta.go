@@ -44,7 +44,11 @@ func (m *MessageMeta) NewInstance() interface{} {
 		return nil
 	}
 
-	return reflect.New(m.Type).Interface()
+	if m.Type.Kind() == reflect.Ptr {
+		return reflect.New(m.Type.Elem()).Interface()
+	} else {
+		return reflect.New(m.Type).Interface()
+	}
 }
 
 func RegisterMessageMeta(ID int, msg interface{}) *MessageMeta {

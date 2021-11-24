@@ -123,6 +123,7 @@ func Register(mod IModule) error {
 	mtypIdr := reflect.Indirect(mval).Type()
 	modMeta := &ModuleMeta{
 		modType: mtyp,
+		im:      mod,
 	}
 	modi := ModuleInfo{}
 	modi.Name = mtypIdr.Name()
@@ -188,13 +189,14 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 		methodi := MethodInfo{}
 		methodi.Name = method.Name
 
-		if argType.Kind() == reflect.Ptr {
-			argType = argType.Elem()
+		argTypeV := argType
+		if argTypeV.Kind() == reflect.Ptr {
+			argTypeV = argTypeV.Elem()
 		}
 		replyType = replyType.Elem()
 
-		methodi.ReqName = argType.Name()
-		methodi.Req = generateTypeDefination(methodi.ReqName, PkgPath, generateJSON(argType))
+		methodi.ReqName = argTypeV.Name()
+		methodi.Req = generateTypeDefination(methodi.ReqName, PkgPath, generateJSON(argTypeV))
 		methodi.ReplyName = replyType.Name()
 		methodi.Reply = generateTypeDefination(methodi.ReplyName, PkgPath, generateJSON(replyType))
 
@@ -237,19 +239,19 @@ func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
 	}
 	mod := gmodules[path.ModName]
 	mtd := mod.Methods[path.MethodName]
-	glog.Debug("debug", zap.Any("path", path))
 	Reply := reflect.New(mtd.ReplyType)
 	var err error
 	defer func() {
 		if err != nil {
-			AckFail(ctx, Reply, err.Error())
+			AckFail(ctx, Reply.Interface(), err.Error())
 		} else {
-			AckOk(ctx, Reply)
+			AckOk(ctx, Reply.Interface())
 		}
 	}()
 	if err = mod.im.BeforeMsg(ctx, Msg); err != nil {
 		return err
 	}
+	glog.Debugf("msg %#v", Msg)
 	if mtd.ArgType.Kind() != reflect.Ptr {
 		err = mod.call(ctx, mtd, reflect.ValueOf(Msg).Elem(), Reply)
 	} else {
@@ -273,11 +275,16 @@ func AckOk(ctx gcontext.Context, msg interface{}) {
 }
 
 func Ack(ctx gcontext.Context, msg interface{}, code int, Reason string) {
-	msgID := message.MessageMetaByMsg(msg).ID
+	meta := message.MessageMetaByMsg(msg)
+	if meta == nil {
+		glog.Error("ack unkonw msg", zap.Any("msg", msg))
+		return
+	}
+
 	ack := &proto.Ack{
 		Code:   code,
 		Reason: Reason,
-		MsgID:  msgID,
+		MsgID:  meta.ID,
 	}
 	if code == ACK_CODE_OK {
 		sess := ctx.Value(define.SessionCtxKey).(session.Session)

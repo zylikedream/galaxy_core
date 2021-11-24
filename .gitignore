@@ -12,3 +12,5 @@
 *.out
 default.log
 default.log.*
+*.log
+core/game/gclient/log/server.log
