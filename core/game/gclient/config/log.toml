@@ -1,8 +1,8 @@
 [log]
 	level = "debug"
 	enable_addcaller = true
-	caller_skip = 2
 	writer = "rotate_file" # 写入类型(rotate_file|stderr), 默认为rotate_file
+	caller_skip = 2
 	watch = true
 
 [writer.rotate_file]

@@ -11,12 +11,10 @@ import (
 	"text/template"
 
 	"github.com/ChimeraCoder/gojson"
-	"github.com/zylikedream/galaxy/core/game/gserver/define"
-	"github.com/zylikedream/galaxy/core/game/gserver/util"
-	"github.com/zylikedream/galaxy/core/game/proto"
+	"github.com/zylikedream/galaxy/core/game/gclient/define"
+	"github.com/zylikedream/galaxy/core/game/gclient/util"
 	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
-	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/session"
 	"go.uber.org/zap"
 )
@@ -66,16 +64,13 @@ type ModuleInfo struct {
 }
 
 type MethodMeta struct {
-	Info      MethodInfo
-	Method    reflect.Method
-	ArgType   reflect.Type
-	ReplyType reflect.Type
+	Info    MethodInfo
+	Method  reflect.Method
+	MsgType reflect.Type
 }
 
 type MethodInfo struct {
 	Name      string
-	ReqName   string
-	Req       string
 	ReplyName string
 	Reply     string
 }
@@ -135,9 +130,9 @@ func Register(mod IModule) error {
 	modMeta.Info = modi
 	modMeta.Methods = suitableMethods(mtyp, pkg)
 	for _, m := range modMeta.Methods {
-		groutes[m.ArgType.Name()] = RouteInfo{
+		groutes[m.MsgType.Name()] = RouteInfo{
 			ModName:    modi.Name,
-			MethodName: m.Info.Name,
+			MethodName: m.MsgType.Name(),
 		}
 	}
 	gmodules[modi.Name] = modMeta
@@ -153,7 +148,7 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 		if method.PkgPath != "" {
 			continue
 		}
-		if mtype.NumIn() != 4 {
+		if mtype.NumIn() != 3 {
 			continue
 		}
 		// First arg must be context.Context
@@ -162,13 +157,8 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 			continue
 		}
 
-		// Second arg need not be a pointer.
-		argType := mtype.In(2)
-		if !util.IsExportedOrBuiltinType(argType) {
-			continue
-		}
-		// Third arg must be a pointer.
-		replyType := mtype.In(3)
+		// Second arg need be a pointer.
+		replyType := mtype.In(2)
 		if replyType.Kind() != reflect.Ptr {
 			continue
 		}
@@ -188,21 +178,15 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 		methodi := MethodInfo{}
 		methodi.Name = method.Name
 
-		if argType.Kind() == reflect.Ptr {
-			argType = argType.Elem()
-		}
 		replyType = replyType.Elem()
 
-		methodi.ReqName = argType.Name()
-		methodi.Req = generateTypeDefination(methodi.ReqName, PkgPath, generateJSON(argType))
 		methodi.ReplyName = replyType.Name()
 		methodi.Reply = generateTypeDefination(methodi.ReplyName, PkgPath, generateJSON(replyType))
 
 		methods[method.Name] = &MethodMeta{
-			Info:      methodi,
-			Method:    method,
-			ArgType:   argType,
-			ReplyType: replyType,
+			Info:    methodi,
+			Method:  method,
+			MsgType: replyType,
 		}
 	}
 	return methods
@@ -230,30 +214,21 @@ func generateTypeDefination(name, pkg string, jsonValue string) string {
 }
 
 func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
-	argName := reflect.TypeOf(Msg).Elem().Name()
+	argName := reflect.TypeOf(Msg).Name()
 	path, ok := groutes[argName]
 	if !ok {
-		return fmt.Errorf("no hanlder for message: %+v", Msg)
+		return fmt.Errorf("no hanlder for message %s", argName)
 	}
 	mod := gmodules[path.ModName]
 	mtd := mod.Methods[path.MethodName]
-	glog.Debug("debug", zap.Any("path", path))
-	Reply := reflect.New(mtd.ReplyType)
 	var err error
-	defer func() {
-		if err != nil {
-			AckFail(ctx, Reply, err.Error())
-		} else {
-			AckOk(ctx, Reply)
-		}
-	}()
 	if err = mod.im.BeforeMsg(ctx, Msg); err != nil {
 		return err
 	}
-	if mtd.ArgType.Kind() != reflect.Ptr {
-		err = mod.call(ctx, mtd, reflect.ValueOf(Msg).Elem(), Reply)
+	if mtd.MsgType.Kind() != reflect.Ptr {
+		err = mod.call(ctx, mtd, reflect.ValueOf(Msg).Elem())
 	} else {
-		err = mod.call(ctx, mtd, reflect.ValueOf(Msg), Reply)
+		err = mod.call(ctx, mtd, reflect.ValueOf(Msg))
 	}
 	if err != nil {
 		return err
@@ -264,33 +239,6 @@ func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
 	return nil
 }
 
-func AckFail(ctx gcontext.Context, msg interface{}, Reason string) {
-	Ack(ctx, msg, ACK_CODE_FAIL, Reason)
-}
-
-func AckOk(ctx gcontext.Context, msg interface{}) {
-	Ack(ctx, msg, ACK_CODE_OK, "")
-}
-
-func Ack(ctx gcontext.Context, msg interface{}, code int, Reason string) {
-	msgID := message.MessageMetaByMsg(msg).ID
-	ack := &proto.Ack{
-		Code:   code,
-		Reason: Reason,
-		MsgID:  msgID,
-	}
-	if code == ACK_CODE_OK {
-		sess := ctx.Value(define.SessionCtxKey).(session.Session)
-		msgData, err := sess.GetMessageCodec().Encode(msg)
-		if err != nil {
-			glog.Error("ack error", zap.Error(err))
-			return
-		}
-		ack.Data = msgData
-	}
-	Send(ctx, ack)
-}
-
 func Send(ctx gcontext.Context, msg interface{}) {
 	sess := ctx.Value(define.SessionCtxKey).(session.Session)
 	err := sess.Send(msg)
@@ -299,7 +247,7 @@ func Send(ctx gcontext.Context, msg interface{}) {
 	}
 }
 
-func (m *ModuleMeta) call(ctx gcontext.Context, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
+func (m *ModuleMeta) call(ctx gcontext.Context, mm *MethodMeta, argv reflect.Value) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			buf := make([]byte, 4096)
@@ -313,7 +261,7 @@ func (m *ModuleMeta) call(ctx gcontext.Context, mm *MethodMeta, argv, replyv ref
 
 	function := mm.Method.Func
 	// Invoke the method, providing a new value for the reply.
-	returnValues := function.Call([]reflect.Value{reflect.ValueOf(m.im), reflect.ValueOf(ctx), argv, replyv})
+	returnValues := function.Call([]reflect.Value{reflect.ValueOf(m.im), reflect.ValueOf(ctx), argv})
 	// The return value for the method is an error.
 	errInter := returnValues[0].Interface()
 	if errInter != nil {

@@ -16,7 +16,7 @@ import (
 
 type Session interface {
 	Send(msg interface{}) error
-	Start()
+	Start() error
 	GetMessageCodec() message.MessageCodec
 	Close(error)
 	Conn() net.Conn

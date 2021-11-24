@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"sync/atomic"
 
@@ -31,13 +32,13 @@ func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 	}
 }
 
-func (t *TcpSession) Start() {
-	go t.recvLoop()
-	go t.sendLoop()
+func (t *TcpSession) Start() error {
 	if err := t.Handler.OnOpen(t.ctx, t); err != nil {
-		t.Close(errors.Wrap(err, "on open error"))
-		return
+		return errors.Wrap(err, "on open error")
 	}
+	go t.sendLoop()
+	t.recvLoop()
+	return nil
 }
 
 func (t *TcpSession) recvLoop() {
@@ -54,6 +55,11 @@ func (t *TcpSession) recvLoop() {
 			netErr, ok := err.(*net.OpError)
 			if ok && netErr.Err == net.ErrClosed { // 调用close主动断开 已经执行过断开逻辑了 直接返回
 				return
+			}
+			if errors.Is(err, io.EOF) { // 对方主动断开
+				err = nil
+				logger.Nlog.Debug("remote closed")
+				break
 			}
 			// 出错了
 			break

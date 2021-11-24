@@ -1,5 +1,11 @@
 package proto
 
+import (
+	"hash/crc32"
+
+	"github.com/zylikedream/galaxy/core/network/message"
+)
+
 type ReqHandshake struct {
 	LoginKey string `json:"login_key"`
 }
@@ -23,4 +29,11 @@ type PClientInfo struct {
 
 type RspAccountLogin struct {
 	Create bool `json:"create"`
+}
+
+func init() {
+	message.RegisterMessageMeta(int(crc32.ChecksumIEEE([]byte("ReqHandshake"))), (*ReqHandshake)(nil))
+	message.RegisterMessageMeta(int(crc32.ChecksumIEEE([]byte("RspHandshake"))), (*RspHandshake)(nil))
+	message.RegisterMessageMeta(int(crc32.ChecksumIEEE([]byte("ReqAccountLogin"))), (*ReqAccountLogin)(nil))
+	message.RegisterMessageMeta(int(crc32.ChecksumIEEE([]byte("RspAccountLogin"))), (*RspAccountLogin)(nil))
 }

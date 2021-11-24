@@ -49,7 +49,4 @@ func EchoServer() {
 		glog.Error("network", zap.Namespace("start failed"), zap.Error(err))
 		return
 	}
-
-	done := make(chan struct{})
-	<-done
 }

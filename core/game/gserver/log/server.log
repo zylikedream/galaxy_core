@@ -1,0 +1,56 @@
+{"level":"error","ts":"2021-11-24T15:37:59.9704046+08:00","caller":"glog/api.go:57","msg":"server run err","error":"listen tcp 127.0.0.1:19001: bind: address already in use"}
+{"level":"info","ts":"2021-11-24T16:01:13.3053215+08:00","caller":"glog/api.go:117","msg":"packet size 32, data size:32"}
+{"level":"info","ts":"2021-11-24T16:06:14.2085554+08:00","caller":"glog/api.go:117","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:06:14.2087974+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:06:15.2087304+08:00","caller":"glog/api.go:117","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:06:15.2088489+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:08:25.0662374+08:00","caller":"glog/api.go:117","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:08:25.0664871+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:08:26.0663241+08:00","caller":"glog/api.go:117","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:08:26.066442+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:09:04.4584674+08:00","caller":"glog/api.go:117","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:09:04.458755+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:09:05.4586988+08:00","caller":"glog/api.go:117","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:09:05.4588467+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:09:41.8645558+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:09:41.8647498+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:09:42.8647471+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:09:42.8648851+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:10:17.8818311+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:10:17.8820625+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:10:18.8820693+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:10:18.8821993+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:15:53.6116156+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:15:53.6118546+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{LoginKey:golang client}"}
+{"level":"info","ts":"2021-11-24T16:15:54.6117764+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:15:54.6119316+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{Account:zhangyi ClientInfo:{SdkType:0 SysVersion: DevID:}}"}
+{"level":"info","ts":"2021-11-24T16:16:56.2747287+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T16:16:56.2749512+08:00","caller":"module/module.go:235","msg":"{ }:%!b(bool=false)"}
+{"level":"error","ts":"2021-11-24T16:16:56.2750045+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{LoginKey:golang client}"}
+{"level":"info","ts":"2021-11-24T16:16:57.2749568+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-24T16:16:57.2750773+08:00","caller":"module/module.go:235","msg":"{ }:%!b(bool=false)"}
+{"level":"error","ts":"2021-11-24T16:16:57.2751302+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{Account:zhangyi ClientInfo:{SdkType:0 SysVersion: DevID:}}"}
+{"level":"info","ts":"2021-11-24T16:17:28.3404959+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T16:17:28.3406852+08:00","caller":"module/module.go:235","msg":"{ }:false"}
+{"level":"error","ts":"2021-11-24T16:17:28.3407759+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{LoginKey:golang client}"}
+{"level":"info","ts":"2021-11-24T16:17:29.3406948+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-24T16:17:29.3408114+08:00","caller":"module/module.go:235","msg":"{ }:false"}
+{"level":"error","ts":"2021-11-24T16:17:29.3408588+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{Account:zhangyi ClientInfo:{SdkType:0 SysVersion: DevID:}}"}
+{"level":"info","ts":"2021-11-24T16:18:46.478191+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T16:18:46.478358+08:00","caller":"module/module.go:234","msg":"argname","argname":""}
+{"level":"error","ts":"2021-11-24T16:18:46.478436+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{LoginKey:golang client}"}
+{"level":"info","ts":"2021-11-24T16:18:47.4784212+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-24T16:18:47.4785597+08:00","caller":"module/module.go:234","msg":"argname","argname":""}
+{"level":"error","ts":"2021-11-24T16:18:47.4786343+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message: &{Account:zhangyi ClientInfo:{SdkType:0 SysVersion: DevID:}}"}
+{"level":"info","ts":"2021-11-24T18:11:04.4659861+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T18:11:04.4662099+08:00","caller":"module/module.go:234","msg":"argname","argname":"ReqHandshake"}
+{"level":"info","ts":"2021-11-24T18:13:32.7894655+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T18:13:32.789667+08:00","caller":"module/module.go:234","msg":"argname","argname":"ReqHandshake"}
+{"level":"info","ts":"2021-11-24T18:28:45.1002867+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T18:28:45.1004393+08:00","caller":"module/module.go:238","msg":"argname","argname":"ReqHandshake"}
+{"level":"info","ts":"2021-11-24T18:30:11.527015+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T18:30:11.5272002+08:00","caller":"module/module.go:240","msg":"debug","mtd":null}
+{"level":"info","ts":"2021-11-24T18:30:32.4340269+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T18:30:32.4342636+08:00","caller":"module/module.go:240","msg":"debug","path":{"ModName":"LoginModule","MethodName":"ReqHandshake"}}
+{"level":"info","ts":"2021-11-24T18:32:57.0187562+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-24T18:32:57.0189406+08:00","caller":"module/module.go:240","msg":"debug","path":{"ModName":"LoginModule","MethodName":"Handshake"}}

@@ -1,0 +1,9 @@
+{"level":"error","ts":"2021-11-24T15:40:47.8564561+08:00","caller":"session/tcpsession.go:121","msg":"tcpsession close","error":"recv error: EOF","errorVerbose":"EOF\nrecv error\ngithub.com/zylikedream/galaxy/core/network/session.(*TcpSession).recvLoop\n\t/home/zhangyi/workspace/galaxy/core/network/session/tcpsession.go:74\ngithub.com/zylikedream/galaxy/core/network/session.(*TcpSession).Start\n\t/home/zhangyi/workspace/galaxy/core/network/session/tcpsession.go:39\ngithub.com/zylikedream/galaxy/core/network/peer.(*TcpServer).accept.func1\n\t/home/zhangyi/workspace/galaxy/core/network/peer/tcpserver.go:65\nruntime.goexit\n\t/usr/local/go/src/runtime/asm_amd64.s:1371"}
+{"level":"info","ts":"2021-11-24T15:45:25.7983275+08:00","caller":"glog/glog.go:107","msg":"config level change info->debug"}
+{"level":"debug","ts":"2021-11-24T15:45:29.8730418+08:00","caller":"session/tcpsession.go:61","msg":"remote closed"}
+{"level":"debug","ts":"2021-11-24T15:45:35.5515605+08:00","caller":"session/tcpsession.go:61","msg":"remote closed"}
+{"level":"debug","ts":"2021-11-24T16:08:28.3114691+08:00","caller":"session/tcpsession.go:61","msg":"remote closed"}
+{"level":"debug","ts":"2021-11-24T16:09:07.8844539+08:00","caller":"session/tcpsession.go:61","msg":"remote closed"}
+{"level":"debug","ts":"2021-11-24T16:10:19.6028824+08:00","caller":"session/tcpsession.go:40","msg":"remote closed"}
+{"level":"debug","ts":"2021-11-24T16:15:59.2700426+08:00","caller":"session/tcpsession.go:40","msg":"remote closed"}
+{"level":"debug","ts":"2021-11-24T16:18:49.5691181+08:00","caller":"session/tcpsession.go:40","msg":"remote closed"}

@@ -41,8 +41,7 @@ func (t *TcpConnector) Start(h session.EventHandler) error {
 	}
 	t.BindHandler(h)
 	sess := session.NewTcpSession(conn, t.SessionBundle)
-	sess.Start()
-	return nil
+	return sess.Start()
 }
 
 func (t *TcpConnector) Type() string {

@@ -45,7 +45,7 @@ func (t *TcpServer) Start(el session.EventHandler) error {
 		return err
 	}
 	t.BindHandler(el)
-	go t.accept()
+	t.accept()
 	return nil
 }
 
@@ -61,7 +61,11 @@ func (t *TcpServer) accept() {
 			break
 		}
 		sess := session.NewTcpSession(conn, t.SessionBundle)
-		go sess.Start()
+		go func() {
+			if err := sess.Start(); err != nil {
+				logger.Nlog.Warn("session start faield", zap.Error(err))
+			}
+		}()
 	}
 }
 

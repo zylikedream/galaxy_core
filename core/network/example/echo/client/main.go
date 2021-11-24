@@ -34,7 +34,6 @@ type EchoEventHandler struct {
 
 func (e *EchoEventHandler) OnOpen(ctx gcontext.Context, sess session.Session) error {
 	glog.Infof("session open, addr=%s", sess.Conn().RemoteAddr())
-	wg.Add(1)
 	go run(sess)
 	return nil
 }
@@ -57,7 +56,6 @@ func (e *EchoEventHandler) OnMessage(ctx gcontext.Context, sess session.Session,
 
 func run(sess session.Session) {
 	var i int
-	defer wg.Done()
 	for {
 		msg := &proto.EchoReq{
 			Msg: fmt.Sprintf("hello %d", i),
@@ -81,5 +79,4 @@ func EchoClient() {
 		glog.Error("network", zap.Namespace("start failed"), zap.Error(err))
 		return
 	}
-	wg.Wait()
 }

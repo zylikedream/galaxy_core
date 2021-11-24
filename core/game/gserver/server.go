@@ -5,6 +5,7 @@ import (
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/peer"
+	"go.uber.org/zap"
 )
 
 type Server struct {
@@ -13,12 +14,12 @@ type Server struct {
 
 func NewServer() *Server {
 	svr := &Server{}
-	p, err := network.NewNetwork("network.toml")
+	p, err := network.NewNetwork("config/network.toml")
 	if err != nil {
 		panic(err)
 	}
 	svr.p = p
-	logger := glog.NewLogger("server", "log.toml")
+	logger := glog.NewLogger("server", "config/log.toml")
 	glog.SetDefaultLogger(logger)
 	return svr
 }
@@ -28,4 +29,11 @@ func (s *Server) Run() error {
 		return err
 	}
 	return nil
+}
+
+func main() {
+	s := NewServer()
+	if err := s.Run(); err != nil {
+		glog.Error("server run err", zap.Error(err))
+	}
 }
