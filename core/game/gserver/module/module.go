@@ -136,7 +136,7 @@ func Register(mod IModule) error {
 	modMeta.Info = modi
 	modMeta.Methods = suitableMethods(mtyp, pkg)
 	for _, m := range modMeta.Methods {
-		groutes[m.ArgType.Name()] = RouteInfo{
+		groutes[m.Info.ReqName] = RouteInfo{
 			ModName:    modi.Name,
 			MethodName: m.Info.Name,
 		}
