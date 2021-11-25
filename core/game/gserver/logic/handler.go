@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"github.com/zylikedream/galaxy/core/game/gserver/define"
 	"github.com/zylikedream/galaxy/core/game/gserver/module"
 	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
@@ -15,7 +14,7 @@ type LogicHandle struct {
 }
 
 func (l *LogicHandle) OnOpen(ctx gcontext.Context, sess session.Session) error {
-	ctx.SetValue(define.SessionCtxKey, sess)
+	ctx.SetValue(module.SessionCtxKey, sess)
 	return nil
 }
 

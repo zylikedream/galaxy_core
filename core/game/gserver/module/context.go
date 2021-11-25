@@ -1,4 +1,9 @@
-package define
+package module
+
+import (
+	"github.com/zylikedream/galaxy/core/gcontext"
+	"github.com/zylikedream/galaxy/core/network/session"
+)
 
 type contextKey struct {
 	name string
@@ -12,3 +17,7 @@ var (
 	// The associated value will be of type net.Conn.
 	SessionCtxKey = &contextKey{"session"}
 )
+
+func GetSessionFromCtx(ctx gcontext.Context) session.Session {
+	return ctx.Value(SessionCtxKey).(session.Session)
+}

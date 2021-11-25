@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/ChimeraCoder/gojson"
-	"github.com/zylikedream/galaxy/core/game/gserver/define"
 	"github.com/zylikedream/galaxy/core/game/gserver/util"
 	"github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gcontext"
@@ -287,7 +286,7 @@ func Ack(ctx gcontext.Context, msg interface{}, code int, Reason string) {
 		MsgID:  meta.ID,
 	}
 	if code == ACK_CODE_OK {
-		sess := ctx.Value(define.SessionCtxKey).(session.Session)
+		sess := ctx.Value(SessionCtxKey).(session.Session)
 		msgData, err := sess.GetMessageCodec().Encode(msg)
 		if err != nil {
 			glog.Error("ack error", zap.Error(err))
@@ -299,7 +298,7 @@ func Ack(ctx gcontext.Context, msg interface{}, code int, Reason string) {
 }
 
 func Send(ctx gcontext.Context, msg interface{}) {
-	sess := ctx.Value(define.SessionCtxKey).(session.Session)
+	sess := GetSessionFromCtx(ctx)
 	err := sess.Send(msg)
 	if err != nil {
 		glog.Error("send error", zap.Error(err), zap.Any("msg", msg))
