@@ -115,3 +115,33 @@
 {"level":"debug","ts":"2021-11-24T22:29:23.2367238+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
 {"level":"info","ts":"2021-11-24T22:29:24.2373414+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
 {"level":"debug","ts":"2021-11-24T22:29:24.2374365+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
+{"level":"info","ts":"2021-11-25T09:25:27.4385565+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:25:27.4387768+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:25:28.4385248+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-25T09:25:28.4386839+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
+{"level":"info","ts":"2021-11-25T09:27:27.1827553+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:27:27.1829261+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:27:28.1835889+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-25T09:27:28.1837387+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
+{"level":"info","ts":"2021-11-25T09:36:05.4011646+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:36:05.4013597+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:36:35.9483314+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:36:35.9485284+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:37:40.3722846+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:37:40.3724328+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:38:41.6357242+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:38:41.6358974+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:38:42.6358058+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-25T09:38:42.6359769+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
+{"level":"info","ts":"2021-11-25T09:39:01.1407528+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:39:01.1408756+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:39:02.141667+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-25T09:39:02.1418113+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
+{"level":"info","ts":"2021-11-25T09:39:55.4768322+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:39:55.4769726+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:39:56.4777508+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-25T09:39:56.4778943+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
+{"level":"info","ts":"2021-11-25T09:45:20.0101262+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"debug","ts":"2021-11-25T09:45:20.0102558+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
+{"level":"info","ts":"2021-11-25T09:45:21.010917+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"debug","ts":"2021-11-25T09:45:21.0110383+08:00","caller":"module/module.go:254","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}

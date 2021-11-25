@@ -70,9 +70,9 @@ type MethodMeta struct {
 }
 
 type MethodInfo struct {
-	Name      string
-	ReplyName string
-	Reply     string
+	Name    string
+	MsgName string
+	MsgDesc string
 }
 
 type NilReply struct {
@@ -118,6 +118,7 @@ func Register(mod IModule) error {
 	mtypIdr := reflect.Indirect(mval).Type()
 	modMeta := &ModuleMeta{
 		modType: mtyp,
+		im:      mod,
 	}
 	modi := ModuleInfo{}
 	modi.Name = mtypIdr.Name()
@@ -130,9 +131,9 @@ func Register(mod IModule) error {
 	modMeta.Info = modi
 	modMeta.Methods = suitableMethods(mtyp, pkg)
 	for _, m := range modMeta.Methods {
-		groutes[m.MsgType.Name()] = RouteInfo{
+		groutes[m.Info.MsgName] = RouteInfo{
 			ModName:    modi.Name,
-			MethodName: m.MsgType.Name(),
+			MethodName: m.Info.Name,
 		}
 	}
 	gmodules[modi.Name] = modMeta
@@ -159,9 +160,6 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 
 		// Second arg need be a pointer.
 		replyType := mtype.In(2)
-		if replyType.Kind() != reflect.Ptr {
-			continue
-		}
 		// Reply type must be exported.
 		if !util.IsExportedOrBuiltinType(replyType) {
 			continue
@@ -177,11 +175,13 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 
 		methodi := MethodInfo{}
 		methodi.Name = method.Name
+		replyTypeV := replyType
+		if replyType.Kind() == reflect.Ptr {
+			replyTypeV = replyTypeV.Elem()
+		}
 
-		replyType = replyType.Elem()
-
-		methodi.ReplyName = replyType.Name()
-		methodi.Reply = generateTypeDefination(methodi.ReplyName, PkgPath, generateJSON(replyType))
+		methodi.MsgName = replyTypeV.Name()
+		methodi.MsgDesc = generateTypeDefination(methodi.MsgName, PkgPath, generateJSON(replyTypeV))
 
 		methods[method.Name] = &MethodMeta{
 			Info:    methodi,
@@ -214,7 +214,7 @@ func generateTypeDefination(name, pkg string, jsonValue string) string {
 }
 
 func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
-	argName := reflect.TypeOf(Msg).Name()
+	argName := reflect.TypeOf(Msg).Elem().Name()
 	path, ok := groutes[argName]
 	if !ok {
 		return fmt.Errorf("no hanlder for message %s", argName)

@@ -12,19 +12,22 @@ type AckModule struct {
 	BaseModule
 }
 
-func (l *LoginModule) Ack(ctx gcontext.Context, ack *proto.Ack) error {
+func (l *AckModule) Ack(ctx gcontext.Context, ack *proto.Ack) error {
 	meta := message.MessageMetaByID(ack.MsgID)
 	if ack.Code != ACK_CODE_OK {
 		glog.Error("ack failed", zap.String("msg", meta.TypeName()), zap.String("reason", ack.Reason))
 		return nil
 	}
-	glog.Debug("ack success", zap.String("msg", meta.TypeName()))
 	sess := GetSessionFromCtx(ctx)
 	msg := meta.NewInstance()
 	if err := sess.GetMessageCodec().Decode(msg, ack.Data); err != nil {
 		return err
 	}
-	return HandleMessage(ctx, msg)
+	if err := HandleMessage(ctx, msg); err != nil {
+		return err
+	}
+	glog.Debug("ack success", zap.String("msg", meta.TypeName()))
+	return nil
 }
 
 func init() {
