@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/zylikedream/galaxy/core/game/gserver/logic"
+	"github.com/zylikedream/galaxy/core/game/gserver/src/logic"
 	_ "github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"

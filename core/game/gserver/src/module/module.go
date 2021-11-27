@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/ChimeraCoder/gojson"
-	"github.com/zylikedream/galaxy/core/game/gserver/util"
 	"github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
@@ -164,7 +163,7 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 
 		// Second arg need not be a pointer.
 		argType := mtype.In(2)
-		if !util.IsExportedOrBuiltinType(argType) {
+		if !IsExportedOrBuiltinType(argType) {
 			continue
 		}
 		// Third arg must be a pointer.
@@ -173,7 +172,7 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 			continue
 		}
 		// Reply type must be exported.
-		if !util.IsExportedOrBuiltinType(replyType) {
+		if !IsExportedOrBuiltinType(replyType) {
 			continue
 		}
 		// Method needs one out.

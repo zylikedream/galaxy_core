@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"github.com/zylikedream/galaxy/core/game/gserver/module"
+	"github.com/zylikedream/galaxy/core/game/gserver/src/module"
 	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network/message"
