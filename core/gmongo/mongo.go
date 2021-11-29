@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type gmongo struct {
@@ -61,4 +62,14 @@ func (m *gmongo) FindOne(ctx context.Context, Col string, filter interface{}, op
 func (m *gmongo) Find(ctx context.Context, Col string, filter interface{}, opts ...*options.FindOptions) (*mongo.Cursor, error) {
 	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
 	return col.Find(ctx, filter, opts...)
+}
+
+func (m *gmongo) UpdateSetOne(ctx context.Context, Col string, filter interface{}, Set interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.UpdateOne(ctx, filter, bson.M{"$set", Set}, opts...)
+}
+
+func (m *gmongo) UpdateOne(ctx context.Context, Col string, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.UpdateOne(ctx, filter, update, opts...)
 }

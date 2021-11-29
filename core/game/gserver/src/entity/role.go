@@ -1,10 +1,7 @@
 package entity
 
 import (
-	"context"
-
 	"github.com/zylikedream/galaxy/core/game/gserver/src/component"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type RoleEntity struct {
@@ -25,6 +22,5 @@ type Persit struct {
 }
 
 func (p *Persit) Load() {
-	cli, err := mongo.Connect(context.Background())
 
 }

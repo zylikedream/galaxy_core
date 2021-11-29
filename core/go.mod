@@ -10,7 +10,7 @@ require (
 	github.com/rpcxio/rpcx-etcd v0.0.0-20210907081219-a9e31da236e8
 	github.com/smallnest/rpcx v1.6.11
 	github.com/spf13/viper v1.9.0
-	go.mongodb.org/mongo-driver v1.8.0 // indirect
+	go.mongodb.org/mongo-driver v1.8.0
 	go.uber.org/zap v1.17.0
 	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6 // indirect
 	google.golang.org/protobuf v1.27.1
