@@ -91,7 +91,7 @@ func newLogger(name string, configure *gconfig.Configuration, opts ...Option) *G
 
 	if gl.conf.Watch {
 		// 如果名字不为空，加载动态配置
-		gl.AutoLevel(configure.WithPrefix("log"))
+		gl.AutoLevel(configure)
 	}
 	return gl
 

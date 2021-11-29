@@ -1,0 +1,5 @@
+[mongo]
+	addr = "mongodb://localhost:27017"
+	# addr = "mongodb://user:password@localhost:27017/admin" //账号密码并使用admin数据库验证
+	db = "test"
+	pool_size = {min =0, max=20}

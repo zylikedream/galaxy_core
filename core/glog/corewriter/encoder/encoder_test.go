@@ -52,7 +52,7 @@ func TestHook(t *testing.T) {
 		encode_name = "full" # log的格式(full), 目前只有full
 	`)
 	configure := gconfig.NewWithReader(bytes.NewBuffer(configToml), gconfig.WithConfigType("toml"))
-	econfig, err := newZapEncoderConfig(configure.WithPrefix("log"))
+	econfig, err := newZapEncoderConfig(configure)
 	if err != nil {
 		t.Error(err)
 		return

@@ -3,6 +3,7 @@ package module
 import (
 	"time"
 
+	"github.com/zylikedream/galaxy/core/game/gserver/src/entity"
 	"github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gcontext"
 )
@@ -17,6 +18,7 @@ func (l *LoginModule) Handshake(ctx gcontext.Context, req *proto.ReqHandshake, r
 }
 
 func (l *LoginModule) AccountLogin(ctx gcontext.Context, req *proto.ReqAccountLogin, rsp *proto.RspAccountLogin) error {
+	role := entity.NewRoleEntity(0)
 	rsp.Create = false
 	return nil
 }

@@ -99,17 +99,6 @@ func (c *Configuration) UnmarshalKey(key string, data interface{}) error {
 	return c.vp.UnmarshalKey(key, data, c.decodeOptions()...)
 }
 
-func (c *Configuration) keyWithPrefix(key string) string {
-	if c.prefix == "" {
-		return key
-	}
-	return c.prefix + "." + key
-}
-
-func (c *Configuration) UnmarshalKeyWithPrefix(key string, data interface{}) error {
-	return c.UnmarshalKey(c.keyWithPrefix(key), data)
-}
-
 func (c *Configuration) HookDecodeFunc(funcs ...mapstructure.DecodeHookFunc) {
 	c.hooks = viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(funcs...))
 }
