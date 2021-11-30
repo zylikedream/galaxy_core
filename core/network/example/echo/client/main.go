@@ -9,7 +9,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -39,11 +38,11 @@ func (e *EchoEventHandler) OnOpen(ctx *gcontext.Context, sess session.Session) e
 	return nil
 }
 
-func (e *EchoEventHandler) OnClose(ctx context.Context, sess session.Session) {
+func (e *EchoEventHandler) OnClose(ctx *gcontext.Context, sess session.Session) {
 	glog.Infof("session close, addr=%s", sess.Conn().RemoteAddr())
 }
 
-func (e *EchoEventHandler) OnMessage(ctx context.Context, sess session.Session, msg *message.Message) error {
+func (e *EchoEventHandler) OnMessage(ctx *gcontext.Context, sess session.Session, msg *message.Message) error {
 	switch m := msg.Msg.(type) {
 	case *proto.EchoAck:
 		glog.Infof("recv message:%v", m)

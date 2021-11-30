@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"time"
 
 	"github.com/zylikedream/galaxy/core/game/gclient/define"
@@ -63,13 +62,13 @@ func (c *Client) OnOpen(ctx *gcontext.Context, sess session.Session) error {
 	return nil
 }
 
-func (c *Client) OnClose(context.Context, session.Session) {
+func (c *Client) OnClose(*gcontext.Context, session.Session) {
 }
 
-func (c *Client) OnError(context.Context, session.Session, error) {
+func (c *Client) OnError(*gcontext.Context, session.Session, error) {
 }
 
-func (c *Client) OnMessage(ctx context.Context, sess session.Session, m *message.Message) error {
+func (c *Client) OnMessage(ctx *gcontext.Context, sess session.Session, m *message.Message) error {
 	if err := module.HandleMessage(ctx, m.Msg); err != nil {
 		glog.Error("handle message error", zap.Error(err))
 	}
