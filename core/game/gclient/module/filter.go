@@ -1,7 +1,5 @@
 package module
 
-import (
-	"github.com/zylikedream/galaxy/core/gcontext"
-)
+import "context"
 
-type ModuleFilter func(ctx gcontext.Context, msg interface{}) error
+type ModuleFilter func(ctx context.Context, msg interface{}) error

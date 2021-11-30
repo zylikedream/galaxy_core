@@ -4,16 +4,15 @@ import (
 	"context"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type gmongo struct {
-	config   *mongoConfig
-	client   *mongo.Client
-	database string
+	config *mongoConfig
+	client *mongo.Client
 }
 
 type mongoConfig struct {
@@ -40,18 +39,18 @@ func NewMongo(ctx context.Context, configFile string) (*gmongo, error) {
 	if err := client.Connect(ctx); err != nil {
 		return nil, err
 	}
+
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		return nil, err
 	}
 	return &gmongo{
-		config:   conf,
-		database: conf.DataBase,
-		client:   client,
+		config: conf,
+		client: client,
 	}, nil
 }
 
 func (m *gmongo) GetDatabase(ctx context.Context) string {
-	return m.database
+	return m.config.DataBase
 }
 
 func (m *gmongo) FindOne(ctx context.Context, Col string, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult {
@@ -66,10 +65,35 @@ func (m *gmongo) Find(ctx context.Context, Col string, filter interface{}, opts 
 
 func (m *gmongo) UpdateSetOne(ctx context.Context, Col string, filter interface{}, Set interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
-	return col.UpdateOne(ctx, filter, bson.M{"$set", Set}, opts...)
+	return col.UpdateOne(ctx, filter, bson.M{"$set": Set}, opts...)
 }
 
 func (m *gmongo) UpdateOne(ctx context.Context, Col string, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
 	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
 	return col.UpdateOne(ctx, filter, update, opts...)
+}
+
+func (m *gmongo) UpdateMany(ctx context.Context, Col string, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.UpdateMany(ctx, filter, update, opts...)
+}
+
+func (m *gmongo) InsertOne(ctx context.Context, Col string, doc interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.InsertOne(ctx, doc, opts...)
+}
+
+func (m *gmongo) InsertMany(ctx context.Context, Col string, docs []interface{}, opts ...*options.InsertManyOptions) (*mongo.InsertManyResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.InsertMany(ctx, docs, opts...)
+}
+
+func (m *gmongo) DeleteOne(ctx context.Context, Col string, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.DeleteOne(ctx, filter, opts...)
+}
+
+func (m *gmongo) DeleteMany(ctx context.Context, Col string, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.DeleteOne(ctx, filter, opts...)
 }

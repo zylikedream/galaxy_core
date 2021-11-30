@@ -2,6 +2,7 @@ package module
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/ChimeraCoder/gojson"
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/session"
@@ -27,14 +27,14 @@ const (
 type IModule interface {
 	// 定义handler是为了避免一些module 会有和导出类型相似的方法被意外导出，这时可以实现该方法，导出一个子类型handler, 一般的module可以不用管
 	Handler(IModule) interface{}
-	BeforeMsg(ctx gcontext.Context, msg interface{}) error // 像一些玩法的开启验证，和玩家的验证可以在这儿做
-	AfterMsg(ctx gcontext.Context, msg interface{}) error
+	BeforeMsg(ctx context.Context, msg interface{}) error // 像一些玩法的开启验证，和玩家的验证可以在这儿做
+	AfterMsg(ctx context.Context, msg interface{}) error
 }
 
 type BaseModule struct {
 }
 
-func (*BaseModule) BeforeMsg(ctx gcontext.Context, msg interface{}) error {
+func (*BaseModule) BeforeMsg(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
@@ -42,7 +42,7 @@ func (b *BaseModule) Handler(mod IModule) interface{} {
 	return mod
 }
 
-func (*BaseModule) AfterMsg(ctx gcontext.Context, msg interface{}) error {
+func (*BaseModule) AfterMsg(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
@@ -103,7 +103,7 @@ func (mm ModuleMeta) String() string {
 
 var (
 	typeOfError    = reflect.TypeOf((*error)(nil)).Elem()
-	typeOfGContext = reflect.TypeOf((*gcontext.Context)(nil)).Elem()
+	typeOfGContext = reflect.TypeOf((*context.Context)(nil)).Elem()
 )
 
 type RouteInfo struct {
@@ -229,7 +229,7 @@ func generateTypeDefination(name, pkg string, jsonValue string) string {
 	return strings.ReplaceAll(rt, "package "+pkg+"\n\n", "")
 }
 
-func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
+func HandleMessage(ctx context.Context, Msg interface{}) error {
 	argName := reflect.TypeOf(Msg).Elem().Name()
 	path, ok := groutes[argName]
 	if !ok {
@@ -264,15 +264,15 @@ func HandleMessage(ctx gcontext.Context, Msg interface{}) error {
 	return nil
 }
 
-func AckFail(ctx gcontext.Context, msg interface{}, Reason string) {
+func AckFail(ctx context.Context, msg interface{}, Reason string) {
 	Ack(ctx, msg, ACK_CODE_FAIL, Reason)
 }
 
-func AckOk(ctx gcontext.Context, msg interface{}) {
+func AckOk(ctx context.Context, msg interface{}) {
 	Ack(ctx, msg, ACK_CODE_OK, "")
 }
 
-func Ack(ctx gcontext.Context, msg interface{}, code int, Reason string) {
+func Ack(ctx context.Context, msg interface{}, code int, Reason string) {
 	meta := message.MessageMetaByMsg(msg)
 	if meta == nil {
 		glog.Error("ack unkonw msg", zap.Any("msg", msg))
@@ -296,7 +296,7 @@ func Ack(ctx gcontext.Context, msg interface{}, code int, Reason string) {
 	Send(ctx, ack)
 }
 
-func Send(ctx gcontext.Context, msg interface{}) {
+func Send(ctx context.Context, msg interface{}) {
 	sess := GetSessionFromCtx(ctx)
 	err := sess.Send(msg)
 	if err != nil {
@@ -304,7 +304,7 @@ func Send(ctx gcontext.Context, msg interface{}) {
 	}
 }
 
-func (m *ModuleMeta) call(ctx gcontext.Context, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
+func (m *ModuleMeta) call(ctx context.Context, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			buf := make([]byte, 4096)

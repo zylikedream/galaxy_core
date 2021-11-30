@@ -1,7 +1,8 @@
 package module
 
 import (
-	"github.com/zylikedream/galaxy/core/gcontext"
+	"context"
+
 	"github.com/zylikedream/galaxy/core/network/session"
 )
 
@@ -18,6 +19,6 @@ var (
 	SessionCtxKey = &contextKey{"session"}
 )
 
-func GetSessionFromCtx(ctx gcontext.Context) session.Session {
+func GetSessionFromCtx(ctx context.Context) session.Session {
 	return ctx.Value(SessionCtxKey).(session.Session)
 }

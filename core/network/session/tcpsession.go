@@ -19,13 +19,13 @@ type TcpSession struct {
 	SessionBundle
 	conn   net.Conn
 	sendCh chan interface{}
-	ctx    gcontext.Context
+	ctx    *gcontext.Context
 	exit   int32
 }
 
 func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 	return &TcpSession{
-		ctx:           *gcontext.NewContext(context.Background()),
+		ctx:           gcontext.NewContext(context.Background()),
 		conn:          conn,
 		SessionBundle: bundle,
 		sendCh:        make(chan interface{}, 64),
