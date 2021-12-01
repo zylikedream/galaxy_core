@@ -6,7 +6,6 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/logic"
 	_ "github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/gmongo"
 	"github.com/zylikedream/galaxy/core/network"
@@ -20,7 +19,7 @@ type Server struct {
 	mgoCli *gmongo.MongoClient
 }
 
-func NewServer(ctx *gcontext.Context) *Server {
+func NewServer(ctx *gscontext.Context) *Server {
 	svr := &Server{}
 	if err := svr.Init(ctx); err != nil {
 		panic(err)
@@ -28,7 +27,7 @@ func NewServer(ctx *gcontext.Context) *Server {
 	return svr
 }
 
-func (s *Server) Init(ctx *gcontext.Context) error {
+func (s *Server) Init(ctx *gscontext.Context) error {
 	p, err := network.NewNetwork("config/network.toml")
 	if err != nil {
 		return err
@@ -43,11 +42,13 @@ func (s *Server) Init(ctx *gcontext.Context) error {
 		return err
 	}
 	s.mgoCli = cli
+	ctx.SetLogger(s.logger)
+	ctx.SetMongo(s.mgoCli)
 	return nil
 
 }
 
-func (s *Server) Run(ctx *gcontext.Context) error {
+func (s *Server) Run(ctx *gscontext.Context) error {
 	if err := s.p.Start(&logic.LogicHandle{}); err != nil {
 		return err
 	}
@@ -55,7 +56,7 @@ func (s *Server) Run(ctx *gcontext.Context) error {
 }
 
 func main() {
-	ctx := gscontext.(context.Background())
+	ctx := gscontext.NewContext(context.Background())
 	s := NewServer(ctx)
 	if err := s.Run(ctx); err != nil {
 		glog.Error("server run err", zap.Error(err))

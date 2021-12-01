@@ -9,6 +9,8 @@
 package peer
 
 import (
+	"context"
+
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/gregister"
 	"github.com/zylikedream/galaxy/core/network/session"
@@ -20,8 +22,8 @@ const (
 )
 
 type Peer interface {
-	Start(h session.EventHandler) error
-	Stop()
+	Start(ctx context.Context, h session.EventHandler) error
+	Stop(ctx context.Context)
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {

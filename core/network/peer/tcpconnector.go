@@ -1,6 +1,7 @@
 package peer
 
 import (
+	"context"
 	"net"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
@@ -34,14 +35,14 @@ func (t *TcpConnector) Init() error {
 	return nil
 }
 
-func (t *TcpConnector) Start(h session.EventHandler) error {
+func (t *TcpConnector) Start(ctx context.Context, h session.EventHandler) error {
 	conn, err := net.Dial("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}
 	t.BindHandler(h)
 	sess := session.NewTcpSession(conn, t.SessionBundle)
-	return sess.Start()
+	return sess.Start(ctx)
 }
 
 func (t *TcpConnector) Type() string {

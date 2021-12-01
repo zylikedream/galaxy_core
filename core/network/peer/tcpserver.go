@@ -1,6 +1,7 @@
 package peer
 
 import (
+	"context"
 	"net"
 	"time"
 
@@ -38,18 +39,18 @@ func (t *TcpServer) Init() error {
 	return nil
 }
 
-func (t *TcpServer) Start(el session.EventHandler) error {
+func (t *TcpServer) Start(ctx context.Context, el session.EventHandler) error {
 	var err error
 	t.listener, err = net.Listen("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}
 	t.BindHandler(el)
-	t.accept()
+	t.accept(ctx)
 	return nil
 }
 
-func (t *TcpServer) accept() {
+func (t *TcpServer) accept(ctx context.Context) {
 	for {
 		conn, err := t.listener.Accept()
 		if err != nil {
@@ -62,7 +63,7 @@ func (t *TcpServer) accept() {
 		}
 		sess := session.NewTcpSession(conn, t.SessionBundle)
 		go func() {
-			if err := sess.Start(); err != nil {
+			if err := sess.Start(ctx); err != nil {
 				logger.Nlog.Warn("session start faield", zap.Error(err))
 			}
 		}()

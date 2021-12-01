@@ -1,4 +1,4 @@
-// package gmongo
+package gmongo
 
 // import (
 // 	"context"

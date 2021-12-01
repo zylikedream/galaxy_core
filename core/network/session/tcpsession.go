@@ -9,7 +9,6 @@ import (
 	"sync/atomic"
 
 	"github.com/pkg/errors"
-	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/network/logger"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"go.uber.org/zap"
@@ -19,20 +18,19 @@ type TcpSession struct {
 	SessionBundle
 	conn   net.Conn
 	sendCh chan interface{}
-	ctx    *gcontext.Context
+	ctx    context.Context
 	exit   int32
 }
 
 func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 	return &TcpSession{
-		ctx:           gcontext.NewContext(context.Background()),
 		conn:          conn,
 		SessionBundle: bundle,
 		sendCh:        make(chan interface{}, 64),
 	}
 }
 
-func (t *TcpSession) Start() error {
+func (t *TcpSession) Start(ctx context.Context) error {
 	if err := t.Handler.OnOpen(t.ctx, t); err != nil {
 		return errors.Wrap(err, "on open error")
 	}
