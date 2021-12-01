@@ -5,8 +5,6 @@ import (
 	"reflect"
 
 	"github.com/zylikedream/galaxy/core/game/gserver/src/component"
-	"github.com/zylikedream/galaxy/core/gmongo"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type RoleEntity struct {
@@ -32,7 +30,6 @@ func (r *RoleEntity) Load(ctx context.Context) error {
 		}
 	}
 	for _, comp := range components {
-		gmongo.FindOne(ctx, comp.Name(), bson.M{"_id": r.ID})
 	}
 	return nil
 }

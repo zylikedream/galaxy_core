@@ -285,7 +285,7 @@ func Ack(ctx context.Context, msg interface{}, code int, Reason string) {
 		MsgID:  meta.ID,
 	}
 	if code == ACK_CODE_OK {
-		sess := ctx.Value(SessionCtxKey).(session.Session)
+		sess := ctx.Value(constant.SessionCtxKey).(session.Session)
 		msgData, err := sess.GetMessageCodec().Encode(msg)
 		if err != nil {
 			glog.Error("ack error", zap.Error(err))
@@ -297,7 +297,7 @@ func Ack(ctx context.Context, msg interface{}, code int, Reason string) {
 }
 
 func Send(ctx context.Context, msg interface{}) {
-	sess := GetSessionFromCtx(ctx)
+	sess := constant.GetSessionFromCtx(ctx)
 	err := sess.Send(msg)
 	if err != nil {
 		glog.Error("send error", zap.Error(err), zap.Any("msg", msg))

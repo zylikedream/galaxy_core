@@ -1,15 +1,17 @@
 package session
 
 import (
+	"context"
+
 	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/network/message"
 )
 
 type EventHandler interface {
-	OnOpen(*gcontext.Context, Session) error
-	OnClose(*gcontext.Context, Session)
-	OnError(*gcontext.Context, Session, error)
-	OnMessage(*gcontext.Context, Session, *message.Message) error
+	OnOpen(context.Context, Session) error
+	OnClose(context.Context, Session)
+	OnError(context.Context, Session, error)
+	OnMessage(context.Context, Session, *message.Message) error
 }
 
 type BaseEventHandler struct {
