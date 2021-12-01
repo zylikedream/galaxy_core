@@ -2,8 +2,8 @@ package component
 
 type Component interface {
 	Name() string
-	Load()
-	Unload()
+	Load() error
+	Unload() error
 }
 
 type IPersit interface {
