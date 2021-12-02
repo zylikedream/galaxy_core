@@ -1,18 +1,11 @@
 package component
 
 type RoleInfo struct {
-	AccountName string
-	RoleID      uint64
+	Account string `bson:"account"`
+	RoleID  uint64 `bson:"role_id"`
+	Name    string `bson:"name"`
 }
 
-func Load() error {
-	return nil
-}
-
-func Name() string {
+func (r *RoleInfo) GetName() string {
 	return "role_info"
-}
-
-func Unload() error {
-	return nil
 }

@@ -23,6 +23,7 @@ import (
 
 type IModule interface {
 	// 定义handler是为了避免一些module 会有和导出类型相似的方法被意外导出，这时可以实现该方法，导出一个子类型handler, 一般的module可以不用管
+	Init(ctx *gscontext.Context) error
 	Handler(IModule) interface{}
 	BeforeMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error // 像一些玩法的开启验证，和玩家的验证可以在这儿做
 	AfterMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error
@@ -40,6 +41,10 @@ func (b *BaseModule) Handler(mod IModule) interface{} {
 }
 
 func (*BaseModule) AfterMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error {
+	return nil
+}
+
+func (*BaseModule) Init() error {
 	return nil
 }
 
@@ -328,5 +333,14 @@ func (m *ModuleMeta) call(ctx context.Context, cook reflect.Value, mm *MethodMet
 		return errInter.(error)
 	}
 
+	return nil
+}
+
+func InitModules(ctx *gscontext.Context) error {
+	for _, mod := range gmodules {
+		if err := mod.im.Init(ctx); err != nil {
+			return err
+		}
+	}
 	return nil
 }

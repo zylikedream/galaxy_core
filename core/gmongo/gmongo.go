@@ -53,14 +53,18 @@ func (m *MongoClient) GetDatabase(ctx context.Context) string {
 	return m.config.DataBase
 }
 
-func (m *MongoClient) FindOne(ctx context.Context, Col string, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult {
+func (m *MongoClient) FindOne(ctx context.Context, reply interface{}, Col string, filter interface{}, opts ...*options.FindOneOptions) error {
 	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
-	return col.FindOne(ctx, filter, opts...)
+	return col.FindOne(ctx, filter, opts...).Decode(reply)
 }
 
-func (m *MongoClient) Find(ctx context.Context, Col string, filter interface{}, opts ...*options.FindOptions) (*mongo.Cursor, error) {
+func (m *MongoClient) Find(ctx context.Context, replys interface{}, Col string, filter interface{}, opts ...*options.FindOptions) error {
 	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
-	return col.Find(ctx, filter, opts...)
+	csr, err := col.Find(ctx, filter, opts...)
+	if err != nil {
+		return err
+	}
+	return csr.All(ctx, replys)
 }
 
 func (m *MongoClient) UpdateSetOne(ctx context.Context, Col string, filter interface{}, Set interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error) {
