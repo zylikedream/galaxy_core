@@ -18,8 +18,8 @@ type TcpSession struct {
 	SessionBundle
 	conn   net.Conn
 	sendCh chan interface{}
-	ctx    context.Context
 	exit   int32
+	data   interface{}
 }
 
 func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
@@ -31,15 +31,15 @@ func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
 }
 
 func (t *TcpSession) Start(ctx context.Context) error {
-	if err := t.Handler.OnOpen(t.ctx, t); err != nil {
+	if err := t.Handler.OnOpen(ctx, t); err != nil {
 		return errors.Wrap(err, "on open error")
 	}
-	go t.sendLoop()
-	t.recvLoop()
+	go t.sendLoop(ctx)
+	t.recvLoop(ctx)
 	return nil
 }
 
-func (t *TcpSession) recvLoop() {
+func (t *TcpSession) recvLoop(ctx context.Context) {
 	var err error
 	var msg *message.Message
 
@@ -63,19 +63,19 @@ func (t *TcpSession) recvLoop() {
 			break
 		}
 		buf.Write(data[:n])
-		pkgLen, msg, err = t.Proc.Decode(buf.Bytes())
+		pkgLen, msg, err = t.Decode(buf.Bytes())
 		if err != nil {
 			break
 		}
 		if msg != nil {
 			buf.Next(int(pkgLen))
-			if err = t.Handler.OnMessage(t.ctx, t, msg); err != nil {
+			if err = t.Handler.OnMessage(ctx, t, msg); err != nil {
 				break
 			}
 		}
 	}
 	// 被动断开。出错或者对方关闭
-	t.Close(errors.Wrap(err, "recv error"))
+	t.Close(ctx, errors.Wrap(err, "recv error"))
 }
 
 func (t *TcpSession) IsClosed() bool {
@@ -91,7 +91,7 @@ func (t *TcpSession) Send(msg interface{}) error {
 }
 
 func (t *TcpSession) sendMsg(msg interface{}) error {
-	data, err := t.Proc.Encode(msg)
+	data, err := t.Encode(msg)
 	if err != nil {
 		return err
 	}
@@ -101,27 +101,27 @@ func (t *TcpSession) sendMsg(msg interface{}) error {
 	return nil
 }
 
-func (t *TcpSession) sendLoop() {
+func (t *TcpSession) sendLoop(ctx context.Context) {
 	var err error
 	for rawMsg := range t.sendCh {
 		if err = t.sendMsg(rawMsg); err != nil {
-			t.Close(errors.Wrap(err, "send error"))
+			t.Close(ctx, errors.Wrap(err, "send error"))
 			continue
 		}
 	}
 	// 关闭整个连接
 	t.conn.Close()
 	// 这儿才是真正的关闭流程结束
-	t.Handler.OnClose(t.ctx, t)
+	t.Handler.OnClose(ctx, t)
 }
 
-func (t *TcpSession) Close(err error) {
+func (t *TcpSession) Close(ctx context.Context, err error) {
 	if atomic.LoadInt32(&t.exit) == 1 {
 		return
 	}
 	atomic.AddInt32(&t.exit, 1)
 	if err != nil { // 发生错误肯定会调用close
-		t.Handler.OnError(t.ctx, t, err)
+		t.Handler.OnError(ctx, t, err)
 		logger.Nlog.Error("tcpsession close", zap.Error(err))
 	}
 	tcpConn := t.conn.(*net.TCPConn)
@@ -133,6 +133,10 @@ func (t *TcpSession) Conn() net.Conn {
 	return t.conn
 }
 
-func (t *TcpSession) GetMessageCodec() message.MessageCodec {
-	return t.Proc.GetMessageCodec()
+func (t *TcpSession) GetData() interface{} {
+	return t.data
+}
+
+func (t *TcpSession) SetData(d interface{}) {
+	t.data = d
 }

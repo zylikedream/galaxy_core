@@ -6,6 +6,11 @@ import (
 	"github.com/zylikedream/galaxy/core/network/message"
 )
 
+const (
+	ACK_CODE_OK = iota
+	ACK_CODE_FAIL
+)
+
 type Ack struct {
 	Code   int    `json:"code"`
 	MsgID  int    `json:"msg_id"`

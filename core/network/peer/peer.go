@@ -13,6 +13,7 @@ import (
 
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/session"
 )
 
@@ -24,6 +25,7 @@ const (
 type Peer interface {
 	Start(ctx context.Context, h session.EventHandler) error
 	Stop(ctx context.Context)
+	GetMessageCodec() message.MessageCodec
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {

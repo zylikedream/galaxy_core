@@ -11,14 +11,13 @@ package session
 import (
 	"context"
 	"net"
-
-	"github.com/zylikedream/galaxy/core/network/message"
 )
 
 type Session interface {
 	Send(msg interface{}) error
 	Start(ctx context.Context) error
-	GetMessageCodec() message.MessageCodec
-	Close(error)
+	Close(context.Context, error)
 	Conn() net.Conn
+	GetData() interface{}
+	SetData(interface{})
 }

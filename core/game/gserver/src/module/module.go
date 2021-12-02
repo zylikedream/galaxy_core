@@ -12,6 +12,8 @@ import (
 	"text/template"
 
 	"github.com/ChimeraCoder/gojson"
+	"github.com/zylikedream/galaxy/core/game/gserver/src/cookie"
+	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network/message"
@@ -19,22 +21,17 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	ACK_CODE_OK = iota
-	ACK_CODE_FAIL
-)
-
 type IModule interface {
 	// 定义handler是为了避免一些module 会有和导出类型相似的方法被意外导出，这时可以实现该方法，导出一个子类型handler, 一般的module可以不用管
 	Handler(IModule) interface{}
-	BeforeMsg(ctx context.Context, msg interface{}) error // 像一些玩法的开启验证，和玩家的验证可以在这儿做
-	AfterMsg(ctx context.Context, msg interface{}) error
+	BeforeMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error // 像一些玩法的开启验证，和玩家的验证可以在这儿做
+	AfterMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error
 }
 
 type BaseModule struct {
 }
 
-func (*BaseModule) BeforeMsg(ctx context.Context, msg interface{}) error {
+func (*BaseModule) BeforeMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error {
 	return nil
 }
 
@@ -42,7 +39,7 @@ func (b *BaseModule) Handler(mod IModule) interface{} {
 	return mod
 }
 
-func (*BaseModule) AfterMsg(ctx context.Context, msg interface{}) error {
+func (*BaseModule) AfterMsg(ctx *gscontext.Context, cook *cookie.Cookie, msg interface{}) error {
 	return nil
 }
 
@@ -102,8 +99,9 @@ func (mm ModuleMeta) String() string {
 }
 
 var (
-	typeOfError    = reflect.TypeOf((*error)(nil)).Elem()
-	typeOfGContext = reflect.TypeOf((*context.Context)(nil)).Elem()
+	typeOfError   = reflect.TypeOf((*error)(nil)).Elem()
+	typeOfContext = reflect.TypeOf((*gscontext.Context)(nil))
+	typeOfCookie  = reflect.TypeOf((*cookie.Cookie)(nil))
 )
 
 type RouteInfo struct {
@@ -152,22 +150,27 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 		if method.PkgPath != "" {
 			continue
 		}
-		if mtype.NumIn() != 4 {
+		if mtype.NumIn() != 5 {
 			continue
 		}
 		// First arg must be context.Context
 		ctxType := mtype.In(1)
-		if ctxType != typeOfGContext {
+		if ctxType != typeOfContext {
 			continue
 		}
 
 		// Second arg need not be a pointer.
-		argType := mtype.In(2)
+		cookieType := mtype.In(2)
+		if !IsExportedOrBuiltinType(cookieType) {
+			continue
+		}
+
+		argType := mtype.In(3)
 		if !IsExportedOrBuiltinType(argType) {
 			continue
 		}
 		// Third arg must be a pointer.
-		replyType := mtype.In(3)
+		replyType := mtype.In(4)
 		if replyType.Kind() != reflect.Ptr {
 			continue
 		}
@@ -229,7 +232,7 @@ func generateTypeDefination(name, pkg string, jsonValue string) string {
 	return strings.ReplaceAll(rt, "package "+pkg+"\n\n", "")
 }
 
-func HandleMessage(ctx context.Context, Msg interface{}) error {
+func HandleMessage(ctx *gscontext.Context, cook *cookie.Cookie, Msg interface{}) error {
 	argName := reflect.TypeOf(Msg).Elem().Name()
 	path, ok := groutes[argName]
 	if !ok {
@@ -246,33 +249,33 @@ func HandleMessage(ctx context.Context, Msg interface{}) error {
 			AckOk(ctx, Reply.Interface())
 		}
 	}()
-	if err = mod.im.BeforeMsg(ctx, Msg); err != nil {
+	if err = mod.im.BeforeMsg(ctx, cook, Msg); err != nil {
 		return err
 	}
 	glog.Debugf("msg %#v", Msg)
 	if mtd.ArgType.Kind() != reflect.Ptr {
-		err = mod.call(ctx, mtd, reflect.ValueOf(Msg).Elem(), Reply)
+		err = mod.call(ctx, reflect.ValueOf(cook), mtd, reflect.ValueOf(Msg).Elem(), Reply)
 	} else {
-		err = mod.call(ctx, mtd, reflect.ValueOf(Msg), Reply)
+		err = mod.call(ctx, reflect.ValueOf(cook), mtd, reflect.ValueOf(Msg), Reply)
 	}
 	if err != nil {
 		return err
 	}
-	if err = mod.im.AfterMsg(ctx, Msg); err != nil {
+	if err = mod.im.AfterMsg(ctx, cook, Msg); err != nil {
 		return err
 	}
 	return nil
 }
 
-func AckFail(ctx context.Context, msg interface{}, Reason string) {
-	Ack(ctx, msg, ACK_CODE_FAIL, Reason)
+func AckFail(ctx *gscontext.Context, msg interface{}, Reason string) {
+	Ack(ctx, msg, proto.ACK_CODE_FAIL, Reason)
 }
 
-func AckOk(ctx context.Context, msg interface{}) {
-	Ack(ctx, msg, ACK_CODE_OK, "")
+func AckOk(ctx *gscontext.Context, msg interface{}) {
+	Ack(ctx, msg, proto.ACK_CODE_OK, "")
 }
 
-func Ack(ctx context.Context, msg interface{}, code int, Reason string) {
+func Ack(ctx *gscontext.Context, msg interface{}, code int, Reason string) {
 	meta := message.MessageMetaByMsg(msg)
 	if meta == nil {
 		glog.Error("ack unkonw msg", zap.Any("msg", msg))
@@ -284,9 +287,9 @@ func Ack(ctx context.Context, msg interface{}, code int, Reason string) {
 		Reason: Reason,
 		MsgID:  meta.ID,
 	}
-	if code == ACK_CODE_OK {
-		sess := ctx.Value(constant.SessionCtxKey).(session.Session)
-		msgData, err := sess.GetMessageCodec().Encode(msg)
+	if code == proto.ACK_CODE_OK {
+		p := ctx.GetPeer()
+		msgData, err := p.GetMessageCodec().Encode(msg)
 		if err != nil {
 			glog.Error("ack error", zap.Error(err))
 			return
@@ -296,15 +299,15 @@ func Ack(ctx context.Context, msg interface{}, code int, Reason string) {
 	Send(ctx, ack)
 }
 
-func Send(ctx context.Context, msg interface{}) {
-	sess := constant.GetSessionFromCtx(ctx)
+func Send(ctx *gscontext.Context, msg interface{}) {
+	sess := ctx.GetSession()
 	err := sess.Send(msg)
 	if err != nil {
 		glog.Error("send error", zap.Error(err), zap.Any("msg", msg))
 	}
 }
 
-func (m *ModuleMeta) call(ctx context.Context, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
+func (m *ModuleMeta) call(ctx context.Context, cook reflect.Value, mm *MethodMeta, argv, replyv reflect.Value) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			buf := make([]byte, 4096)
@@ -318,7 +321,7 @@ func (m *ModuleMeta) call(ctx context.Context, mm *MethodMeta, argv, replyv refl
 
 	function := mm.Method.Func
 	// Invoke the method, providing a new value for the reply.
-	returnValues := function.Call([]reflect.Value{reflect.ValueOf(m.im), reflect.ValueOf(ctx), argv, replyv})
+	returnValues := function.Call([]reflect.Value{reflect.ValueOf(m.im), reflect.ValueOf(ctx), cook, argv, replyv})
 	// The return value for the method is an error.
 	errInter := returnValues[0].Interface()
 	if errInter != nil {

@@ -2,6 +2,7 @@ package entity
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/zylikedream/galaxy/core/game/gserver/src/component"
@@ -30,6 +31,7 @@ func (r *RoleEntity) Load(ctx context.Context) error {
 		}
 	}
 	for _, comp := range components {
+		fmt.Println(comp.Name())
 	}
 	return nil
 }

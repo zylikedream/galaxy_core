@@ -4,10 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/zylikedream/galaxy/core/game/gclient/define"
-	"github.com/zylikedream/galaxy/core/game/gclient/module"
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/gcontext"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/message"
@@ -49,17 +46,15 @@ func (c *Client) send(msg interface{}) error {
 	return c.sess.Send(msg)
 }
 
-func (c *Client) Run() error {
-	if err := c.p.Start(c); err != nil {
+func (c *Client) Run(ctx context.Context) error {
+	if err := c.p.Start(ctx, c); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c *Client) OnOpen(ctx context.Context, sess session.Session) error {
-	gctx := ctx.(*gcontext.Context)
 	c.sess = sess
-	gctx.SetValue(define.SessionCtxKey, sess)
 	go c.Work()
 	return nil
 }
@@ -71,15 +66,29 @@ func (c *Client) OnError(context.Context, session.Session, error) {
 }
 
 func (c *Client) OnMessage(ctx context.Context, sess session.Session, m *message.Message) error {
-	if err := module.HandleMessage(ctx, m.Msg); err != nil {
-		glog.Error("handle message error", zap.Error(err))
+	switch v := m.Msg.(type) {
+	case *proto.Ack:
+		ack := v
+		meta := message.MessageMetaByID(ack.MsgID)
+		if ack.Code != proto.ACK_CODE_OK {
+			glog.Error("ack failed", zap.String("msg", meta.TypeName()), zap.String("reason", ack.Reason))
+			return nil
+		}
+		msg := meta.NewInstance()
+		if err := c.p.GetMessageCodec().Decode(msg, ack.Data); err != nil {
+			return err
+		}
+		glog.Debug("ack success:", zap.String("name", meta.TypeName()), zap.Any("msg", msg))
+	default:
+		glog.Debug("recv msg:", zap.Any("msg", m.Msg))
 	}
 	return nil
 }
 
 func main() {
+	ctx := context.Background()
 	c := NewClient()
-	if err := c.Run(); err != nil {
+	if err := c.Run(ctx); err != nil {
 		glog.Error("client run err", zap.Error(err))
 	}
 }

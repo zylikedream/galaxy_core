@@ -53,7 +53,7 @@ func (t *TcpConnector) Build(c *gconfig.Configuration, args ...interface{}) (int
 	return newTcpConnetor(c)
 }
 
-func (t *TcpConnector) Stop() {
+func (t *TcpConnector) Stop(ctx context.Context) {
 }
 
 func init() {

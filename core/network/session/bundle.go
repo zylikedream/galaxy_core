@@ -6,7 +6,7 @@ import (
 )
 
 type SessionBundle struct {
-	Proc    *processor.Processor
+	*processor.Processor
 	Handler EventHandler
 }
 
@@ -15,7 +15,7 @@ func (p *SessionBundle) BindProc(c *gconfig.Configuration) error {
 	if err != nil {
 		return err
 	}
-	p.Proc = proc
+	p.Processor = proc
 	return nil
 }
 

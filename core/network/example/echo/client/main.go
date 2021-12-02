@@ -75,7 +75,7 @@ func EchoClient() {
 		glog.Error("network", zap.Namespace("new failed"), zap.Error(err))
 		return
 	}
-	if err := p.Start(&EchoEventHandler{}); err != nil {
+	if err := p.Start(context.Background(), &EchoEventHandler{}); err != nil {
 		glog.Error("network", zap.Namespace("start failed"), zap.Error(err))
 		return
 	}

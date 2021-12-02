@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 
+	"github.com/zylikedream/galaxy/core/game/gserver/src/cookie"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/module"
 	"github.com/zylikedream/galaxy/core/glog"
@@ -16,6 +17,7 @@ type LogicHandle struct {
 }
 
 func (l *LogicHandle) OnOpen(ctx context.Context, sess session.Session) error {
+	sess.SetData(cookie.NewCookie())
 	gsctx := ctx.(*gscontext.Context)
 	gsctx.SetSession(sess)
 	return nil
@@ -28,7 +30,9 @@ func (l *LogicHandle) OnError(context.Context, session.Session, error) {
 }
 
 func (l *LogicHandle) OnMessage(ctx context.Context, sess session.Session, m *message.Message) error {
-	if err := module.HandleMessage(ctx, m.Msg); err != nil {
+	gsctx := ctx.(*gscontext.Context)
+	cook := sess.GetData().(*cookie.Cookie)
+	if err := module.HandleMessage(gsctx, cook, m.Msg); err != nil {
 		glog.Error("handle message error", zap.Error(err))
 	}
 	return nil

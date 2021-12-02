@@ -44,12 +44,13 @@ func (s *Server) Init(ctx *gscontext.Context) error {
 	s.mgoCli = cli
 	ctx.SetLogger(s.logger)
 	ctx.SetMongo(s.mgoCli)
+	ctx.SetPeer(s.p)
 	return nil
 
 }
 
 func (s *Server) Run(ctx *gscontext.Context) error {
-	if err := s.p.Start(&logic.LogicHandle{}); err != nil {
+	if err := s.p.Start(ctx, &logic.LogicHandle{}); err != nil {
 		return err
 	}
 	return nil

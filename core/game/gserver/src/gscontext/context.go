@@ -7,6 +7,7 @@ import (
 
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/gmongo"
+	"github.com/zylikedream/galaxy/core/network/peer"
 	"github.com/zylikedream/galaxy/core/network/session"
 )
 
@@ -97,6 +98,7 @@ var (
 	sessionCtxKey = &contextKey{"session"}
 	mongoCtxKey   = &contextKey{"mongo"}
 	loggerCtxKey  = &contextKey{"logger"}
+	peerCtxKey    = &contextKey{"peer"}
 )
 
 func (ctx *Context) GetSession() session.Session {
@@ -121,4 +123,12 @@ func (ctx *Context) GetLogger() *glog.GalaxyLog {
 
 func (ctx *Context) SetLogger(log *glog.GalaxyLog) {
 	ctx.SetValue(loggerCtxKey, log)
+}
+
+func (ctx *Context) GetPeer() peer.Peer {
+	return ctx.Value(peerCtxKey).(peer.Peer)
+}
+
+func (ctx *Context) SetPeer(p peer.Peer) {
+	ctx.SetValue(peerCtxKey, p)
 }
