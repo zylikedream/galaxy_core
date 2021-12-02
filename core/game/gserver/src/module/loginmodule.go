@@ -41,7 +41,7 @@ func (l *LoginModule) AccountLogin(ctx *gscontext.Context, cook *cookie.Cookie, 
 		}
 	}
 	if newRole {
-		role.Create(ctx)
+		role.Create(ctx, req.Account)
 	}
 	return nil
 }

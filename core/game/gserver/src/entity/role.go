@@ -1,13 +1,15 @@
 package entity
 
 import (
+	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/component"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type RoleEntity struct {
-	RoleID   uint64
+	RoleID   primitive.ObjectID
 	roleInfo *component.RoleInfo
 }
 
@@ -57,4 +59,16 @@ func (r *RoleEntity) LoadByID(ctx *gscontext.Context, roleid uint64) error {
 }
 
 func (r *RoleEntity) Create(ctx *gscontext.Context, account string) error {
+	gmongo := ctx.GetMongo()
+	roleInfo := &component.RoleInfo{
+		Account: account,
+		Name:    account,
+	}
+	res, err := gmongo.InsertOne(ctx, roleInfo.GetName(), roleInfo)
+	if err != nil {
+		return errors.Wrap(err, "create new role failed")
+	}
+	roleInfo.RoleID = res.InsertedID.(primitive.ObjectID)
+	r.roleInfo = roleInfo
+	return nil
 }
