@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/core/game/proto"
+	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/message"
@@ -21,12 +22,12 @@ type Client struct {
 
 func NewClient() *Client {
 	cli := &Client{}
-	p, err := network.NewNetwork("config/network.toml")
+	p, err := network.NewNetwork(gconfig.New("config/network.toml"))
 	if err != nil {
 		panic(err)
 	}
 	cli.p = p
-	logger := glog.NewLogger("client", "config/log.toml")
+	logger := glog.NewLogger("client", gconfig.New("config/log.toml"))
 	glog.SetDefaultLogger(logger)
 	return cli
 }

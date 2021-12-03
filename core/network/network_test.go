@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/network/peer"
 )
 
@@ -21,7 +22,7 @@ func TestNetwork(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewNetwork(tt.args.configFile)
+			got, err := NewNetwork(gconfig.New(tt.args.configFile))
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewNetwork() error = %v, wantErr %v", err, tt.wantErr)
 				return

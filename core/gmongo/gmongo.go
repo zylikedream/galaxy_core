@@ -16,22 +16,23 @@ type MongoClient struct {
 }
 
 type mongoConfig struct {
-	Addr        string `toml:"addr"`
-	DataBase    string `toml:"db"`
-	MaxPoolSize int    `toml:"pool_size.max"`
-	MinPoolSize int    `toml:"pool_size.min"`
+	Addr     string `toml:"addr"`
+	DataBase string `toml:"database"`
+	PoolSize struct {
+		Max int `toml:"max"`
+		Min int `toml:"min"`
+	} `toml:"pool_size"`
 }
 
-func NewMongoClient(ctx context.Context, configFile string) (*MongoClient, error) {
+func NewMongoClient(ctx context.Context, configure *gconfig.Configuration) (*MongoClient, error) {
 	conf := &mongoConfig{}
-	configure := gconfig.New(configFile)
 	if err := configure.UnmarshalKey("mongo", conf); err != nil {
 		return nil, err
 	}
 	opt := options.Client()
 	opt.ApplyURI(conf.Addr)
-	opt.SetMinPoolSize(uint64(conf.MinPoolSize))
-	opt.SetMaxPoolSize(uint64(conf.MaxPoolSize))
+	opt.SetMinPoolSize(uint64(conf.PoolSize.Min))
+	opt.SetMaxPoolSize(uint64(conf.PoolSize.Max))
 	client, err := mongo.NewClient(opt)
 	if err != nil {
 		return nil, err

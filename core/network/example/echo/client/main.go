@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/example/echo/proto"
@@ -70,7 +71,7 @@ func run(sess session.Session) {
 }
 
 func EchoClient() {
-	p, err := network.NewNetwork("config/config.toml")
+	p, err := network.NewNetwork(gconfig.New("config/network.toml"))
 	if err != nil {
 		glog.Error("network", zap.Namespace("new failed"), zap.Error(err))
 		return

@@ -41,8 +41,12 @@ func (l *LoginModule) AccountLogin(ctx *gscontext.Context, cook *cookie.Cookie, 
 		}
 	}
 	if newRole {
-		role.Create(ctx, req.Account)
+		if err := role.Create(ctx, req.Account); err != nil {
+			return errors.Wrap(err, "create role faield")
+		}
 	}
+	cook.Role = role
+	rsp.Create = newRole
 	return nil
 }
 

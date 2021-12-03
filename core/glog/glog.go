@@ -2,7 +2,6 @@ package glog
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"runtime"
 	"strings"
@@ -40,13 +39,7 @@ func DefaultConfig() *config {
 	}
 }
 
-func NewLogger(name string, configFile string, opts ...Option) *GalaxyLog {
-	configure := gconfig.New(configFile)
-	return newLogger(name, configure, opts...)
-}
-
-func NewLoggerWithReader(name string, r io.Reader, opts ...Option) *GalaxyLog {
-	configure := gconfig.NewWithReader(r, gconfig.WithConfigType("toml"))
+func NewLogger(name string, configure *gconfig.Configuration, opts ...Option) *GalaxyLog {
 	return newLogger(name, configure, opts...)
 }
 

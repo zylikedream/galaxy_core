@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/example/echo/proto"
@@ -41,7 +42,7 @@ func (e *EchoEventHandler) OnMessage(ctx context.Context, sess session.Session, 
 }
 
 func EchoServer() {
-	p, err := network.NewNetwork("config/config.toml")
+	p, err := network.NewNetwork(gconfig.New("config/network.toml"))
 	if err != nil {
 		glog.Error("network", zap.Namespace("new failed"), zap.Error(err))
 		return

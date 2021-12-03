@@ -1,6 +1,10 @@
 package glog
 
-import "bytes"
+import (
+	"bytes"
+
+	"github.com/zylikedream/galaxy/core/gconfig"
+)
 
 // PackageName 包名
 // defaultLogger defines default logger, it's usually used in application business logic
@@ -26,7 +30,7 @@ var defaultConfig = []byte(`
 `)
 
 func init() {
-	defaultLogger = NewLoggerWithReader("default", bytes.NewBuffer(defaultConfig))
+	defaultLogger = NewLogger("default", gconfig.NewWithReader(bytes.NewBuffer(defaultConfig), gconfig.WithConfigType("toml")))
 }
 
 func SetDefaultLogger(l *GalaxyLog) {
