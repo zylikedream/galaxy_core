@@ -31,6 +31,24 @@ func TestRoleEntity_Create(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	t.Logf("role = %v", r)
+	t.Logf("role = %+v", r)
+	return
+}
+
+func TestRoleEntity_Load(t *testing.T) {
+	r := NewRoleEntity()
+	ctx := gscontext.NewContext(context.Background())
+	mgo, err := gmongo.NewMongoClient(ctx, gconfig.NewWithReader(bytes.NewBuffer(config), gconfig.WithConfigType("toml")))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	ctx.SetMongo(mgo)
+	account := "zhangyi1"
+	if err := r.LoadByAccount(ctx, account); err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("role = %#v", r)
 	return
 }

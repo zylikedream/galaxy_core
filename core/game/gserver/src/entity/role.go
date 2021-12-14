@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -18,6 +17,7 @@ type compoentField struct {
 	tableName  string
 	autoload   bool
 	autocreate bool
+	fieldType  reflect.Type
 }
 
 var compFields = make(map[reflect.Type]compoentField)
@@ -43,11 +43,12 @@ func init() {
 			continue
 		}
 		tableName, opts := parseTag(t)
-		fmt.Println(typ.Field(i).Name, tableName, opts)
-		compFields[typ.Field(i).Type.Elem()] = compoentField{
+		fieldType := typ.Field(i).Type.Elem()
+		compFields[fieldType] = compoentField{
 			tableName:  tableName,
 			autoload:   arrutil.Contains(opts, "autoload"),
 			autocreate: arrutil.Contains(opts, "autocreate"),
+			fieldType:  fieldType,
 		}
 	}
 }
@@ -58,8 +59,8 @@ func getComponetTable(comp interface{}) string {
 
 type RoleEntity struct {
 	RoleID primitive.ObjectID
-	acc    *component.RoleAccount `table:"account"`
-	basic  *component.RoleBasic   `table:"role_basic,autoload,autocreate"`
+	Acc    *component.RoleAccount `table:"account"`
+	Basic  *component.RoleBasic   `table:"role_basic,autoload,autocreate"`
 }
 
 func NewRoleEntity() *RoleEntity {
@@ -97,41 +98,63 @@ func (r *RoleEntity) load(ctx *gscontext.Context, filter interface{}) error {
 	if err != nil {
 		return err
 	}
-	r.acc = roleInfo
+	r.Acc = roleInfo
 	r.RoleID = roleInfo.RoleID
-	if err := r.autoload(ctx); err != nil {
+	if err := r.autoLoadAndCreate(ctx); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *RoleEntity) autocreate(ctx *gscontext.Context, comp reflect.Value) {
-	if ac, ok := comp.Interface().(component.AutoCreate); ok {
-		ac.Create(ctx, r.RoleID)
+func (r *RoleEntity) createComponent(ctx *gscontext.Context, comp reflect.Value) error {
+	if ac, ok := comp.Interface().(component.IDCreatetor); ok {
+		ac.CreateByID(ctx, r.RoleID)
+		return nil
+	} else {
+		return errors.New("create failed, not component")
 	}
 }
 
-func (r *RoleEntity) autoload(ctx *gscontext.Context) error {
+func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 	val := reflect.ValueOf(r).Elem()
-	autoload := make([]reflect.Value, val.NumField())
+	autoload := make([]reflect.Value, 0)
+	autocreate := make([]reflect.Value, 0)
+	loaded := make(map[reflect.Type]struct{})
 	for i := 0; i < val.NumField(); i++ {
 		f := val.Field(i)
-		if cf, ok := compFields[f.Type().Elem()]; ok && cf.autoload {
+		cf, ok := compFields[f.Type().Elem()]
+		if !ok {
+			continue
+		}
+		if cf.autoload {
 			autoload = append(autoload, f)
+		}
+		if cf.autocreate {
+			autocreate = append(autocreate, f)
 		}
 	}
 	gmongo := ctx.GetMongo()
 	for _, comp := range autoload {
-		compIns := reflect.New(comp.Elem().Type())
-		err := gmongo.FindOne(ctx, compIns, getComponetTable(compIns), bson.M{"_id": r.RoleID})
+		cf := compFields[comp.Type().Elem()]
+		compIns := reflect.New(cf.fieldType)
+		err := gmongo.FindOne(ctx, compIns, cf.tableName, bson.M{"_id": r.RoleID})
 		if err != nil {
 			if errors.Is(err, mongo.ErrNoDocuments) {
-				if cf, ok := compFields[comp.Type().Elem()]; ok && cf.autocreate {
-					r.autocreate(ctx, compIns)
-				}
+				continue
 			} else {
 				return err
 			}
+		}
+		loaded[comp.Type()] = struct{}{}
+		comp.Set(compIns)
+	}
+	for _, comp := range autocreate {
+		if _, ok := loaded[comp.Type()]; ok {
+			continue
+		}
+		compIns := reflect.New(comp.Type().Elem())
+		if err := r.createComponent(ctx, compIns); err != nil {
+			return err
 		}
 		comp.Set(compIns)
 	}

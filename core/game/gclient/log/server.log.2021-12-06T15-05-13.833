@@ -1,0 +1,16 @@
+{"level":"INFO","ts":"2021-12-02T10:43:18+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 77, data size:77"}
+{"level":"INFO","ts":"2021-12-02T10:43:18+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:69","msg":"on message","msg":{"ID":447331921,"Type":0,"Payload":"eyJjb2RlIjowLCJtc2dfaWQiOjMxMTg0MDIzMTEsImRhdGEiOiJleUowYVcxbGMzUmhiWEFpT2pFMk16ZzBNVEk1T1RoOSJ9","Msg":{"code":0,"msg_id":3118402311,"data":"eyJ0aW1lc3RhbXAiOjE2Mzg0MTI5OTh9"}}}
+{"level":"INFO","ts":"2021-12-02T10:43:19+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 67, data size:67"}
+{"level":"INFO","ts":"2021-12-02T10:43:19+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:69","msg":"on message","msg":{"ID":447331921,"Type":0,"Payload":"eyJjb2RlIjowLCJtc2dfaWQiOjc4NDkyMjY4LCJkYXRhIjoiZXlKamNtVmhkR1VpT21aaGJITmxmUT09In0=","Msg":{"code":0,"msg_id":78492268,"data":"eyJjcmVhdGUiOmZhbHNlfQ=="}}}
+{"level":"INFO","ts":"2021-12-02T11:35:04+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 77, data size:77"}
+{"level":"DEBUG","ts":"2021-12-02T11:35:04+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:81","msg":"ack success:","msg":{"timestamp":1638416104}}
+{"level":"INFO","ts":"2021-12-02T11:35:05+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 67, data size:67"}
+{"level":"DEBUG","ts":"2021-12-02T11:35:05+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:81","msg":"ack success:","msg":{"create":false}}
+{"level":"INFO","ts":"2021-12-02T11:35:46+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 77, data size:77"}
+{"level":"DEBUG","ts":"2021-12-02T11:35:46+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:81","msg":"ack success:","name":"RspHandshake","msg":{"timestamp":1638416146}}
+{"level":"INFO","ts":"2021-12-02T11:35:47+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 67, data size:67"}
+{"level":"DEBUG","ts":"2021-12-02T11:35:47+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:81","msg":"ack success:","name":"RspAccountLogin","msg":{"create":false}}
+{"level":"INFO","ts":"2021-12-02T11:45:02+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 77, data size:77"}
+{"level":"DEBUG","ts":"2021-12-02T11:45:02+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:81","msg":"ack success:","name":"RspHandshake","msg":{"timestamp":1638416702}}
+{"level":"INFO","ts":"2021-12-02T11:45:03+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 67, data size:67"}
+{"level":"DEBUG","ts":"2021-12-02T11:45:03+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gclient/client.go:81","msg":"ack success:","name":"RspAccountLogin","msg":{"create":false}}

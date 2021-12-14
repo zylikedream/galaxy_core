@@ -5,6 +5,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type AutoCreate interface {
-	Create(ctx *gscontext.Context, ID primitive.ObjectID)
+type Component interface {
+}
+
+type IDCreatetor interface {
+	CreateByID(ctx *gscontext.Context, ID primitive.ObjectID)
 }

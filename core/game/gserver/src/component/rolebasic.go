@@ -10,7 +10,7 @@ type RoleBasic struct {
 	Name   string             `bson:"name"`
 }
 
-func (r *RoleBasic) Create(ctx *gscontext.Context, ID primitive.ObjectID) {
+func (r *RoleBasic) CreateByID(ctx *gscontext.Context, ID primitive.ObjectID) {
 	r.RoleID = ID
 	r.Name = ID.String()
 }
