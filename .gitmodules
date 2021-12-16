@@ -1,0 +1,4 @@
+[submodule "core/game/gameconfig"]
+	path = core/game/gameconfig
+	url = git@gitee.com:zylikedream/config_server.git
+	ignore = all
