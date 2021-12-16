@@ -1,6 +1,9 @@
 package component
 
-import "context"
+import (
+	"github.com/ahmetb/go-linq"
+	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
+)
 
 type bagItem struct {
 	PropID int    `json:"prop_id"`
@@ -18,6 +21,11 @@ type Item struct {
 	Num    uint64 `json:"num"`
 }
 
-func (r *RoleBag) AddItem(ctx context.Context, itemList []Item) error {
+func (r *RoleBag) AddItem(ctx *gscontext.Context, itemList []Item) error {
+	// gameconf := ctx.GetGameConfig()
+	linq.From(itemList).GroupByT(
+		func(it Item) int { return it.PropID },
+		func(it Item) uint64 { return it.Num },
+	)
 	return nil
 }
