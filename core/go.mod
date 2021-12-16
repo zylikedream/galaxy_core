@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/ChimeraCoder/gojson v1.1.0
+	github.com/davyxu/tabtoy v0.0.0-20211216085844-980712e8aff4
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gookit/goutil v0.4.0
 	github.com/mitchellh/mapstructure v1.4.2

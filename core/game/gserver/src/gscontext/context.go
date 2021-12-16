@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/zylikedream/galaxy/core/game/gserver/src/gsconfig"
 	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/gmongo"
 	"github.com/zylikedream/galaxy/core/network/peer"
@@ -95,10 +96,11 @@ var (
 	// RemoteConnContextKey is a context key. It can be used in
 	// services with context.WithValue to access the connection arrived on.
 	// The associated value will be of type net.Conn.
-	sessionCtxKey = &contextKey{"session"}
-	mongoCtxKey   = &contextKey{"mongo"}
-	loggerCtxKey  = &contextKey{"logger"}
-	peerCtxKey    = &contextKey{"peer"}
+	sessionCtxKey    = &contextKey{"session"}
+	mongoCtxKey      = &contextKey{"mongo"}
+	loggerCtxKey     = &contextKey{"logger"}
+	peerCtxKey       = &contextKey{"peer"}
+	GameConfigCtxKey = &contextKey{"game_config"}
 )
 
 func (ctx *Context) GetSession() session.Session {
@@ -131,4 +133,12 @@ func (ctx *Context) GetPeer() peer.Peer {
 
 func (ctx *Context) SetPeer(p peer.Peer) {
 	ctx.SetValue(peerCtxKey, p)
+}
+
+func (ctx *Context) GetGameConfig() *gsconfig.GameConfig {
+	return ctx.Value(GameConfigCtxKey).(*gsconfig.GameConfig)
+}
+
+func (ctx *Context) SetGameConfig(gs *gsconfig.GameConfig) {
+	ctx.SetValue(GameConfigCtxKey, gs)
 }
