@@ -14,3 +14,7 @@ func (r *RoleBasic) CreateByID(ctx *gscontext.Context, ID primitive.ObjectID) {
 	r.RoleID = ID
 	r.Name = ID.String()
 }
+
+func (r *RoleBasic) Init() error {
+	return nil
+}

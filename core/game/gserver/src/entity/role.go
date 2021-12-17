@@ -134,6 +134,7 @@ func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 		}
 	}
 	gmongo := ctx.GetMongo()
+	loadOrcreate := []reflect.Value{}
 	for _, comp := range autoload {
 		cf := compFields[comp.Type().Elem()]
 		compIns := reflect.New(cf.fieldType)
@@ -147,6 +148,7 @@ func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 		}
 		loaded[comp.Type()] = struct{}{}
 		comp.Set(compIns)
+		loadOrcreate = append(loadOrcreate, comp)
 	}
 	for _, comp := range autocreate {
 		if _, ok := loaded[comp.Type()]; ok {
@@ -157,6 +159,12 @@ func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 			return err
 		}
 		comp.Set(compIns)
+		loadOrcreate = append(loadOrcreate, comp)
+	}
+	for _, comp := range loadOrcreate {
+		if err := comp.Interface().(component.Component).Init(ctx); err != nil {
+			return err
+		}
 	}
 	return nil
 }

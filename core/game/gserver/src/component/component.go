@@ -6,6 +6,7 @@ import (
 )
 
 type Component interface {
+	Init(ctx *gscontext.Context) error
 }
 
 type IDCreatetor interface {

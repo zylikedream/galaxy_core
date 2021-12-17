@@ -50,15 +50,17 @@ func (s *Server) Init(ctx *gscontext.Context) error {
 	if err != nil {
 		return err
 	}
-	ctx.SetLogger(s.logger)
-	ctx.SetMongo(s.mgoCli)
-	ctx.SetPeer(s.p)
-	ctx.SetGameConfig(s.gameConfig)
+
 	return nil
 
 }
 
 func (s *Server) Run(ctx *gscontext.Context) error {
+	ctx.SetLogger(s.logger)
+	ctx.SetMongo(s.mgoCli)
+	ctx.SetPeer(s.p)
+	ctx.SetGameConfig(s.gameConfig)
+
 	if err := s.p.Start(ctx, &logic.LogicHandle{}); err != nil {
 		return err
 	}

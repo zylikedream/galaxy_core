@@ -7,6 +7,7 @@ import (
 
 type GameConfig struct {
 	ItemTable *gameconfig.ItemTable
+	BagTable  *gameconfig.BagTable
 }
 
 func NewGameConfig() (*GameConfig, error) {
