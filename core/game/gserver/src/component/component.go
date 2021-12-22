@@ -12,3 +12,7 @@ type Component interface {
 type IDCreatetor interface {
 	CreateByID(ctx *gscontext.Context, ID primitive.ObjectID)
 }
+
+type IDLoader interface {
+	LoadByID(ctx *gscontext.Context, ID primitive.ObjectID) error
+}

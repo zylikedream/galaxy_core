@@ -115,6 +115,14 @@ func (r *RoleEntity) createComponent(ctx *gscontext.Context, comp reflect.Value)
 	}
 }
 
+func (r *RoleEntity) loadComponent(ctx *gscontext.Context, comp reflect.Value) error {
+	if al, ok := comp.Interface().(component.IDLoader); ok {
+		return al.LoadByID(ctx, r.RoleID)
+	} else {
+		return errors.New("load failed, not component")
+	}
+}
+
 func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 	val := reflect.ValueOf(r).Elem()
 	autoload := make([]reflect.Value, 0)
@@ -138,7 +146,8 @@ func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 	for _, comp := range autoload {
 		cf := compFields[comp.Type().Elem()]
 		compIns := reflect.New(cf.fieldType)
-		err := gmongo.FindOne(ctx, compIns, cf.tableName, bson.M{"_id": r.RoleID})
+		err := r.loadComponent(ctx, compIns)
+		err := gmongo.FindOne(ctx, compIns.Interface(), cf.tableName, bson.M{"_id": r.RoleID})
 		if err != nil {
 			if errors.Is(err, mongo.ErrNoDocuments) {
 				continue
