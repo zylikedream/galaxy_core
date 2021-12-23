@@ -31,22 +31,22 @@ func (l *LoginModule) Handshake(ctx *gscontext.Context, cook *cookie.Cookie, req
 
 func (l *LoginModule) AccountLogin(ctx *gscontext.Context, cook *cookie.Cookie, req *proto.ReqAccountLogin, rsp *proto.RspAccountLogin) error {
 	role := entity.NewRoleEntity()
-	var newRole bool
+	var isNewRole bool
 	if err := role.LoadByAccount(ctx, req.Account); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			newRole = true
+			isNewRole = true
 			// 新号
 		} else {
 			return errors.Wrap(err, "load role failed")
 		}
 	}
-	if newRole {
+	if isNewRole {
 		if err := role.Create(ctx, req.Account); err != nil {
 			return errors.Wrap(err, "create role faield")
 		}
 	}
 	cook.Role = role
-	rsp.Create = newRole
+	rsp.Create = isNewRole
 	return nil
 }
 
