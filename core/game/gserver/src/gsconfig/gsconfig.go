@@ -1,13 +1,14 @@
 package gsconfig
 
 import (
-	tabtoy "github.com/davyxu/tabtoy/v3/api/golang"
-	"github.com/zylikedream/galaxy/core/game/gserver/gameconfig"
+	"encoding/json"
+	"io/ioutil"
+
+	gameconfig "github.com/zylikedream/galaxy/core/game/gserver/gameconfig/src"
 )
 
 type GameConfig struct {
-	ItemTable *gameconfig.ItemTable
-	BagTable  *gameconfig.BagTable
+	*gameconfig.Tables
 }
 
 func NewGameConfig() (*GameConfig, error) {
@@ -19,9 +20,22 @@ func NewGameConfig() (*GameConfig, error) {
 }
 
 func (gc *GameConfig) initTables() error {
-	gc.ItemTable = gameconfig.NewItemTable()
-	if err := tabtoy.LoadFromFile(gc.ItemTable, "data/item.json"); err != nil {
+	tables, err := gameconfig.NewTables(loader)
+	if err != nil {
 		return err
 	}
+	gc.Tables = tables
 	return nil
+}
+
+func loader(file string) ([]map[string]interface{}, error) {
+	if bytes, err := ioutil.ReadFile("data/" + file + ".json"); err != nil {
+		return nil, err
+	} else {
+		jsonData := make([]map[string]interface{}, 0)
+		if err = json.Unmarshal(bytes, &jsonData); err != nil {
+			return nil, err
+		}
+		return jsonData, nil
+	}
 }

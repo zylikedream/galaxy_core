@@ -88,8 +88,8 @@ func (r *RoleBag) AddItem(ctx *gscontext.Context, itemList []Item) error {
 }
 
 func (r *RoleBag) addSingleItem(ctx *gscontext.Context, item Item) (*itemChange, error) {
-	itemTable := ctx.GetGameConfig().ItemTable
-	itemconf := itemTable.ItemByID[int32(item.PropID)]
+	itemTable := ctx.GetGameConfig().TbItem
+	itemconf := itemTable.Get(int32(item.PropID))
 	have := r.Items[item.PropID]
 	newGrid := (have.Num + item.Num - 1) / uint64(itemconf.MaxOverlap)
 	gridAdd := int(newGrid - have.Grid)
@@ -115,7 +115,7 @@ func (r *RoleBag) GetItem(propid int) Item {
 }
 
 func (r *RoleBag) IsGridFull(ctx *gscontext.Context, add int) bool {
-	bagMaxGrid := ctx.GetGameConfig().BagTable.GetKeyValue_Bag().MaxGrid
+	bagMaxGrid := ctx.GetGameConfig().TbBag.Get().MaxGrid
 	return int32(r.GridUse+add) > bagMaxGrid
 }
 
@@ -147,8 +147,8 @@ func (r *RoleBag) decSingleItem(ctx *gscontext.Context, item Item) (*itemChange,
 	if item.Num > have.Num {
 		return nil, errors.Wrapf(ErrItemDecItemNotEnough, "have:%v, need:%v", have, item)
 	}
-	itemTable := ctx.GetGameConfig().ItemTable
-	itemconf := itemTable.ItemByID[int32(item.PropID)]
+	itemTable := ctx.GetGameConfig().TbItem
+	itemconf := itemTable.Get(int32(item.PropID))
 	newGrid := (have.Num - item.Num - 1) / uint64(itemconf.MaxOverlap)
 	gridDec := int(newGrid - have.Grid)
 
