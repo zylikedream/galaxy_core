@@ -62,6 +62,7 @@ type RoleEntity struct {
 	Acc    *component.RoleAccount `table:"account"`
 	Basic  *component.RoleBasic   `table:"role_basic,autoload,autocreate"`
 	Sign   *component.RoleSign    `table:"role_sign,autoload,autocreate"`
+	Bag    *component.RoleBag     `table:"role_bag,autoload,autocreate"`
 }
 
 func NewRoleEntity() *RoleEntity {
