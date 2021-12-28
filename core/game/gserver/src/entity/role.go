@@ -61,6 +61,7 @@ type RoleEntity struct {
 	RoleID primitive.ObjectID
 	Acc    *component.RoleAccount `table:"account"`
 	Basic  *component.RoleBasic   `table:"role_basic,autoload,autocreate"`
+	Sign   *component.RoleSign    `table:"role_sign,autoload,autocreate"`
 }
 
 func NewRoleEntity() *RoleEntity {
