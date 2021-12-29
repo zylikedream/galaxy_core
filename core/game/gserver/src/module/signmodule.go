@@ -1,3 +1,8 @@
+// 签到
+// 玩家上线自动签到当天
+// 玩家需要手动领取(可领取多天)
+// 玩家为上线的天数可以补签
+// 签到一定天数可以领取累积奖励
 package module
 
 import (
@@ -29,14 +34,15 @@ func (l *SignModule) reqSignInfo(ctx *gscontext.Context, cook *cookie.Cookie, re
 	return nil
 }
 
-func (l *SignModule) reqSignSign(ctx *gscontext.Context, cook *cookie.Cookie, req *proto.ReqSignSign, rsp *proto.ReqSignSign) error {
+func (l *SignModule) reqSignSign(ctx *gscontext.Context, cook *cookie.Cookie, req *proto.ReqSignSign, rsp *proto.RspSignSign) error {
 	// check
 	sign := cook.Role.Sign
 	if sign.SignTime > 0 {
 		return errors.New("already signed")
 	}
 	// do
-	time.Now().Unix()
+	sign.SignTime = time.Now().Unix()
+	sign.SignDay += 1
 	// trigger
 	return nil
 }
