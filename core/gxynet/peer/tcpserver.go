@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/core/gxyconfig"
+	"github.com/zylikedream/galaxy/core/gxynet/conn"
 	"github.com/zylikedream/galaxy/core/gxynet/logger"
-	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 	"go.uber.org/zap"
 )
 
 type TcpServer struct {
-	session.SessionBundle
+	conn.ConnBundle
 	listener net.Listener
 	conf     *tcpServerConfig
 }
@@ -39,7 +39,7 @@ func (t *TcpServer) Init() error {
 	return nil
 }
 
-func (t *TcpServer) Start(ctx context.Context, el session.EventHandler) error {
+func (t *TcpServer) Start(ctx context.Context, el conn.EventHandler) error {
 	var err error
 	t.listener, err = net.Listen("tcp", t.conf.Addr)
 	if err != nil {
@@ -52,7 +52,7 @@ func (t *TcpServer) Start(ctx context.Context, el session.EventHandler) error {
 
 func (t *TcpServer) accept(ctx context.Context) {
 	for {
-		conn, err := t.listener.Accept()
+		con, err := t.listener.Accept()
 		if err != nil {
 			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
 				logger.Nlog.Warn("tcpserver", zap.String("msg", "accept temporary error"))
@@ -61,10 +61,10 @@ func (t *TcpServer) accept(ctx context.Context) {
 			}
 			break
 		}
-		sess := session.NewTcpSession(conn, t.SessionBundle)
+		sess := conn.NewTcpConn(con, t.ConnBundle)
 		go func() {
 			if err := sess.Start(ctx); err != nil {
-				logger.Nlog.Warn("session start faield", zap.Error(err))
+				logger.Nlog.Warn("conn start faield", zap.Error(err))
 			}
 		}()
 	}

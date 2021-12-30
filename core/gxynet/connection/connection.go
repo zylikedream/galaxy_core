@@ -15,9 +15,9 @@ type Connection interface {
 	RemoteAddr() string
 	incReadPkgNum()
 	incWritePkgNum()
-	// update session's active time
+	// update conn's active time
 	UpdateActive()
-	// get session's active time
+	// get conn's active time
 	GetActive() time.Time
 	readTimeout() time.Duration
 	// SetReadTimeout sets deadline for the future read calls.

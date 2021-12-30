@@ -1,16 +1,16 @@
-package session
+package conn
 
 import (
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/processor"
 )
 
-type SessionBundle struct {
+type ConnBundle struct {
 	*processor.Processor
 	Handler EventHandler
 }
 
-func (p *SessionBundle) BindProc(c *gxyconfig.Configuration) error {
+func (p *ConnBundle) BindProc(c *gxyconfig.Configuration) error {
 	proc, err := processor.NewProcessor(c)
 	if err != nil {
 		return err
@@ -19,6 +19,6 @@ func (p *SessionBundle) BindProc(c *gxyconfig.Configuration) error {
 	return nil
 }
 
-func (p *SessionBundle) BindHandler(handler EventHandler) {
+func (p *ConnBundle) BindHandler(handler EventHandler) {
 	p.Handler = handler
 }

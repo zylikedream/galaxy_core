@@ -4,20 +4,20 @@
  * @LastEditTime: 2021-11-04 17:05:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
- * @FilePath: /components/gxynet/session/session.go
+ * @FilePath: /components/gxynet/conn/conn.go
  */
-package session
+package conn
 
 import (
 	"context"
 	"net"
 )
 
-type Session interface {
+type Conn interface {
 	Send(msg interface{}) error
 	Start(ctx context.Context) error
 	Close(context.Context, error)
-	Conn() net.Conn
+	Raw() net.Conn
 	GetData() interface{}
 	SetData(interface{})
 }

@@ -1,4 +1,4 @@
-package session
+package conn
 
 import (
 	"bytes"
@@ -14,23 +14,23 @@ import (
 	"go.uber.org/zap"
 )
 
-type TcpSession struct {
-	SessionBundle
+type TcpConn struct {
+	ConnBundle
 	conn   net.Conn
 	sendCh chan interface{}
 	exit   int32
 	data   interface{}
 }
 
-func NewTcpSession(conn net.Conn, bundle SessionBundle) *TcpSession {
-	return &TcpSession{
-		conn:          conn,
-		SessionBundle: bundle,
-		sendCh:        make(chan interface{}, 64),
+func NewTcpConn(conn net.Conn, bundle ConnBundle) *TcpConn {
+	return &TcpConn{
+		conn:       conn,
+		ConnBundle: bundle,
+		sendCh:     make(chan interface{}, 64),
 	}
 }
 
-func (t *TcpSession) Start(ctx context.Context) error {
+func (t *TcpConn) Start(ctx context.Context) error {
 	if err := t.Handler.OnOpen(ctx, t); err != nil {
 		return errors.Wrap(err, "on open error")
 	}
@@ -39,7 +39,7 @@ func (t *TcpSession) Start(ctx context.Context) error {
 	return nil
 }
 
-func (t *TcpSession) recvLoop(ctx context.Context) {
+func (t *TcpConn) recvLoop(ctx context.Context) {
 	var err error
 	var msg *message.Message
 
@@ -78,19 +78,19 @@ func (t *TcpSession) recvLoop(ctx context.Context) {
 	t.Close(ctx, errors.Wrap(err, "recv error"))
 }
 
-func (t *TcpSession) IsClosed() bool {
+func (t *TcpConn) IsClosed() bool {
 	return atomic.LoadInt32(&t.exit) == 1
 }
 
-func (t *TcpSession) Send(msg interface{}) error {
+func (t *TcpConn) Send(msg interface{}) error {
 	if t.IsClosed() {
-		return fmt.Errorf("session closed")
+		return fmt.Errorf("conn closed")
 	}
 	t.sendCh <- msg
 	return nil
 }
 
-func (t *TcpSession) sendMsg(msg interface{}) error {
+func (t *TcpConn) sendMsg(msg interface{}) error {
 	data, err := t.Encode(msg)
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (t *TcpSession) sendMsg(msg interface{}) error {
 	return nil
 }
 
-func (t *TcpSession) sendLoop(ctx context.Context) {
+func (t *TcpConn) sendLoop(ctx context.Context) {
 	var err error
 	for rawMsg := range t.sendCh {
 		if err = t.sendMsg(rawMsg); err != nil {
@@ -115,7 +115,7 @@ func (t *TcpSession) sendLoop(ctx context.Context) {
 	t.Handler.OnClose(ctx, t)
 }
 
-func (t *TcpSession) Close(ctx context.Context, err error) {
+func (t *TcpConn) Close(ctx context.Context, err error) {
 	if atomic.LoadInt32(&t.exit) == 1 {
 		return
 	}
@@ -129,14 +129,14 @@ func (t *TcpSession) Close(ctx context.Context, err error) {
 	close(t.sendCh)
 }
 
-func (t *TcpSession) Conn() net.Conn {
+func (t *TcpConn) Raw() net.Conn {
 	return t.conn
 }
 
-func (t *TcpSession) GetData() interface{} {
+func (t *TcpConn) GetData() interface{} {
 	return t.data
 }
 
-func (t *TcpSession) SetData(d interface{}) {
+func (t *TcpConn) SetData(d interface{}) {
 	t.data = d
 }

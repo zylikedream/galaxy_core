@@ -12,8 +12,8 @@ import (
 	"context"
 
 	"github.com/zylikedream/galaxy/core/gxyconfig"
+	"github.com/zylikedream/galaxy/core/gxynet/conn"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
-	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -23,7 +23,7 @@ const (
 )
 
 type Peer interface {
-	Start(ctx context.Context, h session.EventHandler) error
+	Start(ctx context.Context, h conn.EventHandler) error
 	Stop(ctx context.Context)
 	GetMessageCodec() message.MessageCodec
 }
