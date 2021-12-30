@@ -3,7 +3,7 @@ package proto
 import (
 	"context"
 
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 )
 
 type MulRequest struct {
@@ -24,7 +24,7 @@ func (a *Arith) Mul(ctx context.Context, req *MulRequest, reply *MulReply) error
 	reply.A = req.A
 	reply.B = req.B
 	reply.Result = req.A * req.B
-	glog.Debugf("call %d*%d=%d", reply.A, reply.B, reply.Result)
+	gxylog.Debugf("call %d*%d=%d", reply.A, reply.B, reply.Result)
 	return nil
 }
 

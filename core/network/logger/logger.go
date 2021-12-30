@@ -1,9 +1,9 @@
 package logger
 
-import "github.com/zylikedream/galaxy/core/glog"
+import "github.com/zylikedream/galaxy/core/gxylog"
 
-var Nlog *glog.GalaxyLog
+var Nlog *gxylog.GalaxyLog
 
-func SetLogger(l *glog.GalaxyLog) {
+func SetLogger(l *gxylog.GalaxyLog) {
 	Nlog = l
 }

@@ -9,17 +9,16 @@ import (
 	"errors"
 	"time"
 
-	"github.com/gookit/goutil/arrutil"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/cookie"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"go.uber.org/zap"
 )
 
 type SignModule struct {
 	BaseModule
-	logger *glog.GalaxyLog
+	logger *gxylog.GalaxyLog
 }
 
 func (l *SignModule) Init(ctx *gscontext.Context) error {
@@ -29,9 +28,9 @@ func (l *SignModule) Init(ctx *gscontext.Context) error {
 }
 
 func (l *SignModule) reqSignInfo(ctx *gscontext.Context, cook *cookie.Cookie, req *proto.ReqSignInfo, rsp *proto.RspSignInfo) error {
-	sign := cook.Role.Sign
-	rsp.SignDay = sign.SignDay
-	rsp.SignTime = sign.SignTime
+	rsign := cook.Role.Sign
+	rsp.SignDay = rsign.SignDay
+	rsp.SignTime = rsign.SignTime
 	return nil
 }
 
@@ -41,11 +40,13 @@ func (l *SignModule) reqSignSign(ctx *gscontext.Context, cook *cookie.Cookie, re
 	if sign.SignTime > 0 {
 		return errors.New("already signed")
 	}
-	// do
-	rewards := ctx.GetGameConfig().TbSign.Get(int32(sign.SignDay)).Rewards
-	cook.Role.Bag.AddItem(ctx, rewards)
 
 	sign.SignTime = time.Now().Unix()
+	rewards := ctx.GetGameConfig().TbSign.Get(int32(sign.SignDay)).Rewards
+	if err := cook.Role.Bag.AddItemRc(ctx, rewards); err != nil {
+		return err
+	}
+
 	// trigger
 	return nil
 }

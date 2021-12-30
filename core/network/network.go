@@ -2,7 +2,7 @@ package network
 
 import (
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network/logger"
 	"github.com/zylikedream/galaxy/core/network/peer"
 )
@@ -22,9 +22,9 @@ func NewNetwork(configure *gconfig.Configuration) (peer.Peer, error) {
 		return nil, err
 	}
 	if conf.LogConfig == "" {
-		logger.SetLogger(glog.DefaultLogger())
+		logger.SetLogger(gxylog.DefaultLogger())
 	} else {
-		logger.SetLogger(glog.NewLogger("network", gconfig.New(conf.LogConfig)))
+		logger.SetLogger(gxylog.NewLogger("network", gconfig.New(conf.LogConfig)))
 	}
 	return peer, err
 }

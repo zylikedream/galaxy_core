@@ -6,7 +6,7 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/cookie"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/module"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/session"
 	"go.uber.org/zap"
@@ -33,7 +33,7 @@ func (l *LogicHandle) OnMessage(ctx context.Context, sess session.Session, m *me
 	gsctx := ctx.(*gscontext.Context)
 	cook := sess.GetData().(*cookie.Cookie)
 	if err := module.HandleMessage(gsctx, cook, m.Msg); err != nil {
-		glog.Error("handle message error", zap.Error(err))
+		gxylog.Error("handle message error", zap.Error(err))
 	}
 	return nil
 }

@@ -4,10 +4,12 @@ import (
 	"time"
 
 	"github.com/ahmetb/go-linq"
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
+	gameconfig "github.com/zylikedream/galaxy/core/game/gserver/gameconfig/src"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 )
@@ -29,11 +31,11 @@ type RoleBag struct {
 	Items   map[int]bagItem    `json:"items"`
 	GridUse int                `json:"grid_use"`
 
-	logger *glog.GalaxyLog `json:"-"`
+	logger *gxylog.GalaxyLog `json:"-"`
 }
 
 type Item struct {
-	ID  int    `json:"id"`
+	ID  int    `json:"id" copier:"ID"`
 	Num uint64 `json:"num"`
 }
 
@@ -70,6 +72,14 @@ func (r *RoleBag) CreateByID(ctx *gscontext.Context, ID primitive.ObjectID) {
 func (r *RoleBag) Init(ctx *gscontext.Context) error {
 	r.logger = ctx.GetLogger().With(zap.Namespace("role_bag"))
 	return nil
+}
+
+func (r *RoleBag) AddItemRc(ctx *gscontext.Context, itemRcList []*gameconfig.ItemItemRC) error {
+	items := []Item{}
+	if err := copier.Copy(&items, &itemRcList); err != nil {
+		return err
+	}
+	return r.AddItem(ctx, items)
 }
 
 func (r *RoleBag) AddItem(ctx *gscontext.Context, itemList []Item) error {

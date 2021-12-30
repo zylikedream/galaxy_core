@@ -8,8 +8,8 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/logic"
 	_ "github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/gmongo"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/peer"
 	"go.uber.org/zap"
@@ -17,7 +17,7 @@ import (
 
 type Server struct {
 	p          peer.Peer
-	logger     *glog.GalaxyLog
+	logger     *gxylog.GalaxyLog
 	mgoCli     *gmongo.MongoClient
 	gameConfig *gsconfig.GameConfig
 }
@@ -37,8 +37,8 @@ func (s *Server) Init(ctx *gscontext.Context) error {
 	}
 	s.p = p
 
-	s.logger = glog.NewLogger("server", gconfig.New("config/log.toml"))
-	glog.SetDefaultLogger(s.logger)
+	s.logger = gxylog.NewLogger("server", gconfig.New("config/log.toml"))
+	gxylog.SetDefaultLogger(s.logger)
 
 	cli, err := gmongo.NewMongoClient(ctx, gconfig.New("config/mongo.toml"))
 	if err != nil {
@@ -71,6 +71,6 @@ func main() {
 	ctx := gscontext.NewContext(context.Background())
 	s := NewServer(ctx)
 	if err := s.Run(ctx); err != nil {
-		glog.Error("server run err", zap.Error(err))
+		gxylog.Error("server run err", zap.Error(err))
 	}
 }

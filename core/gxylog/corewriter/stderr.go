@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog/corewriter/encoder"
 	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxylog/corewriter/encoder"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

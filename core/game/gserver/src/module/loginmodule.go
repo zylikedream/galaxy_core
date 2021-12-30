@@ -8,14 +8,14 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/entity"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
 type LoginModule struct {
 	BaseModule
-	logger *glog.GalaxyLog
+	logger *gxylog.GalaxyLog
 }
 
 func (l *LoginModule) Init(ctx *gscontext.Context) error {

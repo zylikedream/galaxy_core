@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network/message"
 )
 
@@ -78,7 +78,7 @@ func (l *ltiv) Decode(data []byte) (uint64, *message.Message, error) {
 		return 0, nil, fmt.Errorf("packet too big, %d(%d)", PacketSize, l.conf.MaxSize)
 	}
 	data = data[l.conf.SizeLength:]
-	glog.Infof("packet size %d, data size:%d", PacketSize, len(data))
+	gxylog.Infof("packet size %d, data size:%d", PacketSize, len(data))
 	if len(data) < int(PacketSize) {
 		return 0, nil, ErrPkgBodyNotEnough
 	}

@@ -1,7 +1,7 @@
 package encoder
 
 import (
-	"github.com/zylikedream/galaxy/core/glog/color"
+	"github.com/zylikedream/galaxy/core/gxylog/color"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

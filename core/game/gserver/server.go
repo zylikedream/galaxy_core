@@ -6,7 +6,7 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/app"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	_ "github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"go.uber.org/zap"
 )
 
@@ -14,6 +14,6 @@ func main() {
 	ctx := gscontext.NewContext(context.Background())
 	s := app.NewServer(ctx)
 	if err := s.Run(ctx); err != nil {
-		glog.Error("server run err", zap.Error(err))
+		gxylog.Error("server run err", zap.Error(err))
 	}
 }

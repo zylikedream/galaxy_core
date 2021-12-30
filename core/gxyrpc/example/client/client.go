@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxyrpc/client"
 	"github.com/zylikedream/galaxy/core/gxyrpc/example/proto"
 )
@@ -23,7 +23,7 @@ func main() {
 		if err := cli.Call(context.Background(), "Arith", "Mul", req, reply); err != nil {
 			panic(err)
 		}
-		glog.Debugf("%d * %d = %d", reply.A, reply.B, reply.Result)
+		gxylog.Debugf("%d * %d = %d", reply.A, reply.B, reply.Result)
 		time.Sleep(time.Second * 3)
 	}
 }

@@ -6,8 +6,8 @@ import (
 	"reflect"
 
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gsconfig"
-	"github.com/zylikedream/galaxy/core/glog"
 	"github.com/zylikedream/galaxy/core/gmongo"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network/peer"
 	"github.com/zylikedream/galaxy/core/network/session"
 )
@@ -119,11 +119,11 @@ func (ctx *Context) SetMongo(mgo *gmongo.MongoClient) {
 	ctx.SetValue(mongoCtxKey, mgo)
 }
 
-func (ctx *Context) GetLogger() *glog.GalaxyLog {
-	return ctx.Value(loggerCtxKey).(*glog.GalaxyLog)
+func (ctx *Context) GetLogger() *gxylog.GalaxyLog {
+	return ctx.Value(loggerCtxKey).(*gxylog.GalaxyLog)
 }
 
-func (ctx *Context) SetLogger(log *glog.GalaxyLog) {
+func (ctx *Context) SetLogger(log *gxylog.GalaxyLog) {
 	ctx.SetValue(loggerCtxKey, log)
 }
 

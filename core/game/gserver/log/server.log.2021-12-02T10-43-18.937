@@ -1,17 +1,17 @@
-{"level":"error","ts":"2021-11-24T15:37:59.9704046+08:00","caller":"glog/api.go:57","msg":"server run err","error":"listen tcp 127.0.0.1:19001: bind: address already in use"}
-{"level":"info","ts":"2021-11-24T16:01:13.3053215+08:00","caller":"glog/api.go:117","msg":"packet size 32, data size:32"}
-{"level":"info","ts":"2021-11-24T16:06:14.2085554+08:00","caller":"glog/api.go:117","msg":"packet size 34, data size:34"}
-{"level":"error","ts":"2021-11-24T16:06:14.2087974+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
-{"level":"info","ts":"2021-11-24T16:06:15.2087304+08:00","caller":"glog/api.go:117","msg":"packet size 84, data size:84"}
-{"level":"error","ts":"2021-11-24T16:06:15.2088489+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
-{"level":"info","ts":"2021-11-24T16:08:25.0662374+08:00","caller":"glog/api.go:117","msg":"packet size 34, data size:34"}
-{"level":"error","ts":"2021-11-24T16:08:25.0664871+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
-{"level":"info","ts":"2021-11-24T16:08:26.0663241+08:00","caller":"glog/api.go:117","msg":"packet size 84, data size:84"}
-{"level":"error","ts":"2021-11-24T16:08:26.066442+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
-{"level":"info","ts":"2021-11-24T16:09:04.4584674+08:00","caller":"glog/api.go:117","msg":"packet size 34, data size:34"}
-{"level":"error","ts":"2021-11-24T16:09:04.458755+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
-{"level":"info","ts":"2021-11-24T16:09:05.4586988+08:00","caller":"glog/api.go:117","msg":"packet size 84, data size:84"}
-{"level":"error","ts":"2021-11-24T16:09:05.4588467+08:00","caller":"glog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"error","ts":"2021-11-24T15:37:59.9704046+08:00","caller":"gxylog/api.go:57","msg":"server run err","error":"listen tcp 127.0.0.1:19001: bind: address already in use"}
+{"level":"info","ts":"2021-11-24T16:01:13.3053215+08:00","caller":"gxylog/api.go:117","msg":"packet size 32, data size:32"}
+{"level":"info","ts":"2021-11-24T16:06:14.2085554+08:00","caller":"gxylog/api.go:117","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:06:14.2087974+08:00","caller":"gxylog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:06:15.2087304+08:00","caller":"gxylog/api.go:117","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:06:15.2088489+08:00","caller":"gxylog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:08:25.0662374+08:00","caller":"gxylog/api.go:117","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:08:25.0664871+08:00","caller":"gxylog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:08:26.0663241+08:00","caller":"gxylog/api.go:117","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:08:26.066442+08:00","caller":"gxylog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:09:04.4584674+08:00","caller":"gxylog/api.go:117","msg":"packet size 34, data size:34"}
+{"level":"error","ts":"2021-11-24T16:09:04.458755+08:00","caller":"gxylog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
+{"level":"info","ts":"2021-11-24T16:09:05.4586988+08:00","caller":"gxylog/api.go:117","msg":"packet size 84, data size:84"}
+{"level":"error","ts":"2021-11-24T16:09:05.4588467+08:00","caller":"gxylog/api.go:57","msg":"handle message error","error":"no hanlder for message "}
 {"level":"info","ts":"2021-11-24T16:09:41.8645558+08:00","caller":"packet/ltiv.go:81","msg":"packet size 34, data size:34"}
 {"level":"error","ts":"2021-11-24T16:09:41.8647498+08:00","caller":"logic/handler.go:30","msg":"handle message error","error":"no hanlder for message "}
 {"level":"info","ts":"2021-11-24T16:09:42.8647471+08:00","caller":"packet/ltiv.go:81","msg":"packet size 84, data size:84"}

@@ -1,4 +1,4 @@
-package glog
+package gxylog
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog/color"
-	"github.com/zylikedream/galaxy/core/glog/corewriter"
+	"github.com/zylikedream/galaxy/core/gxylog/color"
+	"github.com/zylikedream/galaxy/core/gxylog/corewriter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

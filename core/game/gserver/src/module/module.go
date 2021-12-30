@@ -15,7 +15,7 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/cookie"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/session"
 	"go.uber.org/zap"
@@ -218,7 +218,6 @@ func suitableMethods(typ reflect.Type, PkgPath string) map[string]*MethodMeta {
 
 func generateJSON(typ reflect.Type) string {
 	v := reflect.New(typ).Interface()
-
 	data, _ := json.Marshal(v)
 	return string(data)
 }
@@ -257,7 +256,7 @@ func HandleMessage(ctx *gscontext.Context, cook *cookie.Cookie, Msg interface{})
 	if err = mod.im.BeforeMsg(ctx, cook, Msg); err != nil {
 		return err
 	}
-	glog.Debugf("msg %#v", Msg)
+	gxylog.Debugf("msg %#v", Msg)
 	if mtd.ArgType.Kind() != reflect.Ptr {
 		err = mod.call(ctx, reflect.ValueOf(cook), mtd, reflect.ValueOf(Msg).Elem(), Reply)
 	} else {
@@ -283,7 +282,7 @@ func AckOk(ctx *gscontext.Context, msg interface{}) {
 func Ack(ctx *gscontext.Context, msg interface{}, code int, Reason string) {
 	meta := message.MessageMetaByMsg(msg)
 	if meta == nil {
-		glog.Error("ack unkonw msg", zap.Any("msg", msg))
+		gxylog.Error("ack unkonw msg", zap.Any("msg", msg))
 		return
 	}
 
@@ -296,7 +295,7 @@ func Ack(ctx *gscontext.Context, msg interface{}, code int, Reason string) {
 		p := ctx.GetPeer()
 		msgData, err := p.GetMessageCodec().Encode(msg)
 		if err != nil {
-			glog.Error("ack error", zap.Error(err))
+			gxylog.Error("ack error", zap.Error(err))
 			return
 		}
 		ack.Data = msgData
@@ -308,7 +307,7 @@ func Send(ctx *gscontext.Context, msg interface{}) {
 	sess := ctx.GetSession()
 	err := sess.Send(msg)
 	if err != nil {
-		glog.Error("send error", zap.Error(err), zap.Any("msg", msg))
+		gxylog.Error("send error", zap.Error(err), zap.Any("msg", msg))
 	}
 }
 

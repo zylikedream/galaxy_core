@@ -5,6 +5,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// component
+
 type RoleSign struct {
 	RoleID         primitive.ObjectID `json:"_id"`
 	SignTime       int64              `json:"sign_time"`

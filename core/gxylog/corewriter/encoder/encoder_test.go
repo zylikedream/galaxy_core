@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog/color"
+	"github.com/zylikedream/galaxy/core/gxylog/color"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -42,7 +42,7 @@ func TestHook(t *testing.T) {
 	configToml := []byte(`
 	[log]
 		level_encoder = "capital"
-	[log.encoder_config] # 完整字段参考github.com/zylikedream/galaxy/core/glog/corewriter/encoder/encoder.go的config
+	[log.encoder_config] # 完整字段参考github.com/zylikedream/galaxy/core/gxylog/corewriter/encoder/encoder.go的config
 		message_key = "msg1"
 		level_key = "level1"
 		encode_level = "lower" # level的颜色大小写控制(capital|capitalColor|color|lower), 默认为lower

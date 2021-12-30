@@ -6,7 +6,7 @@ import (
 
 	"github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/glog"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/network"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/peer"
@@ -27,8 +27,8 @@ func NewClient() *Client {
 		panic(err)
 	}
 	cli.p = p
-	logger := glog.NewLogger("client", gconfig.New("config/log.toml"))
-	glog.SetDefaultLogger(logger)
+	logger := gxylog.NewLogger("client", gconfig.New("config/log.toml"))
+	gxylog.SetDefaultLogger(logger)
 	return cli
 }
 
@@ -72,16 +72,16 @@ func (c *Client) OnMessage(ctx context.Context, sess session.Session, m *message
 		ack := v
 		meta := message.MessageMetaByID(ack.MsgID)
 		if ack.Code != proto.ACK_CODE_OK {
-			glog.Error("ack failed", zap.String("msg", meta.TypeName()), zap.String("reason", ack.Reason))
+			gxylog.Error("ack failed", zap.String("msg", meta.TypeName()), zap.String("reason", ack.Reason))
 			return nil
 		}
 		msg := meta.NewInstance()
 		if err := c.p.GetMessageCodec().Decode(msg, ack.Data); err != nil {
 			return err
 		}
-		glog.Debug("ack success:", zap.String("name", meta.TypeName()), zap.Any("msg", msg))
+		gxylog.Debug("ack success:", zap.String("name", meta.TypeName()), zap.Any("msg", msg))
 	default:
-		glog.Debug("recv msg:", zap.Any("msg", m.Msg))
+		gxylog.Debug("recv msg:", zap.Any("msg", m.Msg))
 	}
 	return nil
 }
@@ -90,6 +90,6 @@ func main() {
 	ctx := context.Background()
 	c := NewClient()
 	if err := c.Run(ctx); err != nil {
-		glog.Error("client run err", zap.Error(err))
+		gxylog.Error("client run err", zap.Error(err))
 	}
 }
