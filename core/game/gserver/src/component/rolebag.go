@@ -33,8 +33,8 @@ type RoleBag struct {
 }
 
 type Item struct {
-	PropID int    `json:"prop_id"`
-	Num    uint64 `json:"num"`
+	ID  int    `json:"id"`
+	Num uint64 `json:"num"`
 }
 
 type itemChange struct {
@@ -89,8 +89,8 @@ func (r *RoleBag) AddItem(ctx *gscontext.Context, itemList []Item) error {
 
 func (r *RoleBag) addSingleItem(ctx *gscontext.Context, item Item) (*itemChange, error) {
 	itemTable := ctx.GetGameConfig().TbItem
-	itemconf := itemTable.Get(int32(item.PropID))
-	have := r.Items[item.PropID]
+	itemconf := itemTable.Get(int32(item.ID))
+	have := r.Items[item.ID]
 	newGrid := (have.Num + item.Num - 1) / uint64(itemconf.MaxOverlap)
 	gridAdd := int(newGrid - have.Grid)
 	if newGrid > have.Grid && r.IsGridFull(ctx, gridAdd) {
@@ -100,7 +100,7 @@ func (r *RoleBag) addSingleItem(ctx *gscontext.Context, item Item) (*itemChange,
 		// todo 自动使用物品
 		return nil, nil
 	}
-	chg := have.update(item.PropID, have.Num+item.Num, newGrid)
+	chg := have.update(item.ID, have.Num+item.Num, newGrid)
 	r.GridUse += gridAdd
 	r.logger.Debug("add item success", zap.Any("item", item), zap.Int("gridadd", gridAdd))
 	return chg, nil
@@ -109,8 +109,8 @@ func (r *RoleBag) addSingleItem(ctx *gscontext.Context, item Item) (*itemChange,
 func (r *RoleBag) GetItem(propid int) Item {
 	bagItem := r.Items[propid]
 	return Item{
-		PropID: propid,
-		Num:    bagItem.Num,
+		ID:  propid,
+		Num: bagItem.Num,
 	}
 }
 
@@ -123,7 +123,7 @@ func (r *RoleBag) CheckItem(ctx *gscontext.Context, itemList []Item) bool {
 	itemList = ClassifyItemList(itemList)
 	return linq.From(itemList).All(func(i interface{}) bool {
 		item := i.(Item)
-		have := r.GetItem(item.PropID)
+		have := r.GetItem(item.ID)
 		return have.Num >= item.Num
 	})
 }
@@ -143,19 +143,19 @@ func (r *RoleBag) DecItem(ctx *gscontext.Context, itemList []Item) error {
 }
 
 func (r *RoleBag) decSingleItem(ctx *gscontext.Context, item Item) (*itemChange, error) {
-	have := r.Items[item.PropID]
+	have := r.Items[item.ID]
 	if item.Num > have.Num {
 		return nil, errors.Wrapf(ErrItemDecItemNotEnough, "have:%v, need:%v", have, item)
 	}
 	itemTable := ctx.GetGameConfig().TbItem
-	itemconf := itemTable.Get(int32(item.PropID))
+	itemconf := itemTable.Get(int32(item.ID))
 	newGrid := (have.Num - item.Num - 1) / uint64(itemconf.MaxOverlap)
 	gridDec := int(newGrid - have.Grid)
 
-	chg := have.update(item.PropID, have.Num-item.Num, newGrid)
+	chg := have.update(item.ID, have.Num-item.Num, newGrid)
 
 	if newGrid == 0 {
-		delete(r.Items, item.PropID)
+		delete(r.Items, item.ID)
 	}
 	r.GridUse -= gridDec
 	r.logger.Debug("dec item success", zap.Any("item", item), zap.Int("griddec ", gridDec))
@@ -181,12 +181,12 @@ func (r *RoleBag) notifyItemUpdate(ctx *gscontext.Context, chgs []*itemChange) {
 func ClassifyItemList(itemList []Item) []Item {
 	classifyItemList := []Item{}
 	linq.From(itemList).GroupBy(
-		func(it interface{}) interface{} { return it.(Item).PropID },
+		func(it interface{}) interface{} { return it.(Item).ID },
 		func(it interface{}) interface{} { return it.(Item).Num },
 	).Select(func(i interface{}) interface{} {
 		return Item{
-			PropID: i.(linq.Group).Key.(int),
-			Num:    linq.From(i.(linq.Group).Group).SumUInts(),
+			ID:  i.(linq.Group).Key.(int),
+			Num: linq.From(i.(linq.Group).Group).SumUInts(),
 		}
 	}).ToSlice(&classifyItemList)
 	return classifyItemList

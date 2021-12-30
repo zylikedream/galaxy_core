@@ -9,6 +9,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gookit/goutil/arrutil"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/cookie"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/proto"
@@ -41,8 +42,10 @@ func (l *SignModule) reqSignSign(ctx *gscontext.Context, cook *cookie.Cookie, re
 		return errors.New("already signed")
 	}
 	// do
+	rewards := ctx.GetGameConfig().TbSign.Get(int32(sign.SignDay)).Rewards
+	cook.Role.Bag.AddItem(ctx, rewards)
+
 	sign.SignTime = time.Now().Unix()
-	sign.SignDay += 1
 	// trigger
 	return nil
 }

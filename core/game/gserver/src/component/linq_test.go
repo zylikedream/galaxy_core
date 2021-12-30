@@ -15,12 +15,12 @@ func TestLinq(t *testing.T) {
 	}
 	grp := []Item{}
 	linq.From(itemList).GroupBy(
-		func(it interface{}) interface{} { return it.(Item).PropID },
+		func(it interface{}) interface{} { return it.(Item).ID },
 		func(it interface{}) interface{} { return it.(Item).Num },
 	).Select(func(i interface{}) interface{} {
 		return Item{
-			PropID: i.(linq.Group).Key.(int),
-			Num:    linq.From(i.(linq.Group).Group).SumUInts(),
+			ID:  i.(linq.Group).Key.(int),
+			Num: linq.From(i.(linq.Group).Group).SumUInts(),
 		}
 	}).ToSlice(&grp)
 	t.Logf("resultAll:%v", grp)
