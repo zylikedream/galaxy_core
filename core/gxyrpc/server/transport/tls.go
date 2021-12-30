@@ -5,7 +5,7 @@ import (
 
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type tlsConfig struct {
@@ -62,5 +62,5 @@ func (t *tlsTransport) Build(c *gconfig.Configuration, args ...interface{}) (int
 }
 
 func init() {
-	gregister.Register((*tlsTransport)(nil))
+	gxyregister.Register((*tlsTransport)(nil))
 }

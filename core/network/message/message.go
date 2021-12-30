@@ -2,7 +2,7 @@ package message
 
 import (
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type MessageCodec interface {
@@ -24,7 +24,7 @@ const (
 )
 
 func NewMessageCodec(t string, c *gconfig.Configuration) (MessageCodec, error) {
-	if node, err := gregister.NewNode("message."+t, c); err != nil {
+	if node, err := gxyregister.NewNode("message."+t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(MessageCodec), nil

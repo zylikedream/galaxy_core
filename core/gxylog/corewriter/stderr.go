@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
 	"github.com/zylikedream/galaxy/core/gxylog/corewriter/encoder"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -45,16 +45,16 @@ func (s *stderrWriter) Type() string {
 
 func (s *stderrWriter) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) != 1 {
-		return nil, gregister.ErrParamNotEnough
+		return nil, gxyregister.ErrParamNotEnough
 	}
 	atomiclv, ok := args[0].(zap.AtomicLevel)
 	if !ok {
-		return nil, gregister.ErrParamErrType
+		return nil, gxyregister.ErrParamErrType
 	}
 	return new(c, atomiclv)
 
 }
 
 func init() {
-	gregister.Register((*stderrWriter)(nil))
+	gxyregister.Register((*stderrWriter)(nil))
 }

@@ -4,7 +4,7 @@ import (
 	etcd_client "github.com/rpcxio/rpcx-etcd/client"
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type etcdDiscovery struct {
@@ -47,5 +47,5 @@ func (e *etcdDiscovery) Build(c *gconfig.Configuration, args ...interface{}) (in
 }
 
 func init() {
-	gregister.Register((*etcdDiscovery)(nil))
+	gxyregister.Register((*etcdDiscovery)(nil))
 }

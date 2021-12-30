@@ -3,7 +3,7 @@ package discovery
 import (
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type consulDiscovery struct {
@@ -45,5 +45,5 @@ func (cd *consulDiscovery) Build(c *gconfig.Configuration, args ...interface{}) 
 }
 
 func init() {
-	gregister.Register((*consulDiscovery)(nil))
+	gxyregister.Register((*consulDiscovery)(nil))
 }

@@ -12,7 +12,7 @@ import (
 	"context"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"github.com/zylikedream/galaxy/core/network/message"
 	"github.com/zylikedream/galaxy/core/network/session"
 )
@@ -29,7 +29,7 @@ type Peer interface {
 }
 
 func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {
-	if node, err := gregister.NewNode("peer."+t, c); err != nil {
+	if node, err := gxyregister.NewNode("peer."+t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(Peer), nil

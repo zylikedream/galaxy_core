@@ -2,7 +2,7 @@ package message
 
 import (
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -35,5 +35,5 @@ func (p *ProtoBuf) Build(c *gconfig.Configuration, args ...interface{}) (interfa
 }
 
 func init() {
-	gregister.Register((*ProtoBuf)(nil))
+	gxyregister.Register((*ProtoBuf)(nil))
 }

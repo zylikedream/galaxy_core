@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type Transport interface {
@@ -22,7 +22,7 @@ const (
 )
 
 func NewTransport(t string, c *gconfig.Configuration) (Transport, error) {
-	if node, err := gregister.NewNode("transport."+t, c); err != nil {
+	if node, err := gxyregister.NewNode("transport."+t, c); err != nil {
 		return nil, errors.Wrap(err, "new transport failed")
 	} else {
 		return node.(Transport), nil

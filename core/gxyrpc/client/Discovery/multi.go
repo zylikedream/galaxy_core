@@ -3,7 +3,7 @@ package discovery
 import (
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type multiDiscovery struct {
@@ -48,5 +48,5 @@ func (m *multiDiscovery) Build(c *gconfig.Configuration, args ...interface{}) (i
 }
 
 func init() {
-	gregister.Register((*multiDiscovery)(nil))
+	gxyregister.Register((*multiDiscovery)(nil))
 }

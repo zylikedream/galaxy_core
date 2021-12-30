@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
 	"github.com/zylikedream/galaxy/core/gxylog"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"github.com/zylikedream/galaxy/core/network/message"
 )
 
@@ -120,5 +120,5 @@ func (l *ltiv) Build(c *gconfig.Configuration, args ...interface{}) (interface{}
 }
 
 func init() {
-	gregister.Register((*ltiv)(nil))
+	gxyregister.Register((*ltiv)(nil))
 }

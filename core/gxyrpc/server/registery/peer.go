@@ -3,7 +3,7 @@ package registery
 import (
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type peerRegistery struct {
@@ -37,5 +37,5 @@ func (t *peerRegistery) Build(c *gconfig.Configuration, args ...interface{}) (in
 }
 
 func init() {
-	gregister.Register((*peerRegistery)(nil))
+	gxyregister.Register((*peerRegistery)(nil))
 }

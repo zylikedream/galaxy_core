@@ -3,7 +3,7 @@ package transport
 import (
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type unixConfig struct {
@@ -45,5 +45,5 @@ func (t *unixTransport) Build(c *gconfig.Configuration, args ...interface{}) (in
 }
 
 func init() {
-	gregister.Register((*unixTransport)(nil))
+	gxyregister.Register((*unixTransport)(nil))
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"github.com/zylikedream/galaxy/core/gxyrpc/server/transport"
 )
 
@@ -26,7 +26,7 @@ func RegisterAddr(t transport.Transport) string {
 }
 
 func NewRegistery(t string, ServerAddr string, c *gconfig.Configuration) (Registery, error) {
-	if node, err := gregister.NewNode("registery."+t, c, ServerAddr); err != nil {
+	if node, err := gxyregister.NewNode("registery."+t, c, ServerAddr); err != nil {
 		return nil, errors.Wrap(err, "new registery failed")
 	} else {
 		return node.(Registery), nil

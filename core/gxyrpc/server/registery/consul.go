@@ -6,7 +6,7 @@ import (
 	"github.com/smallnest/rpcx/server"
 	"github.com/smallnest/rpcx/serverplugin"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type consulRegistery struct {
@@ -51,15 +51,15 @@ func (r *consulRegistery) GetPlugin() server.Plugin {
 
 func (t *consulRegistery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, gregister.ErrParamNotEnough
+		return nil, gxyregister.ErrParamNotEnough
 	}
 	ServerAddr, ok := args[0].(string)
 	if !ok {
-		return nil, gregister.ErrParamErrType
+		return nil, gxyregister.ErrParamErrType
 	}
 	return newconsulRegistery(ServerAddr, c)
 }
 
 func init() {
-	gregister.Register((*consulRegistery)(nil))
+	gxyregister.Register((*consulRegistery)(nil))
 }

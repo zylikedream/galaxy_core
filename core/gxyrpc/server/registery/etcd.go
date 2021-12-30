@@ -6,7 +6,7 @@ import (
 	"github.com/rpcxio/rpcx-etcd/serverplugin"
 	"github.com/smallnest/rpcx/server"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type etcdRegistery struct {
@@ -51,15 +51,15 @@ func (r *etcdRegistery) GetPlugin() server.Plugin {
 
 func (t *etcdRegistery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
-		return nil, gregister.ErrParamNotEnough
+		return nil, gxyregister.ErrParamNotEnough
 	}
 	ServerAddr, ok := args[0].(string)
 	if !ok {
-		return nil, gregister.ErrParamErrType
+		return nil, gxyregister.ErrParamErrType
 	}
 	return newEtcdRegistery(ServerAddr, c)
 }
 
 func init() {
-	gregister.Register((*etcdRegistery)(nil))
+	gxyregister.Register((*etcdRegistery)(nil))
 }

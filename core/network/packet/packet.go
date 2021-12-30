@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"github.com/zylikedream/galaxy/core/network/message"
 )
 
@@ -54,7 +54,7 @@ const (
 )
 
 func NewPacketCodec(t string, c *gconfig.Configuration) (PacketCodec, error) {
-	if node, err := gregister.NewNode("packet."+t, c); err != nil {
+	if node, err := gxyregister.NewNode("packet."+t, c); err != nil {
 		return nil, err
 	} else {
 		return node.(PacketCodec), nil

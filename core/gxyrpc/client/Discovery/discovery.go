@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type Discovery interface {
@@ -19,7 +19,7 @@ const (
 )
 
 func NewDisvoery(t string, c *gconfig.Configuration) (Discovery, error) {
-	if node, err := gregister.NewNode("discovery."+t, c); err != nil {
+	if node, err := gxyregister.NewNode("discovery."+t, c); err != nil {
 		return nil, errors.Wrap(err, "new discovery failed")
 	} else {
 		return node.(Discovery), nil

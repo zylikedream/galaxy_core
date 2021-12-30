@@ -4,7 +4,7 @@ import (
 	"io"
 
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gregister"
+	"github.com/zylikedream/galaxy/core/gxyregister"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -33,7 +33,7 @@ var noopCloseFunc = func() error {
 }
 
 func NewCoreWriter(t string, c *gconfig.Configuration, atomiclv zap.AtomicLevel) (CoreWriter, error) {
-	if node, err := gregister.NewNode("writer."+t, c, atomiclv); err != nil {
+	if node, err := gxyregister.NewNode("writer."+t, c, atomiclv); err != nil {
 		return nil, err
 	} else {
 		return node.(CoreWriter), nil
