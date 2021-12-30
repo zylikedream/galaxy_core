@@ -1,4 +1,4 @@
-package conn
+package endpoint
 
 import (
 	"bytes"
@@ -129,7 +129,7 @@ func (t *TcpConn) Close(ctx context.Context, err error) {
 	close(t.sendCh)
 }
 
-func (t *TcpConn) Raw() net.Conn {
+func (t *TcpConn) Conn() net.Conn {
 	return t.conn
 }
 

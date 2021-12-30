@@ -17,7 +17,7 @@ import (
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet"
-	"github.com/zylikedream/galaxy/core/gxynet/conn"
+	"github.com/zylikedream/galaxy/core/gxynet/endpoint"
 	"github.com/zylikedream/galaxy/core/gxynet/example/echo/proto"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"go.uber.org/zap"
@@ -30,20 +30,20 @@ func main() {
 }
 
 type EchoEventHandler struct {
-	conn.BaseEventHandler
+	endpoint.BaseEventHandler
 }
 
-func (e *EchoEventHandler) OnOpen(ctx context.Context, conn conn.Conn) error {
-	gxylog.Infof("conn open, addr=%s", conn.Raw().RemoteAddr())
+func (e *EchoEventHandler) OnOpen(ctx context.Context, conn endpoint.Conn) error {
+	gxylog.Infof("conn open, addr=%s", conn.Conn().RemoteAddr())
 	go run(conn)
 	return nil
 }
 
-func (e *EchoEventHandler) OnClose(ctx context.Context, conn conn.Conn) {
-	gxylog.Infof("conn close, addr=%s", conn.Raw().RemoteAddr())
+func (e *EchoEventHandler) OnClose(ctx context.Context, conn endpoint.Conn) {
+	gxylog.Infof("conn close, addr=%s", conn.Conn().RemoteAddr())
 }
 
-func (e *EchoEventHandler) OnMessage(ctx context.Context, sess conn.Conn, msg *message.Message) error {
+func (e *EchoEventHandler) OnMessage(ctx context.Context, sess endpoint.Conn, msg *message.Message) error {
 	switch m := msg.Msg.(type) {
 	case *proto.EchoAck:
 		gxylog.Infof("recv message:%v", m)
@@ -55,7 +55,7 @@ func (e *EchoEventHandler) OnMessage(ctx context.Context, sess conn.Conn, msg *m
 	return nil
 }
 
-func run(sess conn.Conn) {
+func run(sess endpoint.Conn) {
 	var i int
 	for {
 		msg := &proto.EchoReq{
@@ -71,7 +71,7 @@ func run(sess conn.Conn) {
 }
 
 func EchoClient() {
-	p, err := gxynet.NewNetwork(gxyconfig.New("config/gxynet.toml"))
+	p, err := gxynet.NewNetwork(gxyconfig.New("config/config.toml"))
 	if err != nil {
 		gxylog.Error("gxynet", zap.Namespace("new failed"), zap.Error(err))
 		return

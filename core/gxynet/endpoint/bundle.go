@@ -1,4 +1,4 @@
-package conn
+package endpoint
 
 import (
 	"github.com/zylikedream/galaxy/core/gxyconfig"

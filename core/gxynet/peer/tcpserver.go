@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/core/gxyconfig"
-	"github.com/zylikedream/galaxy/core/gxynet/conn"
+	"github.com/zylikedream/galaxy/core/gxynet/endpoint"
 	"github.com/zylikedream/galaxy/core/gxynet/logger"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 	"go.uber.org/zap"
 )
 
 type TcpServer struct {
-	conn.ConnBundle
+	endpoint.ConnBundle
 	listener net.Listener
 	conf     *tcpServerConfig
 }
@@ -39,7 +39,7 @@ func (t *TcpServer) Init() error {
 	return nil
 }
 
-func (t *TcpServer) Start(ctx context.Context, el conn.EventHandler) error {
+func (t *TcpServer) Start(ctx context.Context, el endpoint.EventHandler) error {
 	var err error
 	t.listener, err = net.Listen("tcp", t.conf.Addr)
 	if err != nil {
@@ -61,7 +61,7 @@ func (t *TcpServer) accept(ctx context.Context) {
 			}
 			break
 		}
-		sess := conn.NewTcpConn(con, t.ConnBundle)
+		sess := endpoint.NewTcpConn(con, t.ConnBundle)
 		go func() {
 			if err := sess.Start(ctx); err != nil {
 				logger.Nlog.Warn("conn start faield", zap.Error(err))

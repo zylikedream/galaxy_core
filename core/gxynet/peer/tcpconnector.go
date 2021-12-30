@@ -5,12 +5,12 @@ import (
 	"net"
 
 	"github.com/zylikedream/galaxy/core/gxyconfig"
-	"github.com/zylikedream/galaxy/core/gxynet/conn"
+	"github.com/zylikedream/galaxy/core/gxynet/endpoint"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type TcpConnector struct {
-	conn.ConnBundle
+	endpoint.ConnBundle
 	conf *tcpConnectorConfig
 }
 
@@ -35,13 +35,13 @@ func (t *TcpConnector) Init() error {
 	return nil
 }
 
-func (t *TcpConnector) Start(ctx context.Context, h conn.EventHandler) error {
+func (t *TcpConnector) Start(ctx context.Context, h endpoint.EventHandler) error {
 	con, err := net.Dial("tcp", t.conf.Addr)
 	if err != nil {
 		return err
 	}
 	t.BindHandler(h)
-	sess := conn.NewTcpConn(con, t.ConnBundle)
+	sess := endpoint.NewTcpConn(con, t.ConnBundle)
 	return sess.Start(ctx)
 }
 
