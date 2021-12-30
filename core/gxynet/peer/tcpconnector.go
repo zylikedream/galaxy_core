@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
@@ -18,7 +18,7 @@ type tcpConnectorConfig struct {
 	Addr string `toml:"addr"`
 }
 
-func newTcpConnetor(c *gconfig.Configuration) (*TcpConnector, error) {
+func newTcpConnetor(c *gxyconfig.Configuration) (*TcpConnector, error) {
 	server := &TcpConnector{}
 	conf := &tcpConnectorConfig{}
 	if err := c.UnmarshalKey(server.Type(), conf); err != nil {
@@ -49,7 +49,7 @@ func (t *TcpConnector) Type() string {
 	return PEER_TCP_CONNECTOR
 }
 
-func (t *TcpConnector) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *TcpConnector) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newTcpConnetor(c)
 }
 

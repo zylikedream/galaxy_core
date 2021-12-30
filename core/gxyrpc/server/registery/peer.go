@@ -2,7 +2,7 @@ package registery
 
 import (
 	"github.com/smallnest/rpcx/server"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -13,7 +13,7 @@ type peerRegistery struct {
 type peerConfig struct {
 }
 
-func newPeerRegistery(_ *gconfig.Configuration) (*peerRegistery, error) {
+func newPeerRegistery(_ *gxyconfig.Configuration) (*peerRegistery, error) {
 	regist := &peerRegistery{
 		conf: &peerConfig{},
 	}
@@ -32,7 +32,7 @@ func (r *peerRegistery) GetPlugin() server.Plugin {
 	return nil
 }
 
-func (t *peerRegistery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *peerRegistery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newPeerRegistery(c)
 }
 

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
@@ -53,7 +53,7 @@ const (
 	PACKET_LTIV = "packet.ltiv"
 )
 
-func NewPacketCodec(t string, c *gconfig.Configuration) (PacketCodec, error) {
+func NewPacketCodec(t string, c *gxyconfig.Configuration) (PacketCodec, error) {
 	if node, err := gxyregister.NewNode("packet."+t, c); err != nil {
 		return nil, err
 	} else {

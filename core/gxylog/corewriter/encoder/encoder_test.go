@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog/color"
 	"go.uber.org/zap/zapcore"
 )
@@ -51,7 +51,7 @@ func TestHook(t *testing.T) {
 		encode_caller = "full" # caller的格式（full|short), 默认为short
 		encode_name = "full" # log的格式(full), 目前只有full
 	`)
-	configure := gconfig.NewWithReader(bytes.NewBuffer(configToml), gconfig.WithConfigType("toml"))
+	configure := gxyconfig.NewWithReader(bytes.NewBuffer(configToml), gxyconfig.WithConfigType("toml"))
 	econfig, err := newZapEncoderConfig(configure)
 	if err != nil {
 		t.Error(err)

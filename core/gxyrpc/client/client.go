@@ -7,7 +7,7 @@ import (
 	"net"
 
 	"github.com/smallnest/rpcx/client"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	discovery "github.com/zylikedream/galaxy/core/gxyrpc/client/Discovery"
 )
 
@@ -65,7 +65,7 @@ func parseSelectMode(mode string) client.SelectMode {
 
 func NewGrpcClient(configFile string) (*gxyrpcClient, error) {
 	conf := &clientConfig{}
-	configure := gconfig.New(configFile)
+	configure := gxyconfig.New(configFile)
 	if err := configure.UnmarshalKey("gxyrpc_client", conf); err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func NewGrpcClient(configFile string) (*gxyrpcClient, error) {
 	return gxyrpc, nil
 }
 
-func newDefaultServiceClient(sc *serviceConfig, c *gconfig.Configuration) (*client.OneClient, error) {
+func newDefaultServiceClient(sc *serviceConfig, c *gxyconfig.Configuration) (*client.OneClient, error) {
 	d, err := discovery.NewDisvoery(sc.Discovery, c)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func newDefaultServiceClient(sc *serviceConfig, c *gconfig.Configuration) (*clie
 
 }
 
-func newServiceClient(sc *serviceConfig, c *gconfig.Configuration) (client.XClient, error) {
+func newServiceClient(sc *serviceConfig, c *gxyconfig.Configuration) (client.XClient, error) {
 	d, err := discovery.NewDisvoery(sc.Discovery, c)
 	if err != nil {
 		return nil, err

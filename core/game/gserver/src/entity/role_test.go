@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxymongo"
 )
 
@@ -20,7 +20,7 @@ var config = []byte(`
 func TestRoleEntity_Create(t *testing.T) {
 	r := NewRoleEntity()
 	ctx := gscontext.NewContext(context.Background())
-	mgo, err := gxymongo.NewMongoClient(ctx, gconfig.NewWithReader(bytes.NewBuffer(config), gconfig.WithConfigType("toml")))
+	mgo, err := gxymongo.NewMongoClient(ctx, gxyconfig.NewWithReader(bytes.NewBuffer(config), gxyconfig.WithConfigType("toml")))
 	if err != nil {
 		t.Error(err)
 		return
@@ -38,7 +38,7 @@ func TestRoleEntity_Create(t *testing.T) {
 func TestRoleEntity_Load(t *testing.T) {
 	r := NewRoleEntity()
 	ctx := gscontext.NewContext(context.Background())
-	mgo, err := gxymongo.NewMongoClient(ctx, gconfig.NewWithReader(bytes.NewBuffer(config), gconfig.WithConfigType("toml")))
+	mgo, err := gxymongo.NewMongoClient(ctx, gxyconfig.NewWithReader(bytes.NewBuffer(config), gxyconfig.WithConfigType("toml")))
 	if err != nil {
 		t.Error(err)
 		return

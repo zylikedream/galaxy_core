@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 )
 
 type Builder interface {
-	Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error)
+	Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error)
 	Type() string
 }
 
@@ -31,7 +31,7 @@ func (r *register) Register(b Builder) {
 	r.nodeMap[b.Type()] = b
 }
 
-func (r *register) NewNode(t string, c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (r *register) NewNode(t string, c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	builder, ok := r.nodeMap[t]
 	if !ok {
 		return nil, fmt.Errorf("no node for type:%s", t)
@@ -49,7 +49,7 @@ func Register(b Builder) {
 	gxyregister.Register(b)
 }
 
-func NewNode(t string, c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func NewNode(t string, c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	builder, ok := gxyregister.nodeMap[t]
 	if !ok {
 		return nil, fmt.Errorf("no node for type:%s", t)

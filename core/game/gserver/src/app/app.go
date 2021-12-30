@@ -7,7 +7,7 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/logic"
 	_ "github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxymongo"
 	"github.com/zylikedream/galaxy/core/gxynet"
@@ -31,16 +31,16 @@ func NewServer(ctx *gscontext.Context) *Server {
 }
 
 func (s *Server) Init(ctx *gscontext.Context) error {
-	p, err := gxynet.NewNetwork(gconfig.New("config/gxynet.toml"))
+	p, err := gxynet.NewNetwork(gxyconfig.New("config/gxynet.toml"))
 	if err != nil {
 		return err
 	}
 	s.p = p
 
-	s.logger = gxylog.NewLogger("server", gconfig.New("config/log.toml"))
+	s.logger = gxylog.NewLogger("server", gxyconfig.New("config/log.toml"))
 	gxylog.SetDefaultLogger(s.logger)
 
-	cli, err := gxymongo.NewMongoClient(ctx, gconfig.New("config/mongo.toml"))
+	cli, err := gxymongo.NewMongoClient(ctx, gxyconfig.New("config/mongo.toml"))
 	if err != nil {
 		return err
 	}

@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog/corewriter/encoder"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 	"go.uber.org/zap"
@@ -21,7 +21,7 @@ type stderrConfig struct {
 }
 
 // Load constructs a zapcore.Core with stderr syncer
-func new(c *gconfig.Configuration, atomiclv zap.AtomicLevel) (*stderrWriter, error) {
+func new(c *gxyconfig.Configuration, atomiclv zap.AtomicLevel) (*stderrWriter, error) {
 	// Debug output to console and file by default
 	w := &stderrWriter{}
 	conf := &stderrConfig{
@@ -43,7 +43,7 @@ func (s *stderrWriter) Type() string {
 	return WRITER_TYPE_STDERR
 }
 
-func (s *stderrWriter) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (s *stderrWriter) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) != 1 {
 		return nil, gxyregister.ErrParamNotEnough
 	}

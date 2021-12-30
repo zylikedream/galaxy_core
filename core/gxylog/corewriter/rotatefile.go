@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog/corewriter/encoder"
 	"github.com/zylikedream/galaxy/core/gxylog/corewriter/rotate"
 	"github.com/zylikedream/galaxy/core/gxyregister"
@@ -52,7 +52,7 @@ func defaultConfig() *rotateFileConfig {
 }
 
 // Load constructs a zapcore.Core with stderr syncer
-func newRotateFileWriter(c *gconfig.Configuration, atomiclv zap.AtomicLevel) *rotateFileWriter {
+func newRotateFileWriter(c *gxyconfig.Configuration, atomiclv zap.AtomicLevel) *rotateFileWriter {
 	w := &rotateFileWriter{}
 	conf := defaultConfig()
 	if err := c.UnmarshalKey(w.Type(), &conf); err != nil {
@@ -90,7 +90,7 @@ func (r *rotateFileWriter) Type() string {
 	return WRITER_TYPE_ROTATEFILE
 }
 
-func (r *rotateFileWriter) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (r *rotateFileWriter) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("params num error")
 	}

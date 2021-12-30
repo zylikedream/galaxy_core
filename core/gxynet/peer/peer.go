@@ -11,7 +11,7 @@ package peer
 import (
 	"context"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"github.com/zylikedream/galaxy/core/gxyregister"
@@ -28,7 +28,7 @@ type Peer interface {
 	GetMessageCodec() message.MessageCodec
 }
 
-func NewPeer(t string, c *gconfig.Configuration) (Peer, error) {
+func NewPeer(t string, c *gxyconfig.Configuration) (Peer, error) {
 	if node, err := gxyregister.NewNode("peer."+t, c); err != nil {
 		return nil, err
 	} else {

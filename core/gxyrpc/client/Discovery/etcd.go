@@ -3,7 +3,7 @@ package discovery
 import (
 	etcd_client "github.com/rpcxio/rpcx-etcd/client"
 	"github.com/smallnest/rpcx/client"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -18,7 +18,7 @@ type etcdConfig struct {
 	AllowKeyNotFound bool     `toml:"allow_key_not_found"`
 }
 
-func newEtcdDiscovery(c *gconfig.Configuration) (*etcdDiscovery, error) {
+func newEtcdDiscovery(c *gxyconfig.Configuration) (*etcdDiscovery, error) {
 	conf := &etcdConfig{}
 	etcd := &etcdDiscovery{
 		conf: conf,
@@ -42,7 +42,7 @@ func (e *etcdDiscovery) GetDiscovery() client.ServiceDiscovery {
 	return e.d
 }
 
-func (e *etcdDiscovery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (e *etcdDiscovery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newEtcdDiscovery(c)
 }
 

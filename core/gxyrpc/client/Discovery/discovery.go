@@ -3,7 +3,7 @@ package discovery
 import (
 	"github.com/pkg/errors"
 	"github.com/smallnest/rpcx/client"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -18,7 +18,7 @@ const (
 	DISCOVERY_TYPE_CONSUL     = "discovery.consul"
 )
 
-func NewDisvoery(t string, c *gconfig.Configuration) (Discovery, error) {
+func NewDisvoery(t string, c *gxyconfig.Configuration) (Discovery, error) {
 	if node, err := gxyregister.NewNode("discovery."+t, c); err != nil {
 		return nil, errors.Wrap(err, "new discovery failed")
 	} else {

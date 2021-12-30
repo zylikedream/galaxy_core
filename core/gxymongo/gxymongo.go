@@ -3,7 +3,7 @@ package gxymongo
 import (
 	"context"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -24,7 +24,7 @@ type mongoConfig struct {
 	} `toml:"pool_size"`
 }
 
-func NewMongoClient(ctx context.Context, configure *gconfig.Configuration) (*MongoClient, error) {
+func NewMongoClient(ctx context.Context, configure *gxyconfig.Configuration) (*MongoClient, error) {
 	conf := &mongoConfig{}
 	if err := configure.UnmarshalKey("mongo", conf); err != nil {
 		return nil, err

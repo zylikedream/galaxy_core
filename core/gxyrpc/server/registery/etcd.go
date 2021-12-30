@@ -5,7 +5,7 @@ import (
 
 	"github.com/rpcxio/rpcx-etcd/serverplugin"
 	"github.com/smallnest/rpcx/server"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -20,7 +20,7 @@ type etcdConfig struct {
 	UpdateInterval time.Duration `toml:"update_interval"`
 }
 
-func newEtcdRegistery(ServerAddr string, c *gconfig.Configuration) (*etcdRegistery, error) {
+func newEtcdRegistery(ServerAddr string, c *gxyconfig.Configuration) (*etcdRegistery, error) {
 	conf := &etcdConfig{}
 	regist := &etcdRegistery{
 		conf: conf,
@@ -49,7 +49,7 @@ func (r *etcdRegistery) GetPlugin() server.Plugin {
 	return r.plugin
 }
 
-func (t *etcdRegistery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *etcdRegistery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return nil, gxyregister.ErrParamNotEnough
 	}

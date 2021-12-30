@@ -3,7 +3,7 @@ package gxylog
 import (
 	"bytes"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 )
 
 // PackageName 包名
@@ -30,7 +30,7 @@ var defaultConfig = []byte(`
 `)
 
 func init() {
-	defaultLogger = NewLogger("default", gconfig.NewWithReader(bytes.NewBuffer(defaultConfig), gconfig.WithConfigType("toml")))
+	defaultLogger = NewLogger("default", gxyconfig.NewWithReader(bytes.NewBuffer(defaultConfig), gxyconfig.WithConfigType("toml")))
 }
 
 func SetDefaultLogger(l *GalaxyLog) {

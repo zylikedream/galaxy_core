@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"github.com/zylikedream/galaxy/core/gxyregister"
@@ -25,7 +25,7 @@ type ltivConfig struct {
 	ByteOrder  string `toml:"byte_order"`
 }
 
-func newLtiv(c *gconfig.Configuration) (*ltiv, error) {
+func newLtiv(c *gxyconfig.Configuration) (*ltiv, error) {
 	l := &ltiv{}
 	conf := &ltivConfig{}
 	if err := c.UnmarshalKey(l.Type(), conf); err != nil {
@@ -115,7 +115,7 @@ func (l *ltiv) Type() string {
 	return PACKET_LTIV
 }
 
-func (l *ltiv) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (l *ltiv) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newLtiv(c)
 }
 

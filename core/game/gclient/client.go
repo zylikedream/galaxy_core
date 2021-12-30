@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/core/game/proto"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
@@ -22,12 +22,12 @@ type Client struct {
 
 func NewClient() *Client {
 	cli := &Client{}
-	p, err := gxynet.NewNetwork(gconfig.New("config/gxynet.toml"))
+	p, err := gxynet.NewNetwork(gxyconfig.New("config/gxynet.toml"))
 	if err != nil {
 		panic(err)
 	}
 	cli.p = p
-	logger := gxylog.NewLogger("client", gconfig.New("config/log.toml"))
+	logger := gxylog.NewLogger("client", gxyconfig.New("config/log.toml"))
 	gxylog.SetDefaultLogger(logger)
 	return cli
 }

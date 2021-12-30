@@ -1,7 +1,7 @@
 package session
 
 import (
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/processor"
 )
 
@@ -10,7 +10,7 @@ type SessionBundle struct {
 	Handler EventHandler
 }
 
-func (p *SessionBundle) BindProc(c *gconfig.Configuration) error {
+func (p *SessionBundle) BindProc(c *gxyconfig.Configuration) error {
 	proc, err := processor.NewProcessor(c)
 	if err != nil {
 		return err

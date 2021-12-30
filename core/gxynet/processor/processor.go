@@ -1,7 +1,7 @@
 package processor
 
 import (
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"github.com/zylikedream/galaxy/core/gxynet/packet"
 )
@@ -17,7 +17,7 @@ type processorConfig struct {
 	MessageCodecType string `toml:"message"`
 }
 
-func NewProcessor(c *gconfig.Configuration) (*Processor, error) {
+func NewProcessor(c *gxyconfig.Configuration) (*Processor, error) {
 	proc := &Processor{}
 	conf := &processorConfig{}
 	var err error

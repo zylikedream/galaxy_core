@@ -2,7 +2,7 @@ package discovery
 
 import (
 	"github.com/smallnest/rpcx/client"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -16,7 +16,7 @@ type consulConfig struct {
 	BasePath      string   `toml:"base_path"`
 }
 
-func newconsulDiscovery(c *gconfig.Configuration) (*consulDiscovery, error) {
+func newconsulDiscovery(c *gxyconfig.Configuration) (*consulDiscovery, error) {
 	conf := &consulConfig{}
 	consul := &consulDiscovery{
 		conf: conf,
@@ -40,7 +40,7 @@ func (c *consulDiscovery) GetDiscovery() client.ServiceDiscovery {
 	return c.d
 }
 
-func (cd *consulDiscovery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (cd *consulDiscovery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newconsulDiscovery(c)
 }
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/smallnest/rpcx/server"
 	"github.com/smallnest/rpcx/serverplugin"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -20,7 +20,7 @@ type consulConfig struct {
 	UpdateInterval time.Duration `toml:"update_interval"`
 }
 
-func newconsulRegistery(ServerAddr string, c *gconfig.Configuration) (*consulRegistery, error) {
+func newconsulRegistery(ServerAddr string, c *gxyconfig.Configuration) (*consulRegistery, error) {
 	conf := &consulConfig{}
 	regist := &consulRegistery{
 		conf: conf,
@@ -49,7 +49,7 @@ func (r *consulRegistery) GetPlugin() server.Plugin {
 	return r.plugin
 }
 
-func (t *consulRegistery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *consulRegistery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	if len(args) == 0 {
 		return nil, gxyregister.ErrParamNotEnough
 	}

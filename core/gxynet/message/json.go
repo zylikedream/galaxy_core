@@ -3,14 +3,14 @@ package message
 import (
 	"encoding/json"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
 type JsonMessage struct {
 }
 
-func newJsonMessage(_ *gconfig.Configuration) (*JsonMessage, error) {
+func newJsonMessage(_ *gxyconfig.Configuration) (*JsonMessage, error) {
 	return &JsonMessage{}, nil
 }
 
@@ -30,7 +30,7 @@ func (j *JsonMessage) Type() string {
 	return MESSAGE_JSON
 }
 
-func (j *JsonMessage) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (j *JsonMessage) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newJsonMessage(c)
 }
 

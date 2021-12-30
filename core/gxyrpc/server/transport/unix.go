@@ -2,7 +2,7 @@ package transport
 
 import (
 	"github.com/smallnest/rpcx/server"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -14,7 +14,7 @@ type unixTransport struct {
 	conf *unixConfig
 }
 
-func newUnixTransport(c *gconfig.Configuration) (*unixTransport, error) {
+func newUnixTransport(c *gxyconfig.Configuration) (*unixTransport, error) {
 	tran := &unixTransport{}
 	conf := &unixConfig{}
 	if err := c.UnmarshalKey(tran.Type(), conf); err != nil {
@@ -40,7 +40,7 @@ func (t *unixTransport) Type() string {
 	return TRANSPORT_TYPE_UNIX
 }
 
-func (t *unixTransport) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *unixTransport) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newUnixTransport(c)
 }
 

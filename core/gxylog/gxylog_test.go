@@ -5,12 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"go.uber.org/zap"
 )
 
 func TestGlog(t *testing.T) {
-	logger := NewLogger("test", gconfig.New("config/config.example.toml"))
+	logger := NewLogger("test", gxyconfig.New("config/config.example.toml"))
 	for {
 		logger.Debug("pvp", zap.String("pid", "123"), zap.Duration("tm", time.Hour))
 		logger.Warn("pvp", zap.String("pid", "123"), zap.Duration("tm", time.Hour))

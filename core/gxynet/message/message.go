@@ -1,7 +1,7 @@
 package message
 
 import (
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -23,7 +23,7 @@ const (
 	MESSAGE_PROTOBUF = "message.protobuf"
 )
 
-func NewMessageCodec(t string, c *gconfig.Configuration) (MessageCodec, error) {
+func NewMessageCodec(t string, c *gxyconfig.Configuration) (MessageCodec, error) {
 	if node, err := gxyregister.NewNode("message."+t, c); err != nil {
 		return nil, err
 	} else {

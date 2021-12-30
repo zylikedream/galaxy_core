@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/logger"
 	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"github.com/zylikedream/galaxy/core/gxyregister"
@@ -22,7 +22,7 @@ type tcpServerConfig struct {
 	Addr string `toml:"addr"`
 }
 
-func newTcpServer(c *gconfig.Configuration) (*TcpServer, error) {
+func newTcpServer(c *gxyconfig.Configuration) (*TcpServer, error) {
 	server := &TcpServer{}
 	conf := &tcpServerConfig{}
 	if err := c.UnmarshalKey(server.Type(), conf); err != nil {
@@ -74,7 +74,7 @@ func (t *TcpServer) Type() string {
 	return PEER_TCP_SERVER
 }
 
-func (t *TcpServer) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *TcpServer) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newTcpServer(c)
 }
 

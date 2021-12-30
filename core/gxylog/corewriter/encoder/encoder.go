@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -43,7 +43,7 @@ func defaultZapConfig() *config {
 	}
 }
 
-func newZapEncoderConfig(c *gconfig.Configuration) (*zapcore.EncoderConfig, error) {
+func newZapEncoderConfig(c *gxyconfig.Configuration) (*zapcore.EncoderConfig, error) {
 	conf := defaultZapConfig()
 	c.HookDecodeFunc(stringToCallerEncoder(), stringToDurationEncoder(), stringToLevelEncoder(), stringToTimeEncoder(), stringToNameEncoder(),
 		mapstructure.StringToTimeDurationHookFunc(), mapstructure.StringToSliceHookFunc(","))
@@ -68,7 +68,7 @@ func newZapEncoderConfig(c *gconfig.Configuration) (*zapcore.EncoderConfig, erro
 	}, nil
 }
 
-func NewZapEncoder(encoderType string, c *gconfig.Configuration) (zapcore.Encoder, error) {
+func NewZapEncoder(encoderType string, c *gxyconfig.Configuration) (zapcore.Encoder, error) {
 	encoderConfig, err := newZapEncoderConfig(c)
 	if err != nil {
 		return nil, err

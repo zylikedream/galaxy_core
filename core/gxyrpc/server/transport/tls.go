@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 
 	"github.com/smallnest/rpcx/server"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -19,7 +19,7 @@ type tlsTransport struct {
 	tlsConf *tls.Config
 }
 
-func newTlsTransport(c *gconfig.Configuration) (*tlsTransport, error) {
+func newTlsTransport(c *gxyconfig.Configuration) (*tlsTransport, error) {
 	tran := &tlsTransport{}
 	conf := &tlsConfig{}
 	if err := c.UnmarshalKey(tran.Type(), conf); err != nil {
@@ -57,7 +57,7 @@ func (t *tlsTransport) Type() string {
 	return TRANSPORT_TYPE_TLS
 }
 
-func (t *tlsTransport) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (t *tlsTransport) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newTlsTransport(c)
 }
 

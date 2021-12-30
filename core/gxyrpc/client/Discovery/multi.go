@@ -2,7 +2,7 @@ package discovery
 
 import (
 	"github.com/smallnest/rpcx/client"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -15,7 +15,7 @@ type multiConfig struct {
 	Peers []string `toml:"peers"` // ex:tcp@localhost:2786
 }
 
-func newmultiDiscovery(c *gconfig.Configuration) (*multiDiscovery, error) {
+func newmultiDiscovery(c *gxyconfig.Configuration) (*multiDiscovery, error) {
 	conf := &multiConfig{}
 	multi := &multiDiscovery{
 		conf: conf,
@@ -43,7 +43,7 @@ func (m *multiDiscovery) GetDiscovery() client.ServiceDiscovery {
 	return m.d
 }
 
-func (m *multiDiscovery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (m *multiDiscovery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newmultiDiscovery(c)
 }
 

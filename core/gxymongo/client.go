@@ -6,7 +6,7 @@ package gxymongo
 // 	"reflect"
 // 	"time"
 
-// 	"github.com/zylikedream/galaxy/core/gconfig"
+// 	"github.com/zylikedream/galaxy/core/gxyconfig"
 // 	"go.mongodb.org/mongo-driver/bson"
 // 	"go.mongodb.org/mongo-driver/mongo"
 // 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -51,7 +51,7 @@ package gxymongo
 // 	result   chan CmdResult
 // }
 
-// func newMongoClient(ctx context.Context, configure *gconfig.Configuration) (*gmongoClient, error) {
+// func newMongoClient(ctx context.Context, configure *gxyconfig.Configuration) (*gmongoClient, error) {
 // 	conf := &clientConfig{}
 // 	if err := configure.UnmarshalKey("client", conf); err != nil {
 // 		return nil, err

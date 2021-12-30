@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/smallnest/rpcx/server"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyrpc/server/registery"
 	"github.com/zylikedream/galaxy/core/gxyrpc/server/transport"
 )
@@ -27,7 +27,7 @@ type GxyrpcService interface {
 
 func NewGrpcServer(configFile string) (*gxyrpcServer, error) {
 	conf := &serverConfig{}
-	configure := gconfig.New(configFile)
+	configure := gxyconfig.New(configFile)
 	if err := configure.UnmarshalKey("gxyrpc_server", conf); err != nil {
 		return nil, err
 	}

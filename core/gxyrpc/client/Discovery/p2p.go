@@ -2,7 +2,7 @@ package discovery
 
 import (
 	"github.com/smallnest/rpcx/client"
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
 
@@ -16,7 +16,7 @@ type p2pConfig struct {
 	Meta string `toml:"meta"`
 }
 
-func newP2pDiscovery(c *gconfig.Configuration) (*p2pDiscovery, error) {
+func newP2pDiscovery(c *gxyconfig.Configuration) (*p2pDiscovery, error) {
 	conf := &p2pConfig{}
 	p2p := &p2pDiscovery{
 		conf: conf,
@@ -40,7 +40,7 @@ func (p *p2pDiscovery) GetDiscovery() client.ServiceDiscovery {
 	return p.d
 }
 
-func (p *p2pDiscovery) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (p *p2pDiscovery) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newP2pDiscovery(c)
 }
 

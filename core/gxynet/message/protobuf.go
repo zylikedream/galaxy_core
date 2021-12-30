@@ -1,7 +1,7 @@
 package message
 
 import (
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -10,7 +10,7 @@ import (
 type ProtoBuf struct {
 }
 
-func newProtobuf(_ *gconfig.Configuration) (*ProtoBuf, error) {
+func newProtobuf(_ *gxyconfig.Configuration) (*ProtoBuf, error) {
 	return &ProtoBuf{}, nil
 }
 
@@ -30,7 +30,7 @@ func (p *ProtoBuf) Type() string {
 	return MESSAGE_PROTOBUF
 }
 
-func (p *ProtoBuf) Build(c *gconfig.Configuration, args ...interface{}) (interface{}, error) {
+func (p *ProtoBuf) Build(c *gxyconfig.Configuration, args ...interface{}) (interface{}, error) {
 	return newProtobuf(c)
 }
 

@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet"
 	"github.com/zylikedream/galaxy/core/gxynet/example/echo/proto"
@@ -42,7 +42,7 @@ func (e *EchoEventHandler) OnMessage(ctx context.Context, sess session.Session, 
 }
 
 func EchoServer() {
-	p, err := gxynet.NewNetwork(gconfig.New("config/gxynet.toml"))
+	p, err := gxynet.NewNetwork(gxyconfig.New("config/gxynet.toml"))
 	if err != nil {
 		gxylog.Error("gxynet", zap.Namespace("new failed"), zap.Error(err))
 		return

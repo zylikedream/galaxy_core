@@ -1,7 +1,7 @@
 package gxynet
 
 import (
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet/logger"
 	"github.com/zylikedream/galaxy/core/gxynet/peer"
@@ -12,7 +12,7 @@ type networkConfig struct {
 	LogConfig string `toml:"log_config"`
 }
 
-func NewNetwork(configure *gconfig.Configuration) (peer.Peer, error) {
+func NewNetwork(configure *gxyconfig.Configuration) (peer.Peer, error) {
 	conf := &networkConfig{}
 	if err := configure.UnmarshalKey("gxynet", conf); err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func NewNetwork(configure *gconfig.Configuration) (peer.Peer, error) {
 	if conf.LogConfig == "" {
 		logger.SetLogger(gxylog.DefaultLogger())
 	} else {
-		logger.SetLogger(gxylog.NewLogger("gxynet", gconfig.New(conf.LogConfig)))
+		logger.SetLogger(gxylog.NewLogger("gxynet", gxyconfig.New(conf.LogConfig)))
 	}
 	return peer, err
 }

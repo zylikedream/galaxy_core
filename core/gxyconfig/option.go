@@ -1,4 +1,4 @@
-package gconfig
+package gxyconfig
 
 import "github.com/spf13/viper"
 

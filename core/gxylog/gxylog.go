@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/zylikedream/galaxy/core/gconfig"
+	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxylog/color"
 	"github.com/zylikedream/galaxy/core/gxylog/corewriter"
 	"go.uber.org/zap"
@@ -39,11 +39,11 @@ func DefaultConfig() *config {
 	}
 }
 
-func NewLogger(name string, configure *gconfig.Configuration, opts ...Option) *GalaxyLog {
+func NewLogger(name string, configure *gxyconfig.Configuration, opts ...Option) *GalaxyLog {
 	return newLogger(name, configure, opts...)
 }
 
-func newLogger(name string, configure *gconfig.Configuration, opts ...Option) *GalaxyLog {
+func newLogger(name string, configure *gxyconfig.Configuration, opts ...Option) *GalaxyLog {
 	conf := DefaultConfig()
 	gl := &GalaxyLog{
 		conf:          conf,
@@ -91,8 +91,8 @@ func newLogger(name string, configure *gconfig.Configuration, opts ...Option) *G
 }
 
 // AutoLevel ...
-func (g *GalaxyLog) AutoLevel(c *gconfig.Configuration) {
-	c.Watch(func(c *gconfig.Configuration) {
+func (g *GalaxyLog) AutoLevel(c *gxyconfig.Configuration) {
+	c.Watch(func(c *gxyconfig.Configuration) {
 		lvText := strings.ToLower(c.GetString("log.level"))
 		if lvText == "" {
 			return
