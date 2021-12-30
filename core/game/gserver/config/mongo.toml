@@ -1,4 +1,0 @@
-[mongo]
-	addr = "mongodb://root:test@localhost:27017/admin"
-	database = "test"
-	pool_size = {min = 0, max = 20}

@@ -1,2 +1,0 @@
-{"level":"DEBUG","ts":"2021-12-02T11:35:10+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
-{"level":"DEBUG","ts":"2021-12-02T11:45:07+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}

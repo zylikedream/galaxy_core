@@ -1,6 +1,0 @@
-{"level":"DEBUG","ts":"2021-12-06T15:05:17+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
-{"level":"DEBUG","ts":"2021-12-06T15:17:55+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
-{"level":"DEBUG","ts":"2021-12-06T15:29:04+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
-{"level":"DEBUG","ts":"2021-12-06T15:30:01+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
-{"level":"DEBUG","ts":"2021-12-06T15:30:23+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
-{"level":"DEBUG","ts":"2021-12-06T15:31:04+08:00","caller":"session/tcpsession.go:38","msg":"remote closed"}
