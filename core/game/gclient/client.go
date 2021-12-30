@@ -7,10 +7,10 @@ import (
 	"github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/gxylog"
-	"github.com/zylikedream/galaxy/core/network"
-	"github.com/zylikedream/galaxy/core/network/message"
-	"github.com/zylikedream/galaxy/core/network/peer"
-	"github.com/zylikedream/galaxy/core/network/session"
+	"github.com/zylikedream/galaxy/core/gxynet"
+	"github.com/zylikedream/galaxy/core/gxynet/message"
+	"github.com/zylikedream/galaxy/core/gxynet/peer"
+	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +22,7 @@ type Client struct {
 
 func NewClient() *Client {
 	cli := &Client{}
-	p, err := network.NewNetwork(gconfig.New("config/network.toml"))
+	p, err := gxynet.NewNetwork(gconfig.New("config/gxynet.toml"))
 	if err != nil {
 		panic(err)
 	}

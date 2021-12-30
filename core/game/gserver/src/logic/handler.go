@@ -7,8 +7,8 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gscontext"
 	"github.com/zylikedream/galaxy/core/game/gserver/src/module"
 	"github.com/zylikedream/galaxy/core/gxylog"
-	"github.com/zylikedream/galaxy/core/network/message"
-	"github.com/zylikedream/galaxy/core/network/session"
+	"github.com/zylikedream/galaxy/core/gxynet/message"
+	"github.com/zylikedream/galaxy/core/gxynet/session"
 	"go.uber.org/zap"
 )
 

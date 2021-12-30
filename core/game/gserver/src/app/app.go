@@ -10,8 +10,8 @@ import (
 	"github.com/zylikedream/galaxy/core/gconfig"
 	"github.com/zylikedream/galaxy/core/gmongo"
 	"github.com/zylikedream/galaxy/core/gxylog"
-	"github.com/zylikedream/galaxy/core/network"
-	"github.com/zylikedream/galaxy/core/network/peer"
+	"github.com/zylikedream/galaxy/core/gxynet"
+	"github.com/zylikedream/galaxy/core/gxynet/peer"
 	"go.uber.org/zap"
 )
 
@@ -31,7 +31,7 @@ func NewServer(ctx *gscontext.Context) *Server {
 }
 
 func (s *Server) Init(ctx *gscontext.Context) error {
-	p, err := network.NewNetwork(gconfig.New("config/network.toml"))
+	p, err := gxynet.NewNetwork(gconfig.New("config/gxynet.toml"))
 	if err != nil {
 		return err
 	}

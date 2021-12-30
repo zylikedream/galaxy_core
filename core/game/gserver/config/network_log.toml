@@ -7,7 +7,7 @@
 
 [writer.rotate_file]
 	dir = "log"
-	file = "network.log"
+	file = "gxynet.log"
 	max_size = 1024 # 单位MB
 	max_age = 30 # 单位天
 	max_backup = 30

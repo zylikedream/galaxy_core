@@ -3,7 +3,7 @@ package proto
 import (
 	"hash/crc32"
 
-	"github.com/zylikedream/galaxy/core/network/message"
+	"github.com/zylikedream/galaxy/core/gxynet/message"
 )
 
 // 账号登录

@@ -1,4 +1,4 @@
-[network]
+[gxynet]
 	peer = "tcp_connector" # 网络节点名字
 
 [peer.processor]

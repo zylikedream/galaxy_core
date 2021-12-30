@@ -1,16 +1,16 @@
-{"level":"INFO","ts":"2021-12-02T10:43:18+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"INFO","ts":"2021-12-02T10:43:18+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
 {"level":"DEBUG","ts":"2021-12-02T10:43:18+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:260","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
-{"level":"INFO","ts":"2021-12-02T10:43:19+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"INFO","ts":"2021-12-02T10:43:19+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
 {"level":"DEBUG","ts":"2021-12-02T10:43:19+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:260","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
-{"level":"INFO","ts":"2021-12-02T11:35:04+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"INFO","ts":"2021-12-02T11:35:04+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
 {"level":"DEBUG","ts":"2021-12-02T11:35:04+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:255","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
-{"level":"INFO","ts":"2021-12-02T11:35:05+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"INFO","ts":"2021-12-02T11:35:05+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
 {"level":"DEBUG","ts":"2021-12-02T11:35:05+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:255","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
-{"level":"INFO","ts":"2021-12-02T11:35:46+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"INFO","ts":"2021-12-02T11:35:46+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
 {"level":"DEBUG","ts":"2021-12-02T11:35:46+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:255","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
-{"level":"INFO","ts":"2021-12-02T11:35:47+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"INFO","ts":"2021-12-02T11:35:47+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
 {"level":"DEBUG","ts":"2021-12-02T11:35:47+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:255","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}
-{"level":"INFO","ts":"2021-12-02T11:45:02+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
+{"level":"INFO","ts":"2021-12-02T11:45:02+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 34, data size:34"}
 {"level":"DEBUG","ts":"2021-12-02T11:45:02+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:255","msg":"msg &proto.ReqHandshake{LoginKey:\"golang client\"}"}
-{"level":"INFO","ts":"2021-12-02T11:45:03+08:00","caller":"/home/zhangyi/workspace/galaxy/core/network/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
+{"level":"INFO","ts":"2021-12-02T11:45:03+08:00","caller":"/home/zhangyi/workspace/galaxy/core/gxynet/packet/ltiv.go:81","msg":"packet size 84, data size:84"}
 {"level":"DEBUG","ts":"2021-12-02T11:45:03+08:00","caller":"/home/zhangyi/workspace/galaxy/core/game/gserver/src/module/module.go:255","msg":"msg &proto.ReqAccountLogin{Account:\"zhangyi\", ClientInfo:proto.PClientInfo{SdkType:0, SysVersion:\"\", DevID:\"\"}}"}

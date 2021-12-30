@@ -8,8 +8,8 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gsconfig"
 	"github.com/zylikedream/galaxy/core/gmongo"
 	"github.com/zylikedream/galaxy/core/gxylog"
-	"github.com/zylikedream/galaxy/core/network/peer"
-	"github.com/zylikedream/galaxy/core/network/session"
+	"github.com/zylikedream/galaxy/core/gxynet/peer"
+	"github.com/zylikedream/galaxy/core/gxynet/session"
 )
 
 // var _ context.Context = &Context{}
