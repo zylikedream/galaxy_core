@@ -6,8 +6,8 @@ import (
 	"reflect"
 
 	"github.com/zylikedream/galaxy/core/game/gserver/src/gsconfig"
-	"github.com/zylikedream/galaxy/core/gmongo"
 	"github.com/zylikedream/galaxy/core/gxylog"
+	"github.com/zylikedream/galaxy/core/gxymongo"
 	"github.com/zylikedream/galaxy/core/gxynet/peer"
 	"github.com/zylikedream/galaxy/core/gxynet/session"
 )
@@ -111,11 +111,11 @@ func (ctx *Context) SetSession(sess session.Session) {
 	ctx.SetValue(sessionCtxKey, sess)
 }
 
-func (ctx *Context) GetMongo() *gmongo.MongoClient {
-	return ctx.Value(mongoCtxKey).(*gmongo.MongoClient)
+func (ctx *Context) GetMongo() *gxymongo.MongoClient {
+	return ctx.Value(mongoCtxKey).(*gxymongo.MongoClient)
 }
 
-func (ctx *Context) SetMongo(mgo *gmongo.MongoClient) {
+func (ctx *Context) SetMongo(mgo *gxymongo.MongoClient) {
 	ctx.SetValue(mongoCtxKey, mgo)
 }
 

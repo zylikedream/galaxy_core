@@ -8,8 +8,8 @@ import (
 	"github.com/zylikedream/galaxy/core/game/gserver/src/logic"
 	_ "github.com/zylikedream/galaxy/core/game/proto"
 	"github.com/zylikedream/galaxy/core/gconfig"
-	"github.com/zylikedream/galaxy/core/gmongo"
 	"github.com/zylikedream/galaxy/core/gxylog"
+	"github.com/zylikedream/galaxy/core/gxymongo"
 	"github.com/zylikedream/galaxy/core/gxynet"
 	"github.com/zylikedream/galaxy/core/gxynet/peer"
 	"go.uber.org/zap"
@@ -18,7 +18,7 @@ import (
 type Server struct {
 	p          peer.Peer
 	logger     *gxylog.GalaxyLog
-	mgoCli     *gmongo.MongoClient
+	mgoCli     *gxymongo.MongoClient
 	gameConfig *gsconfig.GameConfig
 }
 
@@ -40,7 +40,7 @@ func (s *Server) Init(ctx *gscontext.Context) error {
 	s.logger = gxylog.NewLogger("server", gconfig.New("config/log.toml"))
 	gxylog.SetDefaultLogger(s.logger)
 
-	cli, err := gmongo.NewMongoClient(ctx, gconfig.New("config/mongo.toml"))
+	cli, err := gxymongo.NewMongoClient(ctx, gconfig.New("config/mongo.toml"))
 	if err != nil {
 		return err
 	}

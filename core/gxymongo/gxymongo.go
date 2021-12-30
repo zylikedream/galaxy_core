@@ -1,4 +1,4 @@
-package gmongo
+package gxymongo
 
 import (
 	"context"

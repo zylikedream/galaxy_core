@@ -94,9 +94,9 @@ func (r *RoleEntity) LoadByID(ctx *gscontext.Context, roleid uint64) error {
 }
 
 func (r *RoleEntity) load(ctx *gscontext.Context, filter interface{}) error {
-	gmongo := ctx.GetMongo()
+	gxymongo := ctx.GetMongo()
 	roleInfo := &component.RoleAccount{}
-	err := gmongo.FindOne(ctx, roleInfo, getComponetTable(roleInfo), filter)
+	err := gxymongo.FindOne(ctx, roleInfo, getComponetTable(roleInfo), filter)
 	if err != nil {
 		return err
 	}
@@ -118,8 +118,8 @@ func (r *RoleEntity) createComponent(ctx *gscontext.Context, comp reflect.Value)
 }
 
 func (r *RoleEntity) loadComponent(ctx *gscontext.Context, tableName string, comp interface{}) error {
-	gmongo := ctx.GetMongo()
-	return gmongo.FindOne(ctx, comp, tableName, bson.M{"_id": r.RoleID})
+	gxymongo := ctx.GetMongo()
+	return gxymongo.FindOne(ctx, comp, tableName, bson.M{"_id": r.RoleID})
 }
 
 func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
@@ -176,11 +176,11 @@ func (r *RoleEntity) autoLoadAndCreate(ctx *gscontext.Context) error {
 }
 
 func (r *RoleEntity) Create(ctx *gscontext.Context, account string) error {
-	gmongo := ctx.GetMongo()
+	gxymongo := ctx.GetMongo()
 	accInfo := &component.RoleAccount{
 		Account: account,
 	}
-	_, err := gmongo.InsertOne(ctx, getComponetTable(accInfo), accInfo)
+	_, err := gxymongo.InsertOne(ctx, getComponetTable(accInfo), accInfo)
 	if err != nil {
 		return errors.Wrap(err, "create new role failed")
 	}
