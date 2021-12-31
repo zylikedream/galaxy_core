@@ -5,12 +5,12 @@ import (
 	"github.com/zylikedream/galaxy/core/gxynet/processor"
 )
 
-type ConnBundle struct {
+type CoreBundle struct {
 	*processor.Processor
 	Handler EventHandler
 }
 
-func (p *ConnBundle) BindProc(c *gxyconfig.Configuration) error {
+func (p *CoreBundle) BindProc(c *gxyconfig.Configuration) error {
 	proc, err := processor.NewProcessor(c)
 	if err != nil {
 		return err
@@ -19,6 +19,6 @@ func (p *ConnBundle) BindProc(c *gxyconfig.Configuration) error {
 	return nil
 }
 
-func (p *ConnBundle) BindHandler(handler EventHandler) {
+func (p *CoreBundle) BindHandler(handler EventHandler) {
 	p.Handler = handler
 }

@@ -14,23 +14,23 @@ import (
 	"go.uber.org/zap"
 )
 
-type TcpConn struct {
-	ConnBundle
+type TcpEndpoint struct {
+	CoreBundle
 	conn   net.Conn
 	sendCh chan interface{}
 	exit   int32
 	data   interface{}
 }
 
-func NewTcpConn(conn net.Conn, bundle ConnBundle) *TcpConn {
-	return &TcpConn{
+func NewTcpEndPoint(conn net.Conn, bundle CoreBundle) *TcpEndpoint {
+	return &TcpEndpoint{
 		conn:       conn,
-		ConnBundle: bundle,
+		CoreBundle: bundle,
 		sendCh:     make(chan interface{}, 64),
 	}
 }
 
-func (t *TcpConn) Start(ctx context.Context) error {
+func (t *TcpEndpoint) Start(ctx context.Context) error {
 	if err := t.Handler.OnOpen(ctx, t); err != nil {
 		return errors.Wrap(err, "on open error")
 	}
@@ -39,7 +39,7 @@ func (t *TcpConn) Start(ctx context.Context) error {
 	return nil
 }
 
-func (t *TcpConn) recvLoop(ctx context.Context) {
+func (t *TcpEndpoint) recvLoop(ctx context.Context) {
 	var err error
 	var msg *message.Message
 
@@ -78,11 +78,11 @@ func (t *TcpConn) recvLoop(ctx context.Context) {
 	t.Close(ctx, errors.Wrap(err, "recv error"))
 }
 
-func (t *TcpConn) IsClosed() bool {
+func (t *TcpEndpoint) IsClosed() bool {
 	return atomic.LoadInt32(&t.exit) == 1
 }
 
-func (t *TcpConn) Send(msg interface{}) error {
+func (t *TcpEndpoint) Send(msg interface{}) error {
 	if t.IsClosed() {
 		return fmt.Errorf("conn closed")
 	}
@@ -90,7 +90,7 @@ func (t *TcpConn) Send(msg interface{}) error {
 	return nil
 }
 
-func (t *TcpConn) sendMsg(msg interface{}) error {
+func (t *TcpEndpoint) sendMsg(msg interface{}) error {
 	data, err := t.Encode(msg)
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (t *TcpConn) sendMsg(msg interface{}) error {
 	return nil
 }
 
-func (t *TcpConn) sendLoop(ctx context.Context) {
+func (t *TcpEndpoint) sendLoop(ctx context.Context) {
 	var err error
 	for rawMsg := range t.sendCh {
 		if err = t.sendMsg(rawMsg); err != nil {
@@ -115,28 +115,28 @@ func (t *TcpConn) sendLoop(ctx context.Context) {
 	t.Handler.OnClose(ctx, t)
 }
 
-func (t *TcpConn) Close(ctx context.Context, err error) {
+func (t *TcpEndpoint) Close(ctx context.Context, err error) {
 	if atomic.LoadInt32(&t.exit) == 1 {
 		return
 	}
 	atomic.AddInt32(&t.exit, 1)
 	if err != nil { // 发生错误肯定会调用close
 		t.Handler.OnError(ctx, t, err)
-		logger.Nlog.Error("tcpsession close", zap.Error(err))
+		logger.Nlog.Error("tcpendpoint close", zap.Error(err))
 	}
 	tcpConn := t.conn.(*net.TCPConn)
 	_ = tcpConn.CloseRead()
 	close(t.sendCh)
 }
 
-func (t *TcpConn) Conn() net.Conn {
+func (t *TcpEndpoint) Conn() net.Conn {
 	return t.conn
 }
 
-func (t *TcpConn) GetData() interface{} {
+func (t *TcpEndpoint) GetData() interface{} {
 	return t.data
 }
 
-func (t *TcpConn) SetData(d interface{}) {
+func (t *TcpEndpoint) SetData(d interface{}) {
 	t.data = d
 }

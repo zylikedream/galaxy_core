@@ -10,7 +10,7 @@ import (
 )
 
 type TcpConnector struct {
-	endpoint.ConnBundle
+	endpoint.CoreBundle
 	conf *tcpConnectorConfig
 }
 
@@ -41,7 +41,7 @@ func (t *TcpConnector) Start(ctx context.Context, h endpoint.EventHandler) error
 		return err
 	}
 	t.BindHandler(h)
-	sess := endpoint.NewTcpConn(con, t.ConnBundle)
+	sess := endpoint.NewTcpEndPoint(con, t.CoreBundle)
 	return sess.Start(ctx)
 }
 

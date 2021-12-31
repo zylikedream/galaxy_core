@@ -13,7 +13,7 @@ import (
 )
 
 type TcpServer struct {
-	endpoint.ConnBundle
+	endpoint.CoreBundle
 	listener net.Listener
 	conf     *tcpServerConfig
 }
@@ -61,7 +61,7 @@ func (t *TcpServer) accept(ctx context.Context) {
 			}
 			break
 		}
-		sess := endpoint.NewTcpConn(con, t.ConnBundle)
+		sess := endpoint.NewTcpEndPoint(con, t.CoreBundle)
 		go func() {
 			if err := sess.Start(ctx); err != nil {
 				logger.Nlog.Warn("conn start faield", zap.Error(err))

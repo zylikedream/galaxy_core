@@ -13,7 +13,7 @@ import (
 	"net"
 )
 
-type Conn interface {
+type Endpoint interface {
 	Send(msg interface{}) error
 	Start(ctx context.Context) error
 	Close(context.Context, error)

@@ -33,17 +33,17 @@ type EchoEventHandler struct {
 	endpoint.BaseEventHandler
 }
 
-func (e *EchoEventHandler) OnOpen(ctx context.Context, conn endpoint.Conn) error {
+func (e *EchoEventHandler) OnOpen(ctx context.Context, conn endpoint.Endpoint) error {
 	gxylog.Infof("conn open, addr=%s", conn.Conn().RemoteAddr())
 	go run(conn)
 	return nil
 }
 
-func (e *EchoEventHandler) OnClose(ctx context.Context, conn endpoint.Conn) {
+func (e *EchoEventHandler) OnClose(ctx context.Context, conn endpoint.Endpoint) {
 	gxylog.Infof("conn close, addr=%s", conn.Conn().RemoteAddr())
 }
 
-func (e *EchoEventHandler) OnMessage(ctx context.Context, sess endpoint.Conn, msg *message.Message) error {
+func (e *EchoEventHandler) OnMessage(ctx context.Context, sess endpoint.Endpoint, msg *message.Message) error {
 	switch m := msg.Msg.(type) {
 	case *proto.EchoAck:
 		gxylog.Infof("recv message:%v", m)
@@ -55,7 +55,7 @@ func (e *EchoEventHandler) OnMessage(ctx context.Context, sess endpoint.Conn, ms
 	return nil
 }
 
-func run(sess endpoint.Conn) {
+func run(sess endpoint.Endpoint) {
 	var i int
 	for {
 		msg := &proto.EchoReq{

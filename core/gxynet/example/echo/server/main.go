@@ -20,20 +20,20 @@ type EchoEventHandler struct {
 	endpoint.BaseEventHandler
 }
 
-func (e *EchoEventHandler) OnOpen(ctx context.Context, sess endpoint.Conn) error {
-	gxylog.Infof("conn open, addr=%s", sess.Conn().RemoteAddr())
+func (e *EchoEventHandler) OnOpen(ctx context.Context, ep endpoint.Endpoint) error {
+	gxylog.Infof("conn open, addr=%s", ep.Conn().RemoteAddr())
 	return nil
 }
 
-func (e *EchoEventHandler) OnClose(ctx context.Context, sess endpoint.Conn) {
-	gxylog.Infof("conn close, addr=%s", sess.Conn().RemoteAddr())
+func (e *EchoEventHandler) OnClose(ctx context.Context, ep endpoint.Endpoint) {
+	gxylog.Infof("conn close, addr=%s", ep.Conn().RemoteAddr())
 }
 
-func (e *EchoEventHandler) OnMessage(ctx context.Context, sess endpoint.Conn, msg *message.Message) error {
+func (e *EchoEventHandler) OnMessage(ctx context.Context, ep endpoint.Endpoint, msg *message.Message) error {
 	switch m := msg.Msg.(type) {
 	case *proto.EchoReq:
 		gxylog.Infof("recv echo req:%v", m)
-		sess.Send(&proto.EchoAck{
+		ep.Send(&proto.EchoAck{
 			Code: 0,
 			Msg:  m.Msg,
 		})
