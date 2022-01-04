@@ -31,11 +31,12 @@ func NewTcpEndPoint(conn net.Conn, bundle CoreBundle) *TcpEndpoint {
 }
 
 func (t *TcpEndpoint) Start(ctx context.Context) error {
-	if err := t.Handler.OnOpen(ctx, t); err != nil {
+	newCtx, err := t.Handler.OnOpen(ctx, t)
+	if err != nil {
 		return errors.Wrap(err, "on open error")
 	}
-	go t.sendLoop(ctx)
-	t.recvLoop(ctx)
+	go t.sendLoop(newCtx)
+	t.recvLoop(newCtx)
 	return nil
 }
 

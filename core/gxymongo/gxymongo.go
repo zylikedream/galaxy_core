@@ -24,7 +24,7 @@ type mongoConfig struct {
 	} `toml:"pool_size"`
 }
 
-func NewMongoClient(ctx context.Context, configure *gxyconfig.Configuration) (*MongoClient, error) {
+func NewMongoClient(configure *gxyconfig.Configuration) (*MongoClient, error) {
 	conf := &mongoConfig{}
 	if err := configure.UnmarshalKey("mongo", conf); err != nil {
 		return nil, err
@@ -37,17 +37,22 @@ func NewMongoClient(ctx context.Context, configure *gxyconfig.Configuration) (*M
 	if err != nil {
 		return nil, err
 	}
-	if err := client.Connect(ctx); err != nil {
-		return nil, err
-	}
 
-	if err := client.Ping(ctx, readpref.Primary()); err != nil {
-		return nil, err
-	}
 	return &MongoClient{
 		config: conf,
 		client: client,
 	}, nil
+}
+
+func (m *MongoClient) Connect(ctx context.Context) error {
+	if err := m.client.Connect(ctx); err != nil {
+		return err
+	}
+
+	if err := m.client.Ping(ctx, readpref.Primary()); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *MongoClient) GetDatabase(ctx context.Context) string {
