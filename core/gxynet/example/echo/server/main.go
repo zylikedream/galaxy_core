@@ -20,9 +20,9 @@ type EchoEventHandler struct {
 	endpoint.BaseEventHandler
 }
 
-func (e *EchoEventHandler) OnOpen(ctx context.Context, ep endpoint.Endpoint) (context.Context, error) {
+func (e *EchoEventHandler) OnOpen(ctx context.Context, ep endpoint.Endpoint) error {
 	gxylog.Infof("conn open, addr=%s", ep.Conn().RemoteAddr())
-	return ctx, nil
+	return nil
 }
 
 func (e *EchoEventHandler) OnClose(ctx context.Context, ep endpoint.Endpoint) {
