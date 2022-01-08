@@ -7,7 +7,7 @@ import (
 )
 
 type EventHandler interface {
-	OnOpen(context.Context, Endpoint) (context.Context, error)
+	OnOpen(context.Context, Endpoint) error
 	OnClose(context.Context, Endpoint)
 	OnError(context.Context, Endpoint, error)
 	OnMessage(context.Context, Endpoint, *message.Message) error
@@ -16,8 +16,8 @@ type EventHandler interface {
 type BaseEventHandler struct {
 }
 
-func (e *BaseEventHandler) OnOpen(ctx context.Context, _ Endpoint) (context.Context, error) {
-	return ctx, nil
+func (e *BaseEventHandler) OnOpen(ctx context.Context, _ Endpoint) error {
+	return nil
 }
 
 func (e *BaseEventHandler) OnClose(context.Context, Endpoint) {
