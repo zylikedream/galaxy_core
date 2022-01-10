@@ -2,6 +2,7 @@ package gxymongo
 
 import (
 	"context"
+	"time"
 
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,6 +23,7 @@ type mongoConfig struct {
 		Max int `toml:"max"`
 		Min int `toml:"min"`
 	} `toml:"pool_size"`
+	ConnectTimeout time.Duration `toml:"connect_timeout"`
 }
 
 func NewMongoClient(configure *gxyconfig.Configuration) (*MongoClient, error) {
@@ -33,6 +35,8 @@ func NewMongoClient(configure *gxyconfig.Configuration) (*MongoClient, error) {
 	opt.ApplyURI(conf.Addr)
 	opt.SetMinPoolSize(uint64(conf.PoolSize.Min))
 	opt.SetMaxPoolSize(uint64(conf.PoolSize.Max))
+	opt.SetConnectTimeout(conf.ConnectTimeout)
+	opt.SetServerSelectionTimeout(conf.ConnectTimeout)
 	client, err := mongo.NewClient(opt)
 	if err != nil {
 		return nil, err
