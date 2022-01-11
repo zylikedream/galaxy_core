@@ -3,6 +3,7 @@ package message
 import (
 	"encoding/json"
 
+	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
@@ -15,13 +16,16 @@ func newJsonMessage(_ *gxyconfig.Configuration) (*JsonMessage, error) {
 }
 
 func (j *JsonMessage) Decode(msg interface{}, data []byte) error {
-	return json.Unmarshal(data, msg)
+	if err := json.Unmarshal(data, msg); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }
 
 func (j *JsonMessage) Encode(msg interface{}) ([]byte, error) {
 	data, err := json.Marshal(msg)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return data, nil
 }

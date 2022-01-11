@@ -80,6 +80,10 @@ func (c *Configuration) GetString(key string) string {
 	return c.vp.GetString(key)
 }
 
+func (c *Configuration) GetInt(key string) int {
+	return c.vp.GetInt(key)
+}
+
 func (c *Configuration) decodeOptions() []viper.DecoderConfigOption {
 	opts := []viper.DecoderConfigOption{}
 	if c.hooks != nil {
