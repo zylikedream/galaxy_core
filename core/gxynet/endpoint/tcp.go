@@ -10,7 +10,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/core/gxynet/logger"
-	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"go.uber.org/zap"
 )
 
@@ -42,10 +41,8 @@ func (t *TcpEndpoint) Start(ctx context.Context) error {
 
 func (t *TcpEndpoint) recvLoop(ctx context.Context) {
 	var err error
-	var msg *message.Message
 
 	buf := &bytes.Buffer{}
-	var pkgLen uint64
 	data := make([]byte, 1024)
 	var n int
 	for {
@@ -64,19 +61,28 @@ func (t *TcpEndpoint) recvLoop(ctx context.Context) {
 			break
 		}
 		buf.Write(data[:n])
-		pkgLen, msg, err = t.Decode(buf.Bytes())
-		if err != nil {
+		if err = t.processMsg(ctx, buf); err != nil {
 			break
-		}
-		if msg != nil {
-			buf.Next(int(pkgLen))
-			if err = t.Handler.OnMessage(ctx, t, msg); err != nil {
-				break
-			}
 		}
 	}
 	// 被动断开。出错或者对方关闭
 	t.Close(ctx, errors.Wrap(err, "recv error"))
+}
+
+func (t *TcpEndpoint) processMsg(ctx context.Context, buf *bytes.Buffer) error {
+	for {
+		pkgLen, msg, err := t.Decode(buf.Bytes())
+		if err != nil {
+			return err
+		}
+		if msg == nil {
+			return nil
+		}
+		buf.Next(int(pkgLen))
+		if err = t.Handler.OnMessage(ctx, t, msg); err != nil {
+			return err
+		}
+	}
 }
 
 func (t *TcpEndpoint) IsClosed() bool {
