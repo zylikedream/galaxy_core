@@ -92,6 +92,11 @@ func (m *MongoClient) UpdateMany(ctx context.Context, Col string, filter interfa
 	return col.UpdateMany(ctx, filter, update, opts...)
 }
 
+func (m *MongoClient) ReplaceOne(ctx context.Context, Col string, filter interface{}, update interface{}, opts ...*options.ReplaceOptions) (*mongo.UpdateResult, error) {
+	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
+	return col.ReplaceOne(ctx, filter, update, opts...)
+}
+
 func (m *MongoClient) InsertOne(ctx context.Context, Col string, doc interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error) {
 	col := m.client.Database(m.GetDatabase(ctx)).Collection(Col)
 	return col.InsertOne(ctx, doc, opts...)
