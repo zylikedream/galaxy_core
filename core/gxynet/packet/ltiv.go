@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
-	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
@@ -78,7 +77,6 @@ func (l *ltiv) Decode(data []byte) (uint64, *message.Message, error) {
 		return 0, nil, errors.WithStack(errors.Errorf("packet too big, %d(%d)", dataSize, l.conf.MaxSize))
 	}
 	data = data[l.conf.SizeLength:]
-	gxylog.Infof("packet size %d, data size:%d", dataSize, len(data))
 	if len(data) < int(dataSize) {
 		return 0, nil, errors.WithStack(ErrPkgBodyNotEnough)
 	}
