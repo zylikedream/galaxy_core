@@ -19,10 +19,22 @@ type gxyrpcServer struct {
 	svr    *server.Server
 }
 
-type GxyrpcService interface {
-	Service() interface{}
-	Name() string
-	Meta() string
+type serviceOptionFunc func(opt *serviceOption)
+type serviceOption struct {
+	Name string
+	Meta string
+}
+
+func WithName(name string) serviceOptionFunc {
+	return func(opt *serviceOption) {
+		opt.Name = name
+	}
+}
+
+func WithMeta(meta string) serviceOptionFunc {
+	return func(opt *serviceOption) {
+		opt.Meta = meta
+	}
 }
 
 func NewGrpcServer(configFile string) (*gxyrpcServer, error) {
@@ -53,8 +65,16 @@ func NewGrpcServer(configFile string) (*gxyrpcServer, error) {
 	return gxyrpc, nil
 }
 
-func (g *gxyrpcServer) ReigsterService(service GxyrpcService) error {
-	return g.svr.RegisterName(service.Name(), service.Service(), service.Meta())
+func (g *gxyrpcServer) ReigsterService(service interface{}, opts ...serviceOptionFunc) error {
+	defaultOpt := &serviceOption{}
+	for _, opt := range opts {
+		opt(defaultOpt)
+	}
+	if defaultOpt.Name == "" {
+		return g.svr.Register(service, defaultOpt.Meta)
+	} else {
+		return g.svr.RegisterName(defaultOpt.Name, service, defaultOpt.Meta)
+	}
 }
 
 func (g *gxyrpcServer) Start() error {

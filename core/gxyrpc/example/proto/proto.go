@@ -27,18 +27,3 @@ func (a *Arith) Mul(ctx context.Context, req *MulRequest, reply *MulReply) error
 	gxylog.Debugf("call %d*%d=%d", reply.A, reply.B, reply.Result)
 	return nil
 }
-
-type ArithService struct {
-}
-
-func (a *ArithService) Service() interface{} {
-	return new(Arith)
-}
-
-func (a *ArithService) Name() string {
-	return "Arith"
-}
-
-func (a *ArithService) Meta() string {
-	return ""
-}

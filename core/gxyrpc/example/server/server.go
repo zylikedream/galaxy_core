@@ -6,11 +6,11 @@ import (
 )
 
 func main() {
-	s, err := server.NewGrpcServer("config/config.peer.toml")
+	s, err := server.NewGrpcServer("config/config.etcd.toml")
 	if err != nil {
 		panic(err)
 	}
-	if err := s.ReigsterService(new(proto.ArithService)); err != nil {
+	if err := s.ReigsterService(new(proto.Arith)); err != nil {
 		panic(err)
 	}
 	if err := s.Start(); err != nil {
