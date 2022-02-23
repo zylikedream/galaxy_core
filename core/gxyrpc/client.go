@@ -1,4 +1,4 @@
-package client
+package gxyrpc
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/zylikedream/galaxy/core/gxyrpc/client/discovery"
 )
 
-type gxyrpcClient struct {
+type RpcClient struct {
 	conf           *clientConfig
 	defaultClient  *client.OneClient
 	serviceClients map[string]client.XClient
@@ -63,13 +63,13 @@ func parseSelectMode(mode string) client.SelectMode {
 	return -1
 }
 
-func NewGrpcClient(configFile string) (*gxyrpcClient, error) {
+func NewGrpcClient(configFile string) (*RpcClient, error) {
 	conf := &clientConfig{}
 	configure := gxyconfig.New(configFile)
 	if err := configure.UnmarshalKey("gxyrpc_client", conf); err != nil {
 		return nil, err
 	}
-	gxyrpc := &gxyrpcClient{
+	gxyrpc := &RpcClient{
 		conf:           conf,
 		serviceClients: make(map[string]client.XClient),
 	}
@@ -122,7 +122,7 @@ func newServiceClient(sc *serviceConfig, c *gxyconfig.Configuration) (client.XCl
 
 }
 
-func (g *gxyrpcClient) Go(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}, done chan *client.Call) (*client.Call, error) {
+func (g *RpcClient) Go(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}, done chan *client.Call) (*client.Call, error) {
 	cli, ok := g.serviceClients[servicePath]
 	if ok {
 		return cli.Go(ctx, serviceMethod, args, reply, done)
@@ -131,7 +131,7 @@ func (g *gxyrpcClient) Go(ctx context.Context, servicePath string, serviceMethod
 
 }
 
-func (g *gxyrpcClient) Call(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
+func (g *RpcClient) Call(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
 	cli, ok := g.serviceClients[servicePath]
 	if ok {
 		return cli.Call(ctx, serviceMethod, args, reply)
@@ -139,7 +139,7 @@ func (g *gxyrpcClient) Call(ctx context.Context, servicePath string, serviceMeth
 	return g.defaultClient.Call(ctx, servicePath, serviceMethod, args, reply)
 }
 
-func (g *gxyrpcClient) Fork(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
+func (g *RpcClient) Fork(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
 	cli, ok := g.serviceClients[servicePath]
 	if ok {
 		return cli.Fork(ctx, serviceMethod, args, reply)
@@ -147,7 +147,7 @@ func (g *gxyrpcClient) Fork(ctx context.Context, servicePath string, serviceMeth
 	return g.defaultClient.Fork(ctx, servicePath, serviceMethod, args, reply)
 }
 
-func (g *gxyrpcClient) Broadcast(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
+func (g *RpcClient) Broadcast(ctx context.Context, servicePath string, serviceMethod string, args interface{}, reply interface{}) error {
 	cli, ok := g.serviceClients[servicePath]
 	if ok {
 		return cli.Broadcast(ctx, serviceMethod, args, reply)
@@ -155,19 +155,19 @@ func (g *gxyrpcClient) Broadcast(ctx context.Context, servicePath string, servic
 	return g.defaultClient.Broadcast(ctx, servicePath, serviceMethod, args, reply)
 }
 
-func (g *gxyrpcClient) SendFile(ctx context.Context, fileName string, rateInBytesPerSecond int64, meta map[string]string) error {
+func (g *RpcClient) SendFile(ctx context.Context, fileName string, rateInBytesPerSecond int64, meta map[string]string) error {
 	return g.defaultClient.SendFile(ctx, fileName, rateInBytesPerSecond, meta) // file的service是固定的 直接使用defaultclient即可
 }
 
-func (g *gxyrpcClient) DownloadFile(ctx context.Context, requestFileName string, saveTo io.Writer, meta map[string]string) error {
+func (g *RpcClient) DownloadFile(ctx context.Context, requestFileName string, saveTo io.Writer, meta map[string]string) error {
 	return g.defaultClient.DownloadFile(ctx, requestFileName, saveTo, meta) // file的service是固定的 直接使用defaultclient即可
 }
 
-func (g *gxyrpcClient) Stream(ctx context.Context, meta map[string]string) (net.Conn, error) {
+func (g *RpcClient) Stream(ctx context.Context, meta map[string]string) (net.Conn, error) {
 	return g.defaultClient.Stream(ctx, meta)
 }
 
-func (g *gxyrpcClient) Close() error {
+func (g *RpcClient) Close() error {
 	var errs []error
 	if err := g.defaultClient.Close(); err != nil {
 		errs = append(errs, err)
