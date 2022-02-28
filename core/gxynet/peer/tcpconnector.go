@@ -15,7 +15,8 @@ type TcpConnector struct {
 }
 
 type tcpConnectorConfig struct {
-	Addr string `toml:"addr"`
+	Addr     string `toml:"addr"`
+	ProcType string `toml:"processor"`
 }
 
 func newTcpConnetor(c *gxyconfig.Configuration) (*TcpConnector, error) {
@@ -25,7 +26,7 @@ func newTcpConnetor(c *gxyconfig.Configuration) (*TcpConnector, error) {
 		return nil, err
 	}
 	server.conf = conf
-	if err := server.BindProc(c); err != nil {
+	if err := server.BindProc(c, conf.ProcType); err != nil {
 		return nil, err
 	}
 	return server, nil

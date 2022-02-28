@@ -3,7 +3,9 @@ package packet
 import (
 	"bytes"
 	"encoding/binary"
+	"strconv"
 
+	"github.com/gookit/goutil/strutil"
 	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
@@ -52,7 +54,7 @@ func (l *ltiv) decodeBody(payLoad []byte) (*message.Message, error) {
 	if id, err := uintDecode(payLoad[:l.conf.IDLength], l.byteOrder); err != nil {
 		return nil, errors.WithStack(err)
 	} else {
-		msg.ID = int(id)
+		msg.Key = strconv.Itoa(int(id))
 	}
 	payLoad = payLoad[l.conf.IDLength:]
 
@@ -91,7 +93,7 @@ func (l *ltiv) Encode(m *message.Message) ([]byte, error) {
 	if err := binary.Write(payload, l.byteOrder, convertUint(m.Type, l.conf.TypeLength)); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	if err := binary.Write(payload, l.byteOrder, convertUint(uint64(m.ID), l.conf.IDLength)); err != nil {
+	if err := binary.Write(payload, l.byteOrder, convertUint(uint64(strutil.MustInt(m.Key)), l.conf.IDLength)); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	if _, err := payload.Write(m.Payload); err != nil {

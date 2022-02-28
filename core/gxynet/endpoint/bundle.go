@@ -6,12 +6,12 @@ import (
 )
 
 type CoreBundle struct {
-	*processor.Processor
+	processor.Processor
 	Handler EventHandler
 }
 
-func (p *CoreBundle) BindProc(c *gxyconfig.Configuration) error {
-	proc, err := processor.NewProcessor(c)
+func (p *CoreBundle) BindProc(c *gxyconfig.Configuration, procType string) error {
+	proc, err := processor.NewProcessor(procType, c)
 	if err != nil {
 		return err
 	}

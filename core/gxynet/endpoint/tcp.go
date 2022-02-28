@@ -10,13 +10,14 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/zylikedream/galaxy/core/gxynet/logger"
+	"github.com/zylikedream/galaxy/core/gxynet/message"
 	"go.uber.org/zap"
 )
 
 type TcpEndpoint struct {
 	CoreBundle
 	conn   net.Conn
-	sendCh chan interface{}
+	sendCh chan *message.Message
 	exit   int32
 	data   interface{}
 }
@@ -25,7 +26,7 @@ func NewTcpEndPoint(conn net.Conn, bundle CoreBundle) *TcpEndpoint {
 	return &TcpEndpoint{
 		conn:       conn,
 		CoreBundle: bundle,
-		sendCh:     make(chan interface{}, 64),
+		sendCh:     make(chan *message.Message, 64),
 	}
 }
 
@@ -89,7 +90,7 @@ func (t *TcpEndpoint) IsClosed() bool {
 	return atomic.LoadInt32(&t.exit) == 1
 }
 
-func (t *TcpEndpoint) Send(msg interface{}) error {
+func (t *TcpEndpoint) Send(msg *message.Message) error {
 	if t.IsClosed() {
 		return fmt.Errorf("conn closed")
 	}
@@ -97,7 +98,7 @@ func (t *TcpEndpoint) Send(msg interface{}) error {
 	return nil
 }
 
-func (t *TcpEndpoint) sendMsg(msg interface{}) error {
+func (t *TcpEndpoint) sendMsg(msg *message.Message) error {
 	data, err := t.Encode(msg)
 	if err != nil {
 		return err

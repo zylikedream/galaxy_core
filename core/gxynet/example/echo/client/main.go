@@ -47,10 +47,10 @@ func (e *EchoEventHandler) OnMessage(ctx context.Context, sess endpoint.Endpoint
 	switch m := msg.Msg.(type) {
 	case *proto.EchoAck:
 		gxylog.Infof("recv message:%v", m)
-		sess.Send(&proto.EchoAck{
+		sess.Send(message.NewMessage(&proto.EchoAck{
 			Code: 0,
 			Msg:  m.Msg,
-		})
+		}))
 	}
 	return nil
 }
@@ -61,7 +61,7 @@ func run(sess endpoint.Endpoint) {
 		msg := &proto.EchoReq{
 			Msg: fmt.Sprintf("hello %d", i),
 		}
-		if err := sess.Send(msg); err != nil {
+		if err := sess.Send(message.NewMessage(msg)); err != nil {
 			gxylog.Error("send error", zap.Error(err))
 			break
 		}

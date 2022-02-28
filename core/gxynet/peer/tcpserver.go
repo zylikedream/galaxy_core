@@ -19,7 +19,8 @@ type TcpServer struct {
 }
 
 type tcpServerConfig struct {
-	Addr string `toml:"addr"`
+	Addr     string `toml:"addr"`
+	ProcType string `toml:"processor"`
 }
 
 func newTcpServer(c *gxyconfig.Configuration) (*TcpServer, error) {
@@ -29,7 +30,7 @@ func newTcpServer(c *gxyconfig.Configuration) (*TcpServer, error) {
 		return nil, err
 	}
 	server.conf = conf
-	if err := server.BindProc(c); err != nil {
+	if err := server.BindProc(c, conf.ProcType); err != nil {
 		return nil, err
 	}
 	return server, nil

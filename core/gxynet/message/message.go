@@ -12,10 +12,34 @@ type MessageCodec interface {
 }
 
 type Message struct {
-	ID      int
+	Key     string
 	Type    uint64
 	Payload []byte
 	Msg     interface{}
+}
+
+type messageOption = func(m *Message)
+
+func WithKey(key string) messageOption {
+	return func(m *Message) {
+		m.Msg = key
+	}
+}
+
+func WithType(t int) messageOption {
+	return func(m *Message) {
+		m.Msg = t
+	}
+}
+
+func NewMessage(raw interface{}, opts ...messageOption) *Message {
+	msg := &Message{
+		Msg: raw,
+	}
+	for _, opt := range opts {
+		opt(msg)
+	}
+	return msg
 }
 
 const (

@@ -33,10 +33,10 @@ func (e *EchoEventHandler) OnMessage(ctx context.Context, ep endpoint.Endpoint, 
 	switch m := msg.Msg.(type) {
 	case *proto.EchoReq:
 		gxylog.Infof("recv echo req:%v", m)
-		ep.Send(&proto.EchoAck{
+		ep.Send(message.NewMessage(&proto.EchoAck{
 			Code: 0,
 			Msg:  m.Msg,
-		})
+		}))
 	}
 	return nil
 }
