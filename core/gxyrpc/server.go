@@ -77,6 +77,10 @@ func (g *RpcServer) ReigsterService(service interface{}, opts ...serviceOptionFu
 	}
 }
 
+func (g *RpcServer) RegisterAgent(path string, agent server.ServiceAgent) {
+	g.svr.RegisterAgent(path, agent)
+}
+
 func (g *RpcServer) Start() error {
 	if err := g.regist.Start(); err != nil {
 		return err
@@ -85,6 +89,10 @@ func (g *RpcServer) Start() error {
 		return err
 	}
 	return nil
+}
+
+func (g *RpcServer) GetRawServer() *server.Server {
+	return g.svr
 }
 
 func (g *RpcServer) Stop() error {

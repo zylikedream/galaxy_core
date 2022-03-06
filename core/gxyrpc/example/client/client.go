@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/zylikedream/galaxy/core/gxylog"
-	"github.com/zylikedream/galaxy/core/gxyrpc/client"
+	"github.com/zylikedream/galaxy/core/gxyrpc"
 	"github.com/zylikedream/galaxy/core/gxyrpc/example/proto"
 )
 
 func main() {
-	cli, err := client.NewGrpcClient("config/config.etcd.toml")
+	cli, err := gxyrpc.NewGrpcClient("config/config.etcd.toml")
 	if err != nil {
 		panic(err)
 	}

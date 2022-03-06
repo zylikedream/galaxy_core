@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/zylikedream/galaxy/core/gxyrpc"
 	"github.com/zylikedream/galaxy/core/gxyrpc/example/proto"
-	"github.com/zylikedream/galaxy/core/gxyrpc/server"
 )
 
 func main() {
-	s, err := server.NewGrpcServer("config/config.etcd.toml")
+	s, err := gxyrpc.NewGrpcServer("config/config.etcd.toml")
 	if err != nil {
 		panic(err)
 	}
