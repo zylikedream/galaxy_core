@@ -77,10 +77,6 @@ func (g *RpcServer) ReigsterService(service interface{}, opts ...serviceOptionFu
 	}
 }
 
-func (g *RpcServer) RegisterAgent(path string, agent server.ServiceAgent) {
-	g.svr.RegisterAgent(path, agent)
-}
-
 func (g *RpcServer) Start() error {
 	if err := g.regist.Start(); err != nil {
 		return err

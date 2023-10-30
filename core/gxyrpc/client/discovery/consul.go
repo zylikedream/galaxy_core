@@ -1,6 +1,7 @@
 package discovery
 
 import (
+	consulclient "github.com/rpcxio/rpcx-consul/client"
 	"github.com/smallnest/rpcx/client"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
@@ -24,7 +25,7 @@ func newconsulDiscovery(c *gxyconfig.Configuration) (*consulDiscovery, error) {
 	if err := c.UnmarshalKey(consul.Type(), conf); err != nil {
 		return nil, err
 	}
-	d, err := client.NewConsulDiscoveryTemplate(conf.BasePath, conf.ConsulServers, nil)
+	d, err := consulclient.NewConsulDiscoveryTemplate(conf.BasePath, conf.ConsulServers, nil)
 	if err != nil {
 		return nil, err
 	}

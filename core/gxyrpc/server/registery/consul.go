@@ -3,8 +3,8 @@ package registery
 import (
 	"time"
 
+	"github.com/rpcxio/rpcx-consul/serverplugin"
 	"github.com/smallnest/rpcx/server"
-	"github.com/smallnest/rpcx/serverplugin"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
