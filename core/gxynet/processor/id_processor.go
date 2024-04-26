@@ -46,7 +46,9 @@ func (p *idProcessor) Decode(data []byte) (uint64, *message.Message, error) {
 	}
 	if msg != nil {
 		msgMeta := message.MessageMetaByID(strutil.MustInt(msg.Key))
-		msg.Msg = msgMeta.NewInstance()
+		if msgMeta != nil {
+			msg.Msg = msgMeta.NewInstance()
+		}
 		if err := p.msgCodec.Decode(msg.Msg, msg.Payload); err != nil {
 			return 0, nil, err
 		}

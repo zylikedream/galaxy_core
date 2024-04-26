@@ -45,6 +45,7 @@ func NewMessage(raw interface{}, opts ...messageOption) *Message {
 const (
 	MESSAGE_JSON     = "message.json"
 	MESSAGE_PROTOBUF = "message.protobuf"
+	MESSAGE_RAW      = "message.raw"
 )
 
 func NewMessageCodec(t string, c *gxyconfig.Configuration) (MessageCodec, error) {

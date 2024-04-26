@@ -2,20 +2,22 @@ package peer
 
 import (
 	"context"
+	"fmt"
 	"net"
-	"time"
 
+	"github.com/panjf2000/gnet/v2"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet/endpoint"
-	"github.com/zylikedream/galaxy/core/gxynet/logger"
 	"github.com/zylikedream/galaxy/core/gxyregister"
-	"go.uber.org/zap"
 )
 
 type TcpServer struct {
 	endpoint.CoreBundle
 	listener net.Listener
 	conf     *tcpServerConfig
+	gnet.BuiltinEventEngine
+	engine gnet.Engine
 }
 
 type tcpServerConfig struct {
@@ -29,6 +31,7 @@ func newTcpServer(c *gxyconfig.Configuration) (*TcpServer, error) {
 	if err := c.UnmarshalKey(server.Type(), conf); err != nil {
 		return nil, err
 	}
+	conf.Addr = fmt.Sprintf("tcp://%s", conf.Addr)
 	server.conf = conf
 	if err := server.BindProc(c, conf.ProcType); err != nil {
 		return nil, err
@@ -41,34 +44,8 @@ func (t *TcpServer) Init() error {
 }
 
 func (t *TcpServer) Start(ctx context.Context, el endpoint.EventHandler) error {
-	var err error
-	t.listener, err = net.Listen("tcp", t.conf.Addr)
-	if err != nil {
-		return err
-	}
-	t.BindHandler(el)
-	t.accept(ctx)
-	return nil
-}
-
-func (t *TcpServer) accept(ctx context.Context) {
-	for {
-		con, err := t.listener.Accept()
-		if err != nil {
-			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
-				logger.Nlog.Warn("tcpserver", zap.String("msg", "accept temporary error"))
-				time.Sleep(time.Millisecond)
-				continue
-			}
-			break
-		}
-		sess := endpoint.NewTcpEndPoint(con, t.CoreBundle)
-		go func() {
-			if err := sess.Start(ctx); err != nil {
-				logger.Nlog.Warn("conn start faield", zap.Error(err))
-			}
-		}()
-	}
+	t.Handler = el
+	return gnet.Run(t, t.conf.Addr, gnet.WithMulticore(true), gnet.WithReuseAddr(true))
 }
 
 func (t *TcpServer) Type() string {
@@ -80,8 +57,44 @@ func (t *TcpServer) Build(c *gxyconfig.Configuration, args ...interface{}) (inte
 }
 
 func (t *TcpServer) Stop(ctx context.Context) {
+	t.engine.Stop(ctx)
 }
 
 func init() {
 	gxyregister.Register((*TcpServer)(nil))
+}
+
+func (t *TcpServer) OnBoot(eng gnet.Engine) gnet.Action {
+	t.engine = eng
+	return gnet.None
+}
+
+func (t *TcpServer) OnOpen(c gnet.Conn) ([]byte, gnet.Action) {
+	endPoint := endpoint.NewTcpEndPoint(c, t.Processor)
+	c.SetContext(endPoint)
+	t.Handler.OnOpen(endPoint)
+	return nil, gnet.None
+}
+
+func (t *TcpServer) OnTraffic(c gnet.Conn) gnet.Action {
+	endPoint := c.Context().(*endpoint.TcpEndpoint)
+	data, err := c.Next(-1)
+	gxylog.Debugf("receive data %s", string(data))
+	if err != nil {
+		gxylog.Errorf("get traffic data failed %s", err.Error())
+		return gnet.Close
+	}
+	for {
+		msg, err := endPoint.DecodeMsg(data)
+		if err != nil {
+			break
+		}
+		t.Handler.OnMessage(endPoint, msg)
+	}
+	return gnet.None
+}
+
+func (t *TcpServer) OnClose(c gnet.Conn, err error) gnet.Action {
+	gxylog.Errorf("conn close %s, error %s", c.RemoteAddr().String(), err.Error())
+	return gnet.None
 }

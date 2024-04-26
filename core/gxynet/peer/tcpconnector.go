@@ -2,9 +2,10 @@ package peer
 
 import (
 	"context"
-	"net"
 
+	"github.com/panjf2000/gnet/v2"
 	"github.com/zylikedream/galaxy/core/gxyconfig"
+	"github.com/zylikedream/galaxy/core/gxylog"
 	"github.com/zylikedream/galaxy/core/gxynet/endpoint"
 	"github.com/zylikedream/galaxy/core/gxyregister"
 )
@@ -12,6 +13,8 @@ import (
 type TcpConnector struct {
 	endpoint.CoreBundle
 	conf *tcpConnectorConfig
+	gnet.BuiltinEventEngine
+	engine gnet.Engine
 }
 
 type tcpConnectorConfig struct {
@@ -37,13 +40,23 @@ func (t *TcpConnector) Init() error {
 }
 
 func (t *TcpConnector) Start(ctx context.Context, h endpoint.EventHandler) error {
-	con, err := net.Dial("tcp", t.conf.Addr)
+	t.BindHandler(h)
+	cli, err := gnet.NewClient(t)
 	if err != nil {
 		return err
 	}
-	t.BindHandler(h)
-	sess := endpoint.NewTcpEndPoint(con, t.CoreBundle)
-	return sess.Start(ctx)
+	if err := cli.Start(); err != nil {
+		return err
+	}
+	_, err = cli.Dial("tcp", t.conf.Addr)
+	if err != nil {
+		return err
+	}
+	err = cli.Start()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (t *TcpConnector) Type() string {
@@ -59,4 +72,39 @@ func (t *TcpConnector) Stop(ctx context.Context) {
 
 func init() {
 	gxyregister.Register((*TcpConnector)(nil))
+}
+
+func (t *TcpConnector) OnBoot(eng gnet.Engine) gnet.Action {
+	t.engine = eng
+	return gnet.None
+}
+
+func (t *TcpConnector) OnOpen(c gnet.Conn) ([]byte, gnet.Action) {
+	gxylog.Info("connect conn info")
+	endPoint := endpoint.NewTcpEndPoint(c, t.Processor)
+	c.SetContext(endPoint)
+	t.Handler.OnOpen(endPoint)
+	return nil, gnet.None
+}
+
+func (t *TcpConnector) OnTraffic(c gnet.Conn) gnet.Action {
+	endPoint := c.Context().(*endpoint.TcpEndpoint)
+	data, err := c.Next(-1)
+	if err != nil {
+		gxylog.Errorf("get traffic data failed %s", err.Error())
+		return gnet.Close
+	}
+	for {
+		msg, err := endPoint.DecodeMsg(data)
+		if err != nil {
+			break
+		}
+		t.Handler.OnMessage(endPoint, msg)
+	}
+	return gnet.None
+}
+
+func (t *TcpConnector) OnClose(c gnet.Conn, err error) gnet.Action {
+	gxylog.Errorf("conn close %s, error %s", c.RemoteAddr().String(), err.Error())
+	return gnet.None
 }

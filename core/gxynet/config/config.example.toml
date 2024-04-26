@@ -3,7 +3,7 @@
 	log_config = "config/log.toml" # 日志配置，如果没有那么久使用默认日志
 
 [peer.tcp_server]
-	addr = "127.0.0.1:19001"
+	addr = ":19001"
 	processor = "id"
 
 [processor.id]

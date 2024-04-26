@@ -3,103 +3,42 @@ package endpoint
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"io"
 	"net"
-	"sync/atomic"
 
-	"github.com/pkg/errors"
-	"github.com/zylikedream/galaxy/core/gxynet/logger"
 	"github.com/zylikedream/galaxy/core/gxynet/message"
-	"go.uber.org/zap"
+	"github.com/zylikedream/galaxy/core/gxynet/processor"
 )
 
 type TcpEndpoint struct {
-	CoreBundle
-	conn   net.Conn
-	sendCh chan *message.Message
-	exit   int32
-	data   interface{}
+	conn net.Conn
+	proc processor.Processor
+	buf  *bytes.Buffer
+	data any
 }
 
-func NewTcpEndPoint(conn net.Conn, bundle CoreBundle) *TcpEndpoint {
+func NewTcpEndPoint(conn net.Conn, proc processor.Processor) *TcpEndpoint {
 	return &TcpEndpoint{
-		conn:       conn,
-		CoreBundle: bundle,
-		sendCh:     make(chan *message.Message, 64),
+		proc: proc,
+		conn: conn,
+		buf:  &bytes.Buffer{},
 	}
 }
 
-func (t *TcpEndpoint) Start(ctx context.Context) error {
-	err := t.Handler.OnOpen(ctx, t)
+func (t *TcpEndpoint) DecodeMsg(data []byte) (*message.Message, error) {
+	t.buf.Write(data)
+	pkgLen, msg, err := t.proc.Decode(t.buf.Bytes())
 	if err != nil {
-		return errors.Wrap(err, "on open error")
+		return nil, err
 	}
-	go t.sendLoop(ctx)
-	t.recvLoop(ctx)
-	return nil
-}
-
-func (t *TcpEndpoint) recvLoop(ctx context.Context) {
-	var err error
-
-	buf := &bytes.Buffer{}
-	data := make([]byte, 1024)
-	var n int
-	for {
-		n, err = t.conn.Read(data)
-		if err != nil {
-			netErr, ok := err.(*net.OpError)
-			if ok && netErr.Err == net.ErrClosed { // 调用close主动断开 已经执行过断开逻辑了 直接返回
-				return
-			}
-			if errors.Is(err, io.EOF) { // 对方主动断开
-				err = nil
-				logger.Nlog.Debug("remote closed")
-				break
-			}
-			// 出错了
-			break
-		}
-		buf.Write(data[:n])
-		if err = t.processMsg(ctx, buf); err != nil {
-			break
-		}
+	if msg == nil {
+		return nil, nil
 	}
-	// 被动断开。出错或者对方关闭
-	t.Close(ctx, errors.Wrap(err, "recv error"))
-}
-
-func (t *TcpEndpoint) processMsg(ctx context.Context, buf *bytes.Buffer) error {
-	for {
-		pkgLen, msg, err := t.Decode(buf.Bytes())
-		if err != nil {
-			return err
-		}
-		if msg == nil {
-			return nil
-		}
-		buf.Next(int(pkgLen))
-		if err = t.Handler.OnMessage(ctx, t, msg); err != nil {
-			return err
-		}
-	}
-}
-
-func (t *TcpEndpoint) IsClosed() bool {
-	return atomic.LoadInt32(&t.exit) == 1
+	t.buf.Next(int(pkgLen))
+	return msg, nil
 }
 
 func (t *TcpEndpoint) Send(msg *message.Message) error {
-	if t.IsClosed() {
-		return fmt.Errorf("conn closed")
-	}
-	t.sendCh <- msg
-	return nil
-}
-
-func (t *TcpEndpoint) sendMsg(msg *message.Message) error {
-	data, err := t.Encode(msg)
+	data, err := t.proc.Encode(msg)
 	if err != nil {
 		return err
 	}
@@ -109,42 +48,18 @@ func (t *TcpEndpoint) sendMsg(msg *message.Message) error {
 	return nil
 }
 
-func (t *TcpEndpoint) sendLoop(ctx context.Context) {
-	var err error
-	for rawMsg := range t.sendCh {
-		if err = t.sendMsg(rawMsg); err != nil {
-			t.Close(ctx, errors.Wrap(err, "send error"))
-			continue
-		}
-	}
-	// 关闭整个连接
-	t.conn.Close()
-	// 这儿才是真正的关闭流程结束
-	t.Handler.OnClose(ctx, t)
-}
-
 func (t *TcpEndpoint) Close(ctx context.Context, err error) {
-	if atomic.LoadInt32(&t.exit) == 1 {
-		return
-	}
-	atomic.AddInt32(&t.exit, 1)
-	if err != nil { // 发生错误肯定会调用close
-		t.Handler.OnError(ctx, t, err)
-		logger.Nlog.Error("tcpendpoint close", zap.Error(err))
-	}
-	tcpConn := t.conn.(*net.TCPConn)
-	_ = tcpConn.CloseRead()
-	close(t.sendCh)
+	t.conn.Close()
 }
 
 func (t *TcpEndpoint) Conn() net.Conn {
 	return t.conn
 }
 
-func (t *TcpEndpoint) GetData() interface{} {
+func (t *TcpEndpoint) GetData() any {
 	return t.data
 }
 
-func (t *TcpEndpoint) SetData(d interface{}) {
+func (t *TcpEndpoint) SetData(d any) {
 	t.data = d
 }

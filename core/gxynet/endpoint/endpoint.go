@@ -9,7 +9,6 @@
 package endpoint
 
 import (
-	"context"
 	"net"
 
 	"github.com/zylikedream/galaxy/core/gxynet/message"
@@ -17,8 +16,6 @@ import (
 
 type Endpoint interface {
 	Send(msg *message.Message) error
-	Start(ctx context.Context) error
-	Close(context.Context, error)
 	Conn() net.Conn
 	GetData() interface{}
 	SetData(interface{})
